@@ -1,0 +1,32 @@
+#container {
+    width: 80%;
+    margin: auto;
+    height: 100vh;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#calendar {
+    width: 100%;
+    height: 80%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(24, 1fr);
+    grid-gap: 1px;
+    background-color: #efd4a5;
+    border: 1px solid #9e2525;
+    border-radius: 10px;
+}
+
+#calendar > div {
+    border: 1px solid #332121;
+    padding: 5px;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
