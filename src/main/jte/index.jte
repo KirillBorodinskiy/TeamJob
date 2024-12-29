@@ -15,6 +15,10 @@
         <div>Friday</div>
         <div>Saturday</div>
         <div>Sunday</div>
+        @for (int i = 0; i < 17; i++) {
+            <div></div>
+        }
+        @endfor
     </div>
 </div>
 </body>

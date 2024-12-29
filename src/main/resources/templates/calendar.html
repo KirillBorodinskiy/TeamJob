@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Week Calendar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="week-calendar">
+        <div class="navigation">
+            <a th:href="@{/calendar(date=${previousWeek})}">&lt; Previous Week</a>
+            <h2 th:text="${'Week of ' + #temporals.format(currentWeekStart, 'MMMM d, yyyy')}"/>
+            <a th:href="@{/calendar(date=${nextWeek})}">Next Week &gt;</a>
+        </div>
+
+        <div class="week-grid">
+            <div th:each="day : ${weekDays}"
+                 th:class="'day-card' + (${day.today} ? ' today' : '') + (${day.date.equals(selectedDate)} ? ' selected' : '')">
+                <div class="day-header">
+                    <span class="day-name" th:text="${day.dayName}"/>
+                    <span class="date" th:text="${#temporals.format(day.date, 'MMM d')}"/>
+                </div>
+            <div class="day-body">
+                <div class="day-events">
+                    <div th:each="event : ${day.events}" class="event">
+                        <span th:text="${event.title}"/>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,32 +1,51 @@
-#container {
-    width: 80%;
-    margin: auto;
-    height: 100vh;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.week-calendar {
+    width: 100%;
+    max-width: 1000px;
+    height:80vh;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
 }
 
-#calendar {
-    width: 100%;
-    height: 80%;
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.week-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(24, 1fr);
-    grid-gap: 1px;
-    background-color: #efd4a5;
-    border: 1px solid #9e2525;
-    border-radius: 10px;
+    height:100%;
 }
 
-#calendar > div {
-    border: 1px solid #332121;
-    padding: 5px;
+.day-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    height:100%;
 }
 
-body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
+.today {
+    background-color: #e6f3ff;
+    border-color: #0066cc;
+}
+
+.day-header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.day-name {
+    font-weight: bold;
+    display: block;
+}
+
+.date {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.selected {
+    border: 2px solid #0066cc;
 }
