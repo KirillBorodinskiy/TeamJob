@@ -1,6 +1,7 @@
-package io.datajek.spring.basics.teamjob;
+package io.datajek.spring.basics.teamjob.controllers;
 
 
+import io.datajek.spring.basics.teamjob.WeekDay;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,9 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.DayOfWeek;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
