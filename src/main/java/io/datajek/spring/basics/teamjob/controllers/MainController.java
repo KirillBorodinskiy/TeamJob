@@ -17,4 +17,6 @@ public class MainController {
         return "signup";
     }
 
+    @GetMapping("/signout")
+    public String signout() {return "signout";}
 }

@@ -5,6 +5,8 @@ import io.datajek.spring.basics.teamjob.UserRepository;
 import io.datajek.spring.basics.teamjob.data.SigninRequest;
 import io.datajek.spring.basics.teamjob.data.SignupRequest;
 import io.datajek.spring.basics.teamjob.data.User;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -49,7 +48,8 @@ public class SecurityController {
     }
 
     @PostMapping("/signin")
-    ResponseEntity<?> signin(@RequestBody SigninRequest signinRequest) {
+    ResponseEntity<?> signin(@RequestBody SigninRequest signinRequest,
+                             HttpServletResponse response) {
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
@@ -59,7 +59,30 @@ public class SecurityController {
             return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return ResponseEntity.ok(jwtCore.generateToken(authentication));
+
+        String jwt = jwtCore.generateToken(authentication);
+
+        // Create secure cookie with JWT token
+        String cookieHeader = getCookieHeader(jwt);
+
+        response.setHeader("Set-Cookie", cookieHeader);
+
+        // Return success response without the token in body
+        return ResponseEntity.ok().build();
+    }
+
+    private static String getCookieHeader(String jwt) {
+        Cookie cookie = new Cookie("jwt", jwt);
+        cookie.setHttpOnly(true);     // Makes cookie inaccessible to JavaScript
+        cookie.setSecure(true);       // Only sent over HTTPS
+        cookie.setPath("/");          // Cookie is valid for all paths
+        cookie.setMaxAge(86400);      // Cookie expires in 1 day
+
+        return String.format("%s=%s; Max-Age=%d; Path=%s; HttpOnly; Secure; SameSite=Strict",
+                cookie.getName(),
+                cookie.getValue(),
+                cookie.getMaxAge(),
+                cookie.getPath());
     }
 
     @PostMapping("/signup")
@@ -74,5 +97,11 @@ public class SecurityController {
         user.setEmail(signupRequest.getEmail());
         userRepository.save(user);
         return ResponseEntity.ok("User " + signupRequest.getUsername() + " created");
+    }
+
+    @GetMapping("/signout")
+    ResponseEntity<?> signout() {
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok("User signed out");
     }
 }
