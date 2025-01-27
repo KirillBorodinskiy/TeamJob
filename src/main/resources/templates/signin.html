@@ -45,6 +45,38 @@
 </div>
 
 <script>
+    // Check if user is already logged in
+    window.addEventListener('load', function () {
+        const token = localStorage.getItem('jwt_token');
+        if (token) {
+            validateTokenAndRedirect();
+        }
+    });
+
+    // Function to validate token and redirect
+    async function validateTokenAndRedirect() {
+        try {
+            const response = await authFetch('/calendar/', { method: 'GET' });
+
+            if (response.ok) {
+                window.location.href = '/calendar/';
+            } else if (response.status === 401) {
+                localStorage.removeItem('jwt_token');
+            }
+        } catch (error) {
+            console.error('Error validating token:', error);
+        }
+    }
+
+    function authFetch(url, options = {}) {
+        const token = localStorage.getItem('jwtToken');
+        options.headers = {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`
+        };
+        return fetch(url, options);
+    }
+
     document.getElementById('loginForm').addEventListener('submit', async function (event) {
         event.preventDefault();
 
@@ -69,8 +101,8 @@
 
             if (response.ok) {
                 const token = await response.text();
-                localStorage.setItem('jwt_token', token);
-                window.location.href = '/calendar';
+                localStorage.setItem('jwtToken', token);
+                await validateTokenAndRedirect(token);
             } else {
                 document.getElementById('error-alert').style.display = 'block';
             }

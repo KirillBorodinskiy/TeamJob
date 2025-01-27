@@ -7,9 +7,9 @@
 <body>
 <div class="week-calendar">
     <div class="navigation">
-        <a th:href="@{/calendar(date=${previousWeek})}">&lt; Previous Week</a>
+        <a th:href="@{/calendar(date=${previousWeek})}" class="nav-link">&lt; Previous Week</a>
         <h2 th:text="${'Week of ' + #temporals.format(currentWeekStart, 'MMMM d, yyyy')}"/>
-        <a th:href="@{/calendar(date=${nextWeek})}">Next Week &gt;</a>
+        <a th:href="@{/calendar(date=${nextWeek})}" class="nav-link">Next Week &gt;</a>
     </div>
 
     <div class="week-grid">
@@ -29,5 +29,44 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const url = this.getAttribute('href');
+
+            fetch(url, {
+                credentials: 'include', // This tells fetch to include cookies
+                headers: {
+                    'X-XSRF-TOKEN': getCookie('XSRF-TOKEN') // Include CSRF token
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    } else if (response.status === 401) {
+                        // If unauthorized, redirect to login
+                        window.location.href = '/login';
+                        throw new Error('Unauthorized');
+                    }
+                    throw new Error('Request failed');
+                })
+                .then(async html => {
+                    document.open();
+                    document.write(await html);
+                    document.close();
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    });
+
+    // Helper function to get cookie values
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+</script>
 </body>
 </html>

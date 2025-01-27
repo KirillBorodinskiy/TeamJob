@@ -16,10 +16,10 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/calendar")
 public class CalendarController {
 
-    @GetMapping("/calendar")
+    @GetMapping({"", "/"}) // Handle both /calendar and /calendar/ requests
     public String showWeekCalendar(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
                                    Model model) {
         // If no date provided, use current date
