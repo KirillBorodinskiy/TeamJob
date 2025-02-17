@@ -1,7 +1,7 @@
 package io.datajek.spring.basics.teamjob.controllers;
 
 import io.datajek.spring.basics.teamjob.JwtCore;
-import io.datajek.spring.basics.teamjob.UserRepository;
+import io.datajek.spring.basics.teamjob.data.Repositories.UserRepository;
 import io.datajek.spring.basics.teamjob.data.SigninRequest;
 import io.datajek.spring.basics.teamjob.data.SignupRequest;
 import io.datajek.spring.basics.teamjob.data.User;

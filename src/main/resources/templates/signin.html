@@ -46,12 +46,12 @@
 
 <script>
     // Check if user is already logged in
-    window.addEventListener('load', function () {
-        const token = localStorage.getItem('jwt_token');
-        if (token) {
-            validateTokenAndRedirect();
-        }
-    });
+    // window.addEventListener('load', function () {
+    //     const token = localStorage.getItem('jwt_token');
+    //     if (token) {
+    //         validateTokenAndRedirect();
+    //     }
+    // });
 
     // Function to validate token and redirect
     async function validateTokenAndRedirect() {

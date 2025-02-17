@@ -43,6 +43,10 @@ public class Events {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = false)
+    private Rooms room;
+
     /**
      * The title of the event.
      * This field cannot be null.
@@ -70,13 +74,6 @@ public class Events {
      */
     @Column(nullable = false)
     private LocalDateTime endTime;
-
-    /**
-     * The location of the event.
-     * This field can be null.
-     */
-    @Column
-    private String location;
 
     /**
      * Indicates whether the event is recurring.

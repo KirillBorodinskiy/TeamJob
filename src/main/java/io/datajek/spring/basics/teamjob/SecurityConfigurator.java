@@ -46,7 +46,7 @@ public class SecurityConfigurator {
                         // Enable CSRF for browser-based requests
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         // Disable CSRF for API endpoints
-                        .ignoringRequestMatchers("/auth/**", "/api/**")
+                        .ignoringRequestMatchers("/auth/**", "/api/**","/")
                 )
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
