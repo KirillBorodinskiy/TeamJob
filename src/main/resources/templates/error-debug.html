@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Error Debug Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        .error-details { background: #f8d7da; padding: 1rem; border-radius: 5px; }
+        pre { background: #1e1e1e; color: #d4d4d4; padding: 1rem; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Application Error</h1>
+
+    <div class="error-details">
+        <p><strong>Timestamp:</strong> <span th:text="${timestamp}"></span></p>
+        <p><strong>Status:</strong> <span th:text="${status}"></span></p>
+        <p><strong>Error:</strong> <span th:text="${error}"></span></p>
+        <p><strong>Message:</strong> <span th:text="${message}"></span></p>
+        <p><strong>Path:</strong> <span th:text="${path}"></span></p>
+    </div>
+
+    <h2>Stack Trace:</h2>
+    <pre th:text="${trace}"></pre>
+</body>
+</html>
