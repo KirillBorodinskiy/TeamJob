@@ -1,4 +1,4 @@
-package io.datajek.spring.basics.teamjob;
+package io.datajek.spring.basics.teamjob.data.Repositories;
 
 import io.datajek.spring.basics.teamjob.data.User;
 import org.springframework.data.jpa.repository.JpaRepository;
