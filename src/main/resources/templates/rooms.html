@@ -3,10 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <title>Rooms editor</title>
-    <link rel="stylesheet" th:href="@{/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .rooms-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+
+        .add-room {
+            margin-bottom: 2rem;
+        }
+
+        .add-room-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .add-room-form {
+            display: none;
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .save-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .rooms-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .room-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
+<div class="rooms-container">
+    <div class="add-room">
+        <button class="add-room-btn" id="addRoomBtn">+</button>
+        <div class="add-room-form" id="addRoomForm">
+            <form id="roomForm">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="form-group">
+                    <label for="roomName">Room Name</label>
+                    <input type="text" id="roomName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="roomDescription">Description</label>
+                    <textarea id="roomDescription" name="description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="save-btn">Save Room</button>
+            </form>
+        </div>
+    </div>
 
+    <div class="rooms-list" id="roomList">
+        <div th:each="room : ${rooms}" class="room-card">
+            <h3 th:text="${room.name}">Room Name</h3>
+            <p th:text="${room.description ?: 'No description'}">Description</p>
+        </div>
+    </div>
+</div>
 
+<script>
+    // Add function to get CSRF token from cookie
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    const addRoomBtn = document.getElementById('addRoomBtn');
+    const addRoomForm = document.getElementById('addRoomForm');
+    const roomForm = document.getElementById('roomForm');
+    const roomList = document.getElementById('roomList');
+
+    // Toggle form visibility
+    addRoomBtn.addEventListener('click', () => {
+        addRoomForm.classList.toggle('active');
+        addRoomBtn.textContent = addRoomForm.classList.contains('active') ? '×' : '+';
+    });
+
+    // Handle form submission
+    roomForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = {
+            name: document.getElementById('roomName').value,
+            description: document.getElementById('roomDescription').value
+        };
+
+        try {
+            // Get CSRF token
+            const csrfToken = getCookie('XSRF-TOKEN');
+
+            // Send data to server
+            const response = await fetch('/config/editrooms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-XSRF-TOKEN': csrfToken // Include CSRF token in header
+                },
+                credentials: 'include',
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                const newRoom = await response.json();
+
+                // Add new room to the list
+                const roomCard = document.createElement('div');
+                roomCard.className = 'room-card';
+                roomCard.innerHTML = `
+                    <h3>${newRoom.name}</h3>
+                    <p>${newRoom.description || 'No description'}</p>
+                `;
+                roomList.prepend(roomCard);
+
+                // Reset form and hide
+                roomForm.reset();
+                addRoomForm.classList.remove('active');
+                addRoomBtn.textContent = '+';
+            } else if (response.status === 401) {
+                window.location.href = '/login';
+            }
+        } catch (error) {
+            console.error('Error saving room:', error);
+            alert('Failed to save room. Please try again.');
+        }
+    });
+</script>
 </body>
 </html>

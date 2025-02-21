@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" th:href="@{/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <title>Login</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,35 +45,33 @@
 </div>
 
 <script>
-    // Check if user is already logged in
-    // window.addEventListener('load', function () {
-    //     const token = localStorage.getItem('jwt_token');
-    //     if (token) {
-    //         validateTokenAndRedirect();
-    //     }
-    // });
+    console.log('Script loaded');
+
+    window.addEventListener('load', async function () {
+        console.log('Attempting to validate token');
+        await validateTokenAndRedirect();
+    });
 
     // Function to validate token and redirect
     async function validateTokenAndRedirect() {
         try {
-            const response = await authFetch('/calendar/', { method: 'GET' });
+            console.log('Making request to /calendar/');
+            const response = await authFetch('/calendar/', {method: 'GET'});
+            console.log('Response received:', response.status);
 
             if (response.ok) {
+                console.log('Token valid, redirecting to calendar');
                 window.location.href = '/calendar/';
             } else if (response.status === 401) {
-                localStorage.removeItem('jwt_token');
+                console.log('Token invalid');
             }
         } catch (error) {
-            console.error('Error validating token:', error);
+            console.error('Error during validation:', error);
         }
     }
 
     function authFetch(url, options = {}) {
-        const token = localStorage.getItem('jwtToken');
-        options.headers = {
-            ...options.headers,
-            'Authorization': `Bearer ${token}`
-        };
+        options.credentials = 'include';  // Important for cookies
         return fetch(url, options);
     }
 
@@ -84,25 +82,21 @@
             return;
         }
 
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-
         try {
             const response = await fetch('/auth/signin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include', // For cookies
                 body: JSON.stringify({
-                    username: username,
-                    password: password
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value
                 })
             });
 
             if (response.ok) {
-                const token = await response.text();
-                localStorage.setItem('jwtToken', token);
-                await validateTokenAndRedirect(token);
+                window.location.href = '/calendar/';
             } else {
                 document.getElementById('error-alert').style.display = 'block';
             }

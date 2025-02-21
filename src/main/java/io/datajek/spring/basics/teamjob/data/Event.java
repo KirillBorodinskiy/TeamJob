@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "events")
-public class Events {
+public class Event {
 
     /**
      * The primary key of the 'events' table.
@@ -45,7 +45,7 @@ public class Events {
 
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
-    private Rooms room;
+    private Room room;
 
     /**
      * The title of the event.
