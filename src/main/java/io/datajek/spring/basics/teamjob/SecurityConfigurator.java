@@ -42,44 +42,29 @@ public class SecurityConfigurator {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF configuration
                 .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/auth/**")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/auth/**", "/api/**","config/editrooms")
                 )
-                // CORS configuration
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowCredentials(true); // Important for cookies
+                    config.setAllowCredentials(true);
                     config.applyPermitDefaultValues();
                     return config;
                 }))
-                // Exception handling
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 )
-                // Session management
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                // Authorization configuration
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/login", "/signup", "/error").permitAll()
-                        // Public static resources
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
-                        // Auth API endpoints
                         .requestMatchers("/auth/**").permitAll()
-                        // Protected pages
-                        .requestMatchers("/calendar/**", "/dashboard/**").authenticated()
-                        // Admin only
-//                        .requestMatchers("/admin/**", "/config/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/**", "/config/**").fullyAuthenticated()
-                        // API endpoints
-                        .requestMatchers("/api/**").authenticated()
-                        // Default
+                        .requestMatchers("/config/**").authenticated()
                         .anyRequest().authenticated()
                 )
-                // Add custom token filter
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

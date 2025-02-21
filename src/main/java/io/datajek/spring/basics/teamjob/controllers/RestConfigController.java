@@ -6,13 +6,10 @@ import io.datajek.spring.basics.teamjob.data.Room;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/config")
+@RequestMapping("/api/v1")
 public class RestConfigController {
     RoomRepository roomRepository;
 
@@ -21,8 +18,8 @@ public class RestConfigController {
         this.roomRepository = roomRepository;
     }
 
-    @PostMapping("/editrooms")
-    public ResponseEntity<Room> editRooms(@RequestBody RoomRequest roomRequest) {
+    @PostMapping("/addrooms")
+    public ResponseEntity<Room> addRooms(@RequestBody RoomRequest roomRequest) {
         if (roomRepository.findByName(roomRequest.getName()).isPresent()) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
@@ -32,5 +29,14 @@ public class RestConfigController {
         Room savedRoom = roomRepository.save(room);
 
         return ResponseEntity.ok(savedRoom);
+    }
+
+    @DeleteMapping("/deleterooms/{id}")
+    public ResponseEntity<Room> deleteRoom(@PathVariable Long id) {
+        if (roomRepository.findById(id).isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        roomRepository.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
