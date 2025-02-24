@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "events")
-public class Events {
+public class Event {
 
     /**
      * The primary key of the 'events' table.
@@ -42,6 +42,10 @@ public class Events {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
 
     /**
      * The title of the event.
@@ -70,13 +74,6 @@ public class Events {
      */
     @Column(nullable = false)
     private LocalDateTime endTime;
-
-    /**
-     * The location of the event.
-     * This field can be null.
-     */
-    @Column
-    private String location;
 
     /**
      * Indicates whether the event is recurring.

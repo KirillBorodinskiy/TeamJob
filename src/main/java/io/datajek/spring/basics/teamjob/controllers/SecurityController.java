@@ -1,10 +1,11 @@
 package io.datajek.spring.basics.teamjob.controllers;
 
 import io.datajek.spring.basics.teamjob.JwtCore;
-import io.datajek.spring.basics.teamjob.UserRepository;
+import io.datajek.spring.basics.teamjob.data.Repositories.UserRepository;
 import io.datajek.spring.basics.teamjob.data.SigninRequest;
 import io.datajek.spring.basics.teamjob.data.SignupRequest;
 import io.datajek.spring.basics.teamjob.data.User;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,11 @@ public class SecurityController {
         this.jwtCore = jwtCore;
     }
 
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<String> handleExpiredJwtException(ExpiredJwtException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expired"+e.getLocalizedMessage());
+    }
+
     @PostMapping("/signin")
     ResponseEntity<?> signin(@RequestBody SigninRequest signinRequest,
                              HttpServletResponse response) {
@@ -63,25 +69,19 @@ public class SecurityController {
         String jwt = jwtCore.generateToken(authentication);
 
         // Create secure cookie with JWT token
-        String cookieHeader = getCookieHeader(jwt);
-
-        response.setHeader("Set-Cookie", cookieHeader);
+        response.addCookie(getCookie(jwt));
 
         return ResponseEntity.ok().build();
     }
 
-    private static String getCookieHeader(String jwt) {
+    private static Cookie getCookie(String jwt) {
         Cookie cookie = new Cookie("jwt", jwt);
         cookie.setHttpOnly(true);     // Makes cookie inaccessible to JavaScript
         cookie.setSecure(true);       // Only sent over HTTPS
         cookie.setPath("/");          // Cookie is valid for all paths
         cookie.setMaxAge(86400);      // Cookie expires in 1 day
 
-        return String.format("%s=%s; Max-Age=%d; Path=%s; HttpOnly; Secure; SameSite=Strict",
-                cookie.getName(),
-                cookie.getValue(),
-                cookie.getMaxAge(),
-                cookie.getPath());
+        return cookie;
     }
 
     @PostMapping("/signup")
@@ -98,9 +98,15 @@ public class SecurityController {
         return ResponseEntity.ok("User " + signupRequest.getUsername() + " created");
     }
 
-    @GetMapping("/signout")
-    ResponseEntity<?> signout() {
-        SecurityContextHolder.clearContext();
-        return ResponseEntity.ok("User signed out");
+    @PostMapping("/signout")
+    public ResponseEntity<?> signOut(HttpServletResponse response) {
+        Cookie cookie = new Cookie("jwt", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);  // for HTTPS
+        cookie.setPath("/");
+        cookie.setMaxAge(0);  // Expires immediately to delete the cookie!
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok().build();
     }
 }

@@ -4,32 +4,23 @@
     <meta charset="UTF-8">
     <title>Sign Out</title>
     <script>
-        function authFetch(url, options = {}) {
-            const token = localStorage.getItem('jwtToken');
-            options.headers = {
-                ...options.headers,
-                'Authorization': `Bearer ${token}`
-            };
-            return fetch(url, options);
-        }
-
         document.addEventListener("DOMContentLoaded", function () {
-
-
-            authFetch("/auth/signout", {method: "GET"})
-                .then(response => {
+            fetch("/auth/signout", {
+                method: "POST",  // Changed to POST as it modifies server state
+                credentials: 'include'  // Important for cookies
+            })
+            .then(response => {
                 if (response.ok) {
-                    localStorage.removeItem("jwtToken");
                     window.location.href = "/login";
                 } else {
                     console.error("Sign out failed");
                 }
             })
-                .catch(error => console.error("Error:", error));
+            .catch(error => console.error("Error:", error));
         });
     </script>
 </head>
 <body>
-<h1>Signing out...</h1>
+    <h1>Signing out...</h1>
 </body>
 </html>

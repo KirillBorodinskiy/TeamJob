@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Rooms editor</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="rooms-container">
+    <div class="add-room">
+        <button class="add-room-btn" id="addRoomBtn">+</button>
+        <div class="add-room-form" id="addRoomForm">
+            <form id="roomForm">
+                <div class="form-group">
+                    <label for="roomName">Room Name</label>
+                    <input type="text" id="roomName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="roomDescription">Description</label>
+                    <textarea id="roomDescription" name="description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="save-btn">Save Room</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="rooms-list" id="roomList">
+        <div th:each="room : ${rooms}" class="room-card">
+            <h3 th:text="${room.name}">Room Name</h3>
+            <p th:text="${room.description ?: 'No description'}">Description</p>
+            <button class="delete-btn" th:onclick="'deleteRoom(' + ${room.id} + ')'">&#x2715;</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+
+    const addRoomBtn = document.getElementById('addRoomBtn');
+    const addRoomForm = document.getElementById('addRoomForm');
+    const roomForm = document.getElementById('roomForm');
+    const roomList = document.getElementById('roomList');
+
+    // Toggle form visibility
+    addRoomBtn.addEventListener('click', () => {
+        addRoomForm.classList.toggle('active');
+        addRoomBtn.textContent = addRoomForm.classList.contains('active') ? '×' : '+';
+    });
+
+    function getCsrfToken() {
+        return document.querySelector("meta[name='_csrf']").content;
+    }
+
+    function getCsrfHeader() {
+        return document.querySelector("meta[name='_csrf_header']").content;
+    }
+
+
+    function deleteRoom(roomId) {
+        if (confirm('Are you sure you want to delete this room?')) {
+            fetch('/api/v1/deleterooms/' + roomId, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [getCsrfHeader()]: getCsrfToken()
+                },
+                credentials: 'include'
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('Failed to delete room');
+            });
+        }
+    }
+
+    roomForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = {
+            name: document.getElementById('roomName').value,
+            description: document.getElementById('roomDescription').value
+        };
+
+        try {
+            const response = await fetch('/api/v1/addrooms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [getCsrfHeader()]: getCsrfToken()
+                },
+                credentials: 'include',
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to save room');
+        }
+    });
+</script>
+</body>
+</html>

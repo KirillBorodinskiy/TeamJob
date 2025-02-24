@@ -43,14 +43,12 @@ public class SecurityConfigurator {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        // Enable CSRF for browser-based requests
+                        .ignoringRequestMatchers("/auth/**")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        // Disable CSRF for API endpoints
-                        .ignoringRequestMatchers("/auth/**", "/api/**")
                 )
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowCredentials(true); // Important for cookies
+                    config.setAllowCredentials(true);
                     config.applyPermitDefaultValues();
                     return config;
                 }))
@@ -61,10 +59,11 @@ public class SecurityConfigurator {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/", "/login", "/signup", "/error").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/calendar/**").fullyAuthenticated()
-                        .requestMatchers("/calendar/").fullyAuthenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/config/**").authenticated()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
