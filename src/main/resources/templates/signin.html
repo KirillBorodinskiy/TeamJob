@@ -45,7 +45,6 @@
 </div>
 
 <script>
-    console.log('Script loaded');
 
     window.addEventListener('load', async function () {
         console.log('Attempting to validate token');
@@ -71,7 +70,7 @@
     }
 
     function authFetch(url, options = {}) {
-        options.credentials = 'include';  // Important for cookies
+        options.credentials = 'include';
         return fetch(url, options);
     }
 

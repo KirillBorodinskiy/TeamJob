@@ -9,6 +9,7 @@
     <div class="navigation">
         <a th:href="@{/calendar(date=${previousWeek})}" class="nav-link">&lt; Previous Week</a>
         <h2 th:text="${'Week of ' + #temporals.format(currentWeekStart, 'MMMM d, yyyy')}"/>
+        <a href="/config/rooms" class="nav-link">Change rooms</a>
         <a th:href="@{/calendar(date=${nextWeek})}" class="nav-link">Next Week &gt;</a>
     </div>
 

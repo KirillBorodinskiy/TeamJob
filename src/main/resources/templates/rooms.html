@@ -13,6 +13,7 @@
         <button class="add-room-btn" id="addRoomBtn">+</button>
         <div class="add-room-form" id="addRoomForm">
             <form id="roomForm">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                 <div class="form-group">
                     <label for="roomName">Room Name</label>
                     <input type="text" id="roomName" name="name" required>
