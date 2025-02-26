@@ -94,11 +94,6 @@
                 document.getElementById('success-alert').textContent = data;
                 document.getElementById('success-alert').style.display = 'block';
                 document.getElementById('error-alert').style.display = 'none';
-
-                // Redirect to the sign in page after 3 seconds
-                setTimeout(() => {
-                    window.location.href = '/signin';
-                }, 3000);
             } else {
                 document.getElementById('error-alert').textContent = data;
                 document.getElementById('error-alert').style.display = 'block';
