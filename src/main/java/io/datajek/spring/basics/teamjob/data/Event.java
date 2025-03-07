@@ -44,7 +44,7 @@ public class Event {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "room_id")
+    @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 
     /**

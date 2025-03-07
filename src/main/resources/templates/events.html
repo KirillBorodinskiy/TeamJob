@@ -6,108 +6,6 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Event Editor</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .events-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .add-event {
-            margin-bottom: 20px;
-        }
-
-        .add-btn {
-            width: 40px;
-            height: 40px;
-            font-size: 24px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 50%;
-        }
-
-        .add-form {
-            display: none;
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-top: 10px;
-        }
-
-        .add-form.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        .time-container {
-            display: flex;
-            gap: 10px;
-        }
-
-        .save-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .event-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .event-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            position: relative;
-            background-color: #fff;
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: #ff5252;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-        }
-
-        .checkbox-group input {
-            width: auto;
-            margin-right: 8px;
-        }
-    </style>
 </head>
 <body>
 <div class="events-container">
@@ -152,6 +50,8 @@
                         <input type="date" id="endDate" name="endDate" required>
                         <input type="time" id="endTime" name="endTime" required>
                     </div>
+                    <div class="error-message" id="date-time-error"
+                         style="display: none; color: red; margin-top: 5px;"></div>
                 </div>
 
                 <button type="submit" class="save-btn">Save Event</button>
@@ -219,8 +119,44 @@
         }
     }
 
+    function validateDateTimeRange() {
+        const startDate = document.getElementById('startDate').value;
+        const startTime = document.getElementById('startTime').value;
+        const endDate = document.getElementById('endDate').value;
+        const endTime = document.getElementById('endTime').value;
+
+        if (!startDate || !startTime || !endDate || !endTime) {
+            return false;
+        }
+
+        const startDateTime = new Date(`${startDate}T${startTime}`);
+        const endDateTime = new Date(`${endDate}T${endTime}`);
+
+        const errorElement = document.getElementById('date-time-error');
+
+        if (endDateTime <= startDateTime) {
+            errorElement.textContent = "End date/time must be after start date/time";
+            errorElement.style.display = "block";
+            return false;
+        }
+
+        errorElement.style.display = "none";
+        return true;
+    }
+
+    // Add validation to the date and time fields
+    document.getElementById('startDate').addEventListener('change', validateDateTimeRange);
+    document.getElementById('startTime').addEventListener('change', validateDateTimeRange);
+    document.getElementById('endDate').addEventListener('change', validateDateTimeRange);
+    document.getElementById('endTime').addEventListener('change', validateDateTimeRange);
+
     eventForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Validate the date range first
+        if (!validateDateTimeRange()) {
+            return;
+        }
 
         // Combine date and time inputs into datetime strings
         const startDate = document.getElementById('startDate').value;
@@ -254,8 +190,14 @@
             if (response.ok) {
                 window.location.reload();
             } else {
-                const errorData = await response.json();
-                alert(`Failed to save event: ${errorData.message || 'Unknown error'}`);
+                let errorMessage;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || 'Failed to save event';
+                } catch (e) {
+                    errorMessage = 'Failed to save event';
+                }
+                alert(`Failed to save event: ${errorMessage}`);
             }
         } catch (error) {
             console.error('Error:', error);
@@ -268,6 +210,19 @@
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('startDate').value = today;
         document.getElementById('endDate').value = today;
+
+        // Set default times
+        const now = new Date();
+        let hours = now.getHours().toString().padStart(2, '0');
+        let minutes = now.getMinutes().toString().padStart(2, '0');
+        document.getElementById('startTime').value = `${hours}:${minutes}`;
+
+        // Set default end time to one hour later
+        let endHour = (now.getHours() + 1) % 24;
+        document.getElementById('endTime').value = `${endHour.toString().padStart(2, '0')}:${minutes}`;
+
+        // Validate initial values
+        validateDateTimeRange();
     });
 </script>
 </body>
