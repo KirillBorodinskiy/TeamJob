@@ -43,7 +43,7 @@ public class SecurityConfigurator {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/auth/**","/config/**")
+                        .ignoringRequestMatchers("/auth/**","/api/**") //IGNORE HERE FOR WORKING API
                         .csrfTokenRepository(new CookieCsrfTokenRepository())
                 )
                 .cors(cors -> cors.configurationSource(request -> {

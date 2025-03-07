@@ -44,12 +44,12 @@ public class Event {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "room_id", nullable = false)
+    @JoinColumn(name = "room_id")
     private Room room;
 
     /**
      * The title of the event.
-     * This field cannot be null.
+     * This field can be null.
      */
     @Column(nullable = false)
     private String title;

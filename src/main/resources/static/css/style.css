@@ -56,7 +56,7 @@
     margin-bottom: 2rem;
 }
 
-.add-room-btn {
+.add-btn {
     background: #4CAF50;
     color: white;
     border: none;
@@ -68,14 +68,14 @@
     transition: transform 0.3s ease;
 }
 
-.add-room-form {
+.add-form {
     display: none;
     background: #f5f5f5;
     padding: 20px;
     border-radius: 8px;
     margin-top: 1rem;
 }
-.add-room-form.active {
+.add-form.active {
     display: block;
 }
 .form-group {

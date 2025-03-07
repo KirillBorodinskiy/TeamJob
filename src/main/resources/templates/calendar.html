@@ -10,6 +10,7 @@
         <a th:href="@{/calendar(date=${previousWeek})}" class="nav-link">&lt; Previous Week</a>
         <h2 th:text="${'Week of ' + #temporals.format(currentWeekStart, 'MMMM d, yyyy')}"/>
         <a href="/config/rooms" class="nav-link">Change rooms</a>
+        <a href="/config/events" class="nav-link">Change events</a>
         <a th:href="@{/calendar(date=${nextWeek})}" class="nav-link">Next Week &gt;</a>
     </div>
 
@@ -32,35 +33,31 @@
 </div>
 
 <script>
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function (e) {
-            e.preventDefault();
-            const url = this.getAttribute('href');
-
-            fetch(url, {
-                credentials: 'include', // This tells fetch to include cookies
-                headers: {
-                    'X-XSRF-TOKEN': getCookie('XSRF-TOKEN') // Include CSRF token
-                }
-            })
-                .then(response => {
-                    if (response.ok) {
-                        return response.text();
-                    } else if (response.status === 401) {
-                        // If unauthorized, redirect to login
-                        window.location.href = '/login';
-                        throw new Error('Unauthorized');
-                    }
-                    throw new Error('Request failed');
-                })
-                .then(async html => {
-                    document.open();
-                    document.write(await html);
-                    document.close();
-                })
-                .catch(error => console.error('Error:', error));
-        });
-    });
+    // document.querySelectorAll('.nav-link').forEach(link => {
+    //     link.addEventListener('click', function (e) {
+    //
+    //         // Get the URL to navigate to
+    //         this.getAttribute('href');
+    //
+    //         fetch('/calendar/', {
+    //             method: 'HEAD',
+    //             credentials: 'include'
+    //         })
+    //             .then(response => {
+    //                 if (!response.ok && response.status === 401) {
+    //                     // If unauthorized, redirect to login instead
+    //                     e.preventDefault();
+    //                     window.location.href = '/login';
+    //                 }
+    //                 // If authenticated, let the default navigation happen
+    //                 // No need to do anything, the browser will follow the link
+    //             })
+    //             .catch(error => {
+    //                 console.error('Auth check error:', error);
+    //                 // On error, still try to navigate
+    //             });
+    //     });
+    // });
 
     // Helper function to get cookie values
     function getCookie(name) {
