@@ -23,12 +23,12 @@
     justify-content: space-around;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid var(--color-secondary);
+    border-bottom: 1px solid var(--color-accent);
     top: 0;
     left: 0;
     height: 60px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    background: var(--color-accent);
+    background: var(--color-tertiary);
     color: var(--color-primary);
 }
 
@@ -41,6 +41,7 @@
 }
 
 .day-name {
+    color: var(--color-tertiary);
     font-weight: bold;
     display: block;
 }
@@ -61,7 +62,7 @@
     background-color: var(--color-tertiary);
     color: white;
     border: none;
-    padding:15px;
+    padding: 15px;
     border-radius: 10px;
     font-size: 24px;
     cursor: pointer;
@@ -180,20 +181,24 @@ html {
 }
 
 .dark {
-    --color-primary: hsl(347, 50%, 10%);
+    --color-primary: hsl(347, 50%, 0%);
     --color-secondary: hsl(347, 50%, 90%);
-    --color-tertiary: hsl(47, 80%, 80%);
-    --color-accent: hsl(287, 80%, 80%);
+    --color-tertiary: hsl(229, 100%, 87%);
+    --color-accent: hsl(287, 80%, 70%);
+
+    --border-color: hsl(347, 50%, 10%);
+    --today-bg-color: hsl(347, 50%, 2%);
 }
 
 :root {
-    --color-primary: hsl(347, 50%, 90%);
-    --color-secondary: hsl(347, 50%, 10%);
-    --color-tertiary: hsl(47, 80%, 20%);
-    --color-accent: hsl(287, 80%, 20%);
+    --color-primary: hsl(0, 0%, 100%);
+    --color-secondary: hsl(336,25%,60%);
+    --color-tertiary: hsl(314, 53%, 21%);
+    --color-accent: hsl(339, 27%, 17%);
+    --color-additional: hsl(345, 18%, 4%);
 
-    --border-color: hsl(347, 50%, 80%);
-    --today-bg-color: hsl(347, 50%, 88%);
+    --border-color: hsl(347, 50%, 90%);
+    --today-bg-color: hsl(347, 50%, 98%);
 
     --hour-height: 80px;
     --day-width: 150px;
@@ -295,12 +300,13 @@ body {
 }
 
 .event {
+    min-height: 2em;
     max-width: 100%;
     overflow: hidden;
     position: absolute;
-    width: calc(100% - 10px);
-    margin: 0 5px;
-    background-color: var(--color-accent);
+    width: calc(100% - 15px);
+    margin-left: 5px;
+    background-color: var(--color-secondary);
     color: var(--color-primary);
     border-radius: 4px;
     padding: 5px;
@@ -321,6 +327,7 @@ body {
 }
 
 .event-title {
+    font-size: large;
     font-weight: bold;
     margin-bottom: 3px;
     white-space: nowrap;
@@ -332,10 +339,16 @@ body {
 }
 
 .event-desc {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    margin-top: 3px;
     white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    max-height: calc(100% - 40px);
+    word-break: break-word;
+    color: var(--border-color);
 }
 
 .multi-hour {

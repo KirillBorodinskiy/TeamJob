@@ -8,8 +8,6 @@ import io.datajek.spring.basics.teamjob.data.Repositories.RoomRepository;
 import io.datajek.spring.basics.teamjob.data.Repositories.UserRepository;
 import io.datajek.spring.basics.teamjob.data.Room;
 import io.datajek.spring.basics.teamjob.data.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,8 +28,6 @@ import java.util.stream.IntStream;
 public class CalendarController {
 
     private final EventRepository eventRepository;
-
-    private static final Logger logger = LoggerFactory.getLogger(CalendarController.class);
 
     public CalendarController(EventRepository eventRepository) {
         this.eventRepository = eventRepository;
@@ -69,7 +65,6 @@ public class CalendarController {
                     currentDate.equals(LocalDate.now()),
                     dayEvents
             ));
-                    logger.info("Date: {}, Events: {}", currentDate, dayEvents.size());
         }
 
         LocalDate previousWeek = firstDayOfWeek.minusWeeks(1);

@@ -13,14 +13,18 @@
 <div class="navigation">
     <a th:href="@{/calendar(date=${previousWeek})}" class="nav-link">&lt; Previous Week</a>
     <a href="/config/rooms" class="nav-link">Change rooms</a>
-    <h2 th:text="${'Week of ' + #temporals.format(currentWeekStart, 'MMMM d, yyyy')}"></h2>
+    <h2>
+        Week of
+        <span th:text="${#temporals.format(currentWeekStart, 'MMMM d, yyyy')}"
+              style="color: hsl(46.8, 92.9%, 61.6%);"></span>
+    </h2>
     <a href="/config/events" class="nav-link">Change events</a>
     <a th:href="@{/calendar(date=${nextWeek})}" class="nav-link">Next Week &gt;</a>
 </div>
 
 
 <div class="calendar-container">
-    <!-- Time slots column on the left -->
+
     <div class="time-column">
         <div class="day-header time-header">
             <span>Time</span>
@@ -32,7 +36,6 @@
         </div>
     </div>
 
-    <!-- Days with time-slotted events -->
     <div class="week-grid">
         <div th:each="day : ${weekDays}"
              th:class="'day-column' + (${day.today} ? ' today' : '') + (${day.date.equals(selectedDate)} ? ' selected' : '')">
