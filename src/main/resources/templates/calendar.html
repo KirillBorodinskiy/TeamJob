@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Week Calendar</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body id="noscroll">
 <div class="navigation">
     <a th:href="@{/calendar(date=${previousWeek})}" class="nav-link">&lt; Previous Week</a>
     <a href="/config/rooms" class="nav-link">Change rooms</a>
@@ -42,7 +45,7 @@
                     <div th:each="event : ${day.events}"
                          th:if="${event.startTime.getHour() == hour}"
                          th:class="'event'"
-                         th:style="'height: calc(' + ${T(java.time.Duration).between(event.startTime, event.endTime).toMinutes() / 60.0} + ' * var(--hour-height));'"
+                         th:style="'height: calc(' + ${T(java.time.Duration).between(event.startTime, event.endTime).toMinutes() / 60.0} + ' * var(--hour-height));margin-top: calc(' + ${(event.startTime.getMinute()) / 60.0} + ' * var(--hour-height));'"
                          th:title="${event.description}">
                         <div class="event-title" th:text="${event.title}"></div>
                         <div class="event-time"

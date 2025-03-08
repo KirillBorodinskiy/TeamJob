@@ -23,12 +23,13 @@
     justify-content: space-around;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-secondary);
     top: 0;
     left: 0;
     height: 60px;
-    background-color: white;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background: var(--color-accent);
+    color: var(--color-primary);
 }
 
 
@@ -38,16 +39,6 @@
     padding: 15px;
     height: 100%;
 }
-
-.today {
-    background-color: #e6f3ff;
-    border-color: #0066cc;
-}
-
-.selected {
-    border: 2px solid #0066cc;
-}
-
 
 .day-name {
     font-weight: bold;
@@ -59,28 +50,26 @@
     font-size: 0.9em;
 }
 
-/* Container styles */
 .rooms-container, .events-container {
-    max-width: 800px;
+    max-width: 80svh;
     margin: 2rem auto;
     padding: 20px;
 }
 
 /* Button styles */
 .add-btn {
-    background-color: #4CAF50;
+    background-color: var(--color-tertiary);
     color: white;
     border: none;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+    padding:15px;
+    border-radius: 10px;
     font-size: 24px;
     cursor: pointer;
     transition: transform 0.3s ease;
 }
 
 .save-btn {
-    background-color: #2196F3;
+    background-color: var(--color-tertiary);
     color: white;
     border: none;
     padding: 10px 15px;
@@ -89,10 +78,7 @@
 }
 
 .delete-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #dc1c2a;
+    background: var(--color-secondary);
     color: white;
     border: none;
     width: 1.8em;
@@ -103,14 +89,14 @@
     transition: transform 0.3s ease;
 }
 
-/* Form styles */
+
 .add-room, .add-event {
     margin-bottom: 20px;
 }
 
 .add-form {
     display: none;
-    background-color: #f9f9f9;
+    background-color: var(--border-color);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -134,7 +120,8 @@
 .form-group input, .form-group textarea, .form-group select {
     width: 100%;
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 2px solid var(--color-accent);
+    background: var(--color-primary);
     border-radius: 4px;
     box-sizing: border-box;
 }
@@ -156,19 +143,27 @@
 
 /* List styles */
 .rooms-list, .event-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 20px;
 }
 
 .room-card, .event-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    width: auto;
+    max-width: 90%;
+    height: auto;
+
+    margin: 10px 0;
     padding: 15px;
-    position: relative;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
 
 /* Authentication styles */
 .signup-container, .login-container {
@@ -179,20 +174,38 @@
     border-radius: 5px;
 }
 
+
+html {
+    background: var(--color-primary);
+}
+
+.dark {
+    --color-primary: hsl(347, 50%, 10%);
+    --color-secondary: hsl(347, 50%, 90%);
+    --color-tertiary: hsl(47, 80%, 80%);
+    --color-accent: hsl(287, 80%, 80%);
+}
+
 :root {
+    --color-primary: hsl(347, 50%, 90%);
+    --color-secondary: hsl(347, 50%, 10%);
+    --color-tertiary: hsl(47, 80%, 20%);
+    --color-accent: hsl(287, 80%, 20%);
+
+    --border-color: hsl(347, 50%, 80%);
+    --today-bg-color: hsl(347, 50%, 88%);
+
     --hour-height: 80px;
     --day-width: 150px;
-    --border-color: #e0e0e0;
-    --today-bg-color: #f0f7ff;
-    --selected-bg-color: #e6f2ff;
-    --event-bg-color: #4285f4;
-    --event-text-color: white;
 }
 
 body {
     margin: 0;
     padding: 0;
     height: 100vh;
+}
+
+#noscroll {
     overflow: hidden;
 }
 
@@ -207,7 +220,7 @@ body {
 
 .nav-link {
     text-decoration: none;
-    color: #0066cc;
+    color: var(--color-primary);
 }
 
 .calendar-container {
@@ -250,16 +263,11 @@ body {
 }
 
 .day-column {
-    /*min-width: var(--day-width);*/
     border-right: 1px solid var(--border-color);
 }
 
 .day-column.today {
     background-color: var(--today-bg-color);
-}
-
-.day-column.selected {
-    background-color: var(--selected-bg-color);
 }
 
 .day-header {
@@ -271,9 +279,9 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #f5f5f5;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-tertiary);
     z-index: 10;
+    background: var(--color-primary);
 }
 
 .day-time-grid {
@@ -287,33 +295,53 @@ body {
 }
 
 .event {
+    max-width: 100%;
+    overflow: hidden;
     position: absolute;
     width: calc(100% - 10px);
     margin: 0 5px;
-    background-color: var(--event-bg-color);
-    color: var(--event-text-color);
+    background-color: var(--color-accent);
+    color: var(--color-primary);
     border-radius: 4px;
     padding: 5px;
-
     z-index: 1;
 }
 
-.multi-hour {
-    z-index: 2;
-}
 
-.event-title {
-    font-weight: bold;
-    margin-bottom: 3px;
+.event-title, .event-time, .event-details, .event-room, .event-user, .event-desc {
     white-space: nowrap;
-
+    overflow: hidden;
     text-overflow: ellipsis;
+    width: 100%;
 }
 
 .event-time {
     font-size: 0.8em;
     margin-bottom: 3px;
 }
+
+.event-title {
+    font-weight: bold;
+    margin-bottom: 3px;
+    white-space: nowrap;
+}
+
+.event-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.event-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+}
+
+.multi-hour {
+    z-index: 2;
+}
+
 
 .event-details {
     font-size: 0.8em;
@@ -355,6 +383,11 @@ body {
     border: 2px solid #23923c;
 }
 
+input {
+    background-color: var(--color-primary);
+    border: 2px solid var(--color-tertiary);
+}
+
 .btn-login {
     background-color: #007bff;
     color: white;
@@ -379,9 +412,9 @@ body {
 }
 
 .alert-success {
-    background-color: #d4edda;
+    background-color: var(--color-primary);
     border-color: #c3e6cb;
-    color: #155724;
+    color: var(--color-accent);
 }
 
 

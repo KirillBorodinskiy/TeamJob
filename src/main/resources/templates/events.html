@@ -6,12 +6,15 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Event Editor</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="events-container">
     <h1>Event Management</h1>
     <div class="add-event">
-        <button class="add-btn" id="addEventBtn">+</button>
+        <button class="add-btn" id="addEventBtn">Add a new event</button>
         <div class="add-form" id="addEventForm">
             <form id="eventForm">
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
@@ -61,7 +64,10 @@
 
     <div class="event-list" id="eventList">
         <div th:each="event : ${events}" class="event-card">
-            <h3 th:text="${event.title}">Event Title</h3>
+            <button class="delete-btn" th:onclick="'deleteEvent(' + ${event.id} + ')'">&#x2715;</button>
+
+            <h2 th:text="${event.title}">Event Title</h2>
+
             <p th:text="${event.description ?: 'No description'}">Description</p>
             <p>
                 <strong>Room:</strong>
@@ -75,9 +81,9 @@
                 <strong>End:</strong>
                 <span th:text="${#temporals.format(event.endTime, 'yyyy-MM-dd HH:mm')}">End Time</span>
             </p>
-            <button class="delete-btn" th:onclick="'deleteEvent(' + ${event.id} + ')'">&#x2715;</button>
         </div>
     </div>
+
 </div>
 
 <script>
@@ -88,7 +94,7 @@
     // Toggle form visibility
     addEventBtn.addEventListener('click', () => {
         addEventForm.classList.toggle('active');
-        addEventBtn.textContent = addEventForm.classList.contains('active') ? '×' : '+';
+        addEventBtn.textContent = addEventForm.classList.contains('active') ? '×' : 'Add a new event';
     });
 
     function getCsrfToken() {
