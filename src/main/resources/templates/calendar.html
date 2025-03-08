@@ -39,8 +39,8 @@
             </div>
             <div class="day-time-grid">
                 <div th:each="hour : ${hours}" class="hour-slot">
-                    <div th:each="event : ${events}"
-                         th:if="${event.startTime.toLocalDate().equals(day.date) && event.startTime.getHour() == hour}"
+                    <div th:each="event : ${day.events}"
+                         th:if="${event.startTime.getHour() == hour}"
                          th:class="'event'"
                          th:style="'height: calc(' + ${T(java.time.Duration).between(event.startTime, event.endTime).toMinutes() / 60.0} + ' * var(--hour-height));'"
                          th:title="${event.description}">
@@ -48,8 +48,8 @@
                         <div class="event-time"
                              th:text="${#temporals.format(event.startTime, 'HH:mm') + ' - ' + #temporals.format(event.endTime, 'HH:mm')}"></div>
                         <div class="event-details">
-                                <span class="event-room" th:if="${event.room != null}"
-                                      th:text="${'Room: ' + event.room.name}"></span>
+            <span class="event-room" th:if="${event.room != null}"
+                  th:text="${'Room: ' + event.room.name}"></span>
                             <span class="event-user" th:if="${event.user != null}"
                                   th:text="${'User: ' + event.user.username}"></span>
                             <span class="event-desc" th:if="${event.description}"
