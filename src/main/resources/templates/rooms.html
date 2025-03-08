@@ -6,16 +6,20 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Rooms editor</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="rooms-container">
     <div class="add-room">
-        <button class="add-room-btn" id="addRoomBtn">+</button>
-        <div class="add-room-form" id="addRoomForm">
+        <button class="add-btn" id="addRoomBtn">Add a new room</button>
+        <div class="add-form" id="addRoomForm">
             <form id="roomForm">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                 <div class="form-group">
                     <label for="roomName">Room Name</label>
-                    <input type="text" id="roomName" name="name" required>
+                    <input type="text" id="roomName" name="name">
                 </div>
                 <div class="form-group">
                     <label for="roomDescription">Description</label>
@@ -46,7 +50,7 @@
     // Toggle form visibility
     addRoomBtn.addEventListener('click', () => {
         addRoomForm.classList.toggle('active');
-        addRoomBtn.textContent = addRoomForm.classList.contains('active') ? '×' : '+';
+        addRoomBtn.textContent = addRoomForm.classList.contains('active') ? '×' : 'Add a new room';
     });
 
     function getCsrfToken() {

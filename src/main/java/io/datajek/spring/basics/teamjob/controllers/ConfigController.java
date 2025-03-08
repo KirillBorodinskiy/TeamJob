@@ -1,8 +1,8 @@
 package io.datajek.spring.basics.teamjob.controllers;
 
-import io.datajek.spring.basics.teamjob.data.Event;
 import io.datajek.spring.basics.teamjob.data.Repositories.EventRepository;
 import io.datajek.spring.basics.teamjob.data.Repositories.RoomRepository;
+import io.datajek.spring.basics.teamjob.data.Repositories.UserRepository;
 import io.datajek.spring.basics.teamjob.data.Room;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,6 +17,7 @@ import java.util.List;
 public class ConfigController {
     private RoomRepository roomRepository;
     private EventRepository eventRepository;
+    private UserRepository userRepository;
 
     @Autowired
     public void setRoomRepository(RoomRepository roomRepository) {
@@ -28,6 +29,11 @@ public class ConfigController {
         this.eventRepository = eventRepository;
     }
 
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @GetMapping({"/rooms"})
     public String Rooms(Model model) {
         List<Room> roomList = roomRepository.findAll();
@@ -37,8 +43,7 @@ public class ConfigController {
 
     @GetMapping({"/events"})
     public String Events(Model model) {
-        List<Event> eventList = eventRepository.findAll();
-        model.addAttribute("events", eventList);
+        CalendarController.AddRepositories(model, eventRepository, userRepository, roomRepository);
         return "events";
     }
 

@@ -1,7 +1,9 @@
 package io.datajek.spring.basics.teamjob.controllers;
 
 import io.datajek.spring.basics.teamjob.JwtCore;
+import io.datajek.spring.basics.teamjob.data.Repositories.RoleRepository;
 import io.datajek.spring.basics.teamjob.data.Repositories.UserRepository;
+import io.datajek.spring.basics.teamjob.data.Role;
 import io.datajek.spring.basics.teamjob.data.SigninRequest;
 import io.datajek.spring.basics.teamjob.data.SignupRequest;
 import io.datajek.spring.basics.teamjob.data.User;
@@ -26,6 +28,7 @@ public class SecurityController {
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
     private AuthenticationManager authenticationManager;
+    private RoleRepository roleRepository;
     private JwtCore jwtCore;
 
     @Autowired
@@ -44,13 +47,18 @@ public class SecurityController {
     }
 
     @Autowired
+    public void setRoleRepository(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
+
+    @Autowired
     public void setJwtCore(JwtCore jwtCore) {
         this.jwtCore = jwtCore;
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<String> handleExpiredJwtException(ExpiredJwtException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expired"+e.getLocalizedMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expired" + e.getLocalizedMessage());
     }
 
     @PostMapping("/signin")
@@ -94,6 +102,9 @@ public class SecurityController {
         user.setPassword(hashedPassword);
         user.setUsername(signupRequest.getUsername());
         user.setEmail(signupRequest.getEmail());
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new RuntimeException("Default role not found"));
+        user.addRole(userRole);
         userRepository.save(user);
         return ResponseEntity.ok("User " + signupRequest.getUsername() + " created");
     }

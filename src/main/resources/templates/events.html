@@ -2,9 +2,234 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Events editor</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Event Editor</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
 </head>
 <body>
+<div class="events-container">
+    <h1>Event Management</h1>
+    <div class="add-event">
+        <button class="add-btn" id="addEventBtn">Add a new event</button>
+        <div class="add-form" id="addEventForm">
+            <form id="eventForm">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                <div class="form-group">
+                    <label for="eventTitle">Event Title</label>
+                    <input type="text" id="eventTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="userSelect">User</label>
+                    <select id="userSelect" name="userId" required>
+                        <option value="">Select a user</option>
+                        <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="roomSelect">Room</label>
+                    <select id="roomSelect" name="roomId" required>
+                        <option value="">Select a room</option>
+                        <option th:each="room : ${rooms}" th:value="${room.id}" th:text="${room.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="startDate">Start Date & Time</label>
+                    <div class="time-container">
+                        <input type="date" id="startDate" name="startDate" required>
+                        <input type="time" id="startTime" name="startTime" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="endDate">End Date & Time</label>
+                    <div class="time-container">
+                        <input type="date" id="endDate" name="endDate" required>
+                        <input type="time" id="endTime" name="endTime" required>
+                    </div>
+                    <div class="error-message" id="date-time-error"
+                         style="display: none; color: red; margin-top: 5px;"></div>
+                </div>
 
+                <button type="submit" class="save-btn">Save Event</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="event-list" id="eventList">
+        <div th:each="event : ${events}" class="event-card">
+            <button class="delete-btn" th:onclick="'deleteEvent(' + ${event.id} + ')'">&#x2715;</button>
+
+            <h2 th:text="${event.title}">Event Title</h2>
+
+            <p th:text="${event.description ?: 'No description'}">Description</p>
+            <p>
+                <strong>Room:</strong>
+                <span th:text="${event.room != null ? event.room.name : 'No room assigned'}">Room Name</span>
+            </p>
+            <p>
+                <strong>Start:</strong>
+                <span th:text="${#temporals.format(event.startTime, 'yyyy-MM-dd HH:mm')}">Start Time</span>
+            </p>
+            <p>
+                <strong>End:</strong>
+                <span th:text="${#temporals.format(event.endTime, 'yyyy-MM-dd HH:mm')}">End Time</span>
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const addEventBtn = document.getElementById('addEventBtn');
+    const addEventForm = document.getElementById('addEventForm');
+    const eventForm = document.getElementById('eventForm');
+    document.getElementById('eventList');
+    // Toggle form visibility
+    addEventBtn.addEventListener('click', () => {
+        addEventForm.classList.toggle('active');
+        addEventBtn.textContent = addEventForm.classList.contains('active') ? '×' : 'Add a new event';
+    });
+
+    function getCsrfToken() {
+        return document.querySelector("meta[name='_csrf']").content;
+    }
+
+    function getCsrfHeader() {
+        return document.querySelector("meta[name='_csrf_header']").content;
+    }
+
+    function deleteEvent(eventId) {
+        if (confirm('Are you sure you want to delete this event?')) {
+            fetch('/api/v1/deleteevents/' + eventId, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [getCsrfHeader()]: getCsrfToken()
+                },
+                credentials: 'include'
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('Failed to delete event');
+            });
+        }
+    }
+
+    function validateDateTimeRange() {
+        const startDate = document.getElementById('startDate').value;
+        const startTime = document.getElementById('startTime').value;
+        const endDate = document.getElementById('endDate').value;
+        const endTime = document.getElementById('endTime').value;
+
+        if (!startDate || !startTime || !endDate || !endTime) {
+            return false;
+        }
+
+        const startDateTime = new Date(`${startDate}T${startTime}`);
+        const endDateTime = new Date(`${endDate}T${endTime}`);
+
+        const errorElement = document.getElementById('date-time-error');
+
+        if (endDateTime <= startDateTime) {
+            errorElement.textContent = "End date/time must be after start date/time";
+            errorElement.style.display = "block";
+            return false;
+        }
+
+        errorElement.style.display = "none";
+        return true;
+    }
+
+    // Add validation to the date and time fields
+    document.getElementById('startDate').addEventListener('change', validateDateTimeRange);
+    document.getElementById('startTime').addEventListener('change', validateDateTimeRange);
+    document.getElementById('endDate').addEventListener('change', validateDateTimeRange);
+    document.getElementById('endTime').addEventListener('change', validateDateTimeRange);
+
+    eventForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Validate the date range first
+        if (!validateDateTimeRange()) {
+            return;
+        }
+
+        // Combine date and time inputs into datetime strings
+        const startDate = document.getElementById('startDate').value;
+        const startTime = document.getElementById('startTime').value;
+        const endDate = document.getElementById('endDate').value;
+        const endTime = document.getElementById('endTime').value;
+
+        const startDateTime = `${startDate}T${startTime}:00`;
+        const endDateTime = `${endDate}T${endTime}:00`;
+
+        const formData = {
+            title: document.getElementById('eventTitle').value,
+            description: document.getElementById('eventDescription').value,
+            roomId: document.getElementById('roomSelect').value,
+            userId: document.getElementById('userSelect').value,
+            startTime: startDateTime,
+            endTime: endDateTime,
+        };
+
+        try {
+            const response = await fetch('/api/v1/addevents', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [getCsrfHeader()]: getCsrfToken()
+                },
+                credentials: 'include',
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                let errorMessage;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || 'Failed to save event';
+                } catch (e) {
+                    errorMessage = 'Failed to save event';
+                }
+                alert(`Failed to save event: ${errorMessage}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to save event');
+        }
+    });
+
+    // Set default date values to today
+    document.addEventListener('DOMContentLoaded', () => {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').value = today;
+        document.getElementById('endDate').value = today;
+
+        // Set default times
+        const now = new Date();
+        let hours = now.getHours().toString().padStart(2, '0');
+        let minutes = now.getMinutes().toString().padStart(2, '0');
+        document.getElementById('startTime').value = `${hours}:${minutes}`;
+
+        // Set default end time to one hour later
+        let endHour = (now.getHours() + 1) % 24;
+        document.getElementById('endTime').value = `${endHour.toString().padStart(2, '0')}:${minutes}`;
+
+        // Validate initial values
+        validateDateTimeRange();
+    });
+</script>
 </body>
 </html>

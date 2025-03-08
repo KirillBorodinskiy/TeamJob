@@ -49,7 +49,7 @@ public class Event {
 
     /**
      * The title of the event.
-     * This field cannot be null.
+     * This field can be null.
      */
     @Column(nullable = false)
     private String title;
