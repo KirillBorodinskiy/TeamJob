@@ -1,30 +1,60 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Week Calendar</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<div class="week-calendar">
-    <div class="navigation">
-        <a th:href="@{/calendar(date=${previousWeek})}" class="nav-link">&lt; Previous Week</a>
-        <h2 th:text="${'Week of ' + #temporals.format(currentWeekStart, 'MMMM d, yyyy')}"/>
-        <a href="/config/rooms" class="nav-link">Change rooms</a>
-        <a href="/config/events" class="nav-link">Change events</a>
-        <a th:href="@{/calendar(date=${nextWeek})}" class="nav-link">Next Week &gt;</a>
+<div class="navigation">
+    <a th:href="@{/calendar(date=${previousWeek})}" class="nav-link">&lt; Previous Week</a>
+    <a href="/config/rooms" class="nav-link">Change rooms</a>
+    <h2 th:text="${'Week of ' + #temporals.format(currentWeekStart, 'MMMM d, yyyy')}"></h2>
+    <a href="/config/events" class="nav-link">Change events</a>
+    <a th:href="@{/calendar(date=${nextWeek})}" class="nav-link">Next Week &gt;</a>
+</div>
+
+
+<div class="calendar-container">
+    <!-- Time slots column on the left -->
+    <div class="time-column">
+        <div class="day-header time-header">
+            <span>Time</span>
+        </div>
+        <div class="time-slots">
+            <div th:each="hour : ${hours}" class="time-slot">
+                <span th:text="${hour + ':00'}"></span>
+            </div>
+        </div>
     </div>
 
+    <!-- Days with time-slotted events -->
     <div class="week-grid">
         <div th:each="day : ${weekDays}"
-             th:class="'day-card' + (${day.today} ? ' today' : '') + (${day.date.equals(selectedDate)} ? ' selected' : '')">
+             th:class="'day-column' + (${day.today} ? ' today' : '') + (${day.date.equals(selectedDate)} ? ' selected' : '')">
             <div class="day-header">
-                <span class="day-name" th:text="${day.dayName}"/>
-                <span class="date" th:text="${#temporals.format(day.date, 'MMM d')}"/>
+                <span class="day-name" th:text="${day.dayName}"></span>
+                <span class="date" th:text="${#temporals.format(day.date, 'MMM d')}"></span>
             </div>
-            <div class="day-body">
-                <div class="day-events">
-                    <div th:each="event : ${day.events}" class="event">
-                        <span th:text="${event.title}"/>
+            <div class="day-time-grid">
+                <div th:each="hour : ${hours}" class="hour-slot">
+                    <div th:each="event : ${events}"
+                         th:if="${event.startTime.toLocalDate().equals(day.date) && event.startTime.getHour() == hour}"
+                         th:class="'event'"
+                         th:style="'height: calc(' + ${T(java.time.Duration).between(event.startTime, event.endTime).toMinutes() / 60.0} + ' * var(--hour-height));'"
+                         th:title="${event.description}">
+                        <div class="event-title" th:text="${event.title}"></div>
+                        <div class="event-time"
+                             th:text="${#temporals.format(event.startTime, 'HH:mm') + ' - ' + #temporals.format(event.endTime, 'HH:mm')}"></div>
+                        <div class="event-details">
+                                <span class="event-room" th:if="${event.room != null}"
+                                      th:text="${'Room: ' + event.room.name}"></span>
+                            <span class="event-user" th:if="${event.user != null}"
+                                  th:text="${'User: ' + event.user.username}"></span>
+                            <span class="event-desc" th:if="${event.description}"
+                                  th:text="${#strings.abbreviate(event.description, 50)}"></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -32,39 +62,5 @@
     </div>
 </div>
 
-<script>
-    // document.querySelectorAll('.nav-link').forEach(link => {
-    //     link.addEventListener('click', function (e) {
-    //
-    //         // Get the URL to navigate to
-    //         this.getAttribute('href');
-    //
-    //         fetch('/calendar/', {
-    //             method: 'HEAD',
-    //             credentials: 'include'
-    //         })
-    //             .then(response => {
-    //                 if (!response.ok && response.status === 401) {
-    //                     // If unauthorized, redirect to login instead
-    //                     e.preventDefault();
-    //                     window.location.href = '/login';
-    //                 }
-    //                 // If authenticated, let the default navigation happen
-    //                 // No need to do anything, the browser will follow the link
-    //             })
-    //             .catch(error => {
-    //                 console.error('Auth check error:', error);
-    //                 // On error, still try to navigate
-    //             });
-    //     });
-    // });
-
-    // Helper function to get cookie values
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-</script>
 </body>
 </html>
