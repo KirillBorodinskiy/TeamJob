@@ -3,6 +3,7 @@ package io.datajek.spring.basics.teamjob.controllers;
 
 import io.datajek.spring.basics.teamjob.WeekDay;
 import io.datajek.spring.basics.teamjob.data.Event;
+import io.datajek.spring.basics.teamjob.data.EventInADay;
 import io.datajek.spring.basics.teamjob.data.Repositories.EventRepository;
 import io.datajek.spring.basics.teamjob.data.Repositories.RoomRepository;
 import io.datajek.spring.basics.teamjob.data.Repositories.UserRepository;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
@@ -43,21 +45,7 @@ public class CalendarController {
 
         for (int i = 0; i < 7; i++) {
             LocalDate currentDate = firstDayOfWeek.plusDays(i);
-
-            List<Event> dayEvents = allEvents.stream()
-                    .filter(event -> {
-                        // Check if the event occurs on this day:
-                        // 1. Event starts on this day
-                        boolean startsToday = event.getStartTime().toLocalDate().equals(currentDate);
-                        // 2. Event ends on this day
-                        boolean endsToday = event.getEndTime().toLocalDate().equals(currentDate);
-                        // 3. Event spans over this day (starts before, ends after)
-                        boolean spansOver = event.getStartTime().toLocalDate().isBefore(currentDate) &&
-                                event.getEndTime().toLocalDate().isAfter(currentDate);
-
-                        return startsToday || endsToday || spansOver;
-                    })
-                    .collect(Collectors.toList());
+            List<EventInADay> dayEvents = convertToDayEvents(allEvents, currentDate);
 
             weekDays.add(new WeekDay(
                     currentDate,
@@ -69,7 +57,7 @@ public class CalendarController {
 
         LocalDate previousWeek = firstDayOfWeek.minusWeeks(1);
         LocalDate nextWeek = firstDayOfWeek.plusWeeks(1);
-        List<Integer> hours = IntStream.rangeClosed(0, 24).boxed().collect(Collectors.toList());
+        List<Integer> hours = IntStream.rangeClosed(0, 23).boxed().collect(Collectors.toList());
 
         model.addAttribute("weekDays", weekDays);
         model.addAttribute("currentWeekStart", firstDayOfWeek);
@@ -79,6 +67,57 @@ public class CalendarController {
         model.addAttribute("hours", hours);
 
         return "calendar";
+    }
+
+    private List<EventInADay> convertToDayEvents(List<Event> allEvents, LocalDate currentDate) {
+        return allEvents.stream()
+                .filter(event -> eventOccursOnDate(event, currentDate))
+                .map(event -> {
+                    double durationInADay = calculateHoursInDay(event, currentDate);
+                    double startTimeToUse = event.getStartTime().toLocalDate().isBefore(currentDate) ?
+                            0.0 : event.getStartTime().getHour() + (event.getStartTime().getMinute() / 60.0);
+
+                    double endTimeToUse = event.getEndTime().toLocalDate().isAfter(currentDate) ?
+                            24.0 : event.getEndTime().getHour() + (event.getEndTime().getMinute() / 60.0);
+                    return new EventInADay(
+                            event.getId(),
+                            event.getTitle(),
+                            event.getDescription(),
+                            event.getRoom(),
+                            event.getUser(),
+                            durationInADay,
+                            startTimeToUse,
+                            endTimeToUse,
+                            event.getStartTime(),
+                            event.getEndTime()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    private boolean eventOccursOnDate(Event event, LocalDate date) {
+        // 1. Event starts on this day
+        boolean startsToday = event.getStartTime().toLocalDate().equals(date);
+        // 2. Event ends on this day
+        boolean endsToday = event.getEndTime().toLocalDate().equals(date);
+        // 3. Event spans over this day (starts before, ends after)
+        boolean spansOver = event.getStartTime().toLocalDate().isBefore(date) &&
+                event.getEndTime().toLocalDate().isAfter(date);
+
+        return startsToday || endsToday || spansOver;
+    }
+
+    private double calculateHoursInDay(Event event, LocalDate date) {
+        // If event starts before this day, use midnight as start time
+        LocalDateTime startTimeToUse = event.getStartTime().toLocalDate().isBefore(date) ?
+                date.atStartOfDay() : event.getStartTime();
+
+        // If event ends after this day, use end of day as end time
+        LocalDateTime endTimeToUse = event.getEndTime().toLocalDate().isAfter(date) ?
+                date.atTime(23, 59, 59) : event.getEndTime();
+
+        // Calculate hours between these two times
+        return java.time.Duration.between(startTimeToUse, endTimeToUse).toMinutes() / 60.0;
     }
 
     static void AddRepositories(Model model, EventRepository eventRepository, UserRepository userRepository, RoomRepository roomRepository) {

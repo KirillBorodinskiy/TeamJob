@@ -45,24 +45,26 @@
             </div>
             <div class="day-time-grid">
                 <div th:each="hour : ${hours}" class="hour-slot">
+                    </div>
                     <div th:each="event : ${day.events}"
-                         th:if="${event.startTime.getHour() == hour}"
                          th:class="'event'"
-                         th:style="'height: calc(' + ${T(java.time.Duration).between(event.startTime, event.endTime).toMinutes() / 60.0} + ' * var(--hour-height));margin-top: calc(' + ${(event.startTime.getMinute()) / 60.0} + ' * var(--hour-height));'"
+                         th:style="'height: calc(' + ${event.getDurationInADay()} + '* var(--hour-height));top: calc(' + ${event.getStartTimeToUse()} + ' * var(--hour-height) + 0px);'"
                          th:title="${event.description}">
                         <div class="event-title" th:text="${event.title}"></div>
                         <div class="event-time"
                              th:text="${#temporals.format(event.startTime, 'HH:mm') + ' - ' + #temporals.format(event.endTime, 'HH:mm')}"></div>
                         <div class="event-details">
-            <span class="event-room" th:if="${event.room != null}"
-                  th:text="${'Room: ' + event.room.name}"></span>
+                            <span class="event-room" th:if="${event.room != null}"
+                                  th:text="${'Room: ' + event.room.name}"></span>
+
                             <span class="event-user" th:if="${event.user != null}"
                                   th:text="${'User: ' + event.user.username}"></span>
+
                             <span class="event-desc" th:if="${event.description}"
                                   th:text="${#strings.abbreviate(event.description, 50)}"></span>
                         </div>
                     </div>
-                </div>
+
             </div>
         </div>
     </div>
