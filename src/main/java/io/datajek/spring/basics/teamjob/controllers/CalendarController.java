@@ -30,13 +30,22 @@ import java.util.stream.IntStream;
 public class CalendarController {
 
     private final EventRepository eventRepository;
+    private final UserRepository userRepository;
+    private final RoomRepository roomRepository;
 
-    public CalendarController(EventRepository eventRepository) {
+    public CalendarController(EventRepository eventRepository, UserRepository userRepository, RoomRepository roomRepository) {
         this.eventRepository = eventRepository;
+        this.userRepository = userRepository;
+        this.roomRepository = roomRepository;
     }
 
     @GetMapping({"", "/"})
-    public String showWeekCalendar(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, Model model) {
+    public String showWeekCalendar(
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+            @RequestParam(required = false) String userIds,
+            @RequestParam(required = false) String roomIds,
+            Model model
+    ) {
         LocalDate targetDate = (date != null) ? date : LocalDate.now();
         LocalDate firstDayOfWeek = targetDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
@@ -45,7 +54,7 @@ public class CalendarController {
 
         for (int i = 0; i < 7; i++) {
             LocalDate currentDate = firstDayOfWeek.plusDays(i);
-            List<EventInADay> dayEvents = convertToDayEvents(allEvents, currentDate);
+            List<EventInADay> dayEvents = convertToDayEvents(allEvents, currentDate, userIds, roomIds);
 
             weekDays.add(new WeekDay(
                     currentDate,
@@ -59,19 +68,22 @@ public class CalendarController {
         LocalDate nextWeek = firstDayOfWeek.plusWeeks(1);
         List<Integer> hours = IntStream.rangeClosed(0, 23).boxed().collect(Collectors.toList());
 
+        AddRepositories(model, eventRepository, userRepository, roomRepository);
         model.addAttribute("weekDays", weekDays);
         model.addAttribute("currentWeekStart", firstDayOfWeek);
         model.addAttribute("previousWeek", previousWeek);
         model.addAttribute("nextWeek", nextWeek);
         model.addAttribute("selectedDate", targetDate);
         model.addAttribute("hours", hours);
+        model.addAttribute("userIds", userIds);
+        model.addAttribute("roomIds", roomIds);
 
         return "calendar";
     }
 
-    private List<EventInADay> convertToDayEvents(List<Event> allEvents, LocalDate currentDate) {
+    private List<EventInADay> convertToDayEvents(List<Event> allEvents, LocalDate currentDate, String userIds, String roomIds) {
         return allEvents.stream()
-                .filter(event -> eventOccursOnDate(event, currentDate))
+                .filter(event -> filterEvents(event, currentDate, Optional.ofNullable(userIds), Optional.ofNullable(roomIds)))
                 .map(event -> {
                     double durationInADay = calculateHoursInDay(event, currentDate);
                     double startTimeToUse = event.getStartTime().toLocalDate().isBefore(currentDate) ?
@@ -95,7 +107,7 @@ public class CalendarController {
                 .collect(Collectors.toList());
     }
 
-    private boolean eventOccursOnDate(Event event, LocalDate date) {
+    private boolean filterEvents(Event event, LocalDate date, Optional<String> userIds, Optional<String> roomIds) {
         // 1. Event starts on this day
         boolean startsToday = event.getStartTime().toLocalDate().equals(date);
         // 2. Event ends on this day
@@ -103,8 +115,28 @@ public class CalendarController {
         // 3. Event spans over this day (starts before, ends after)
         boolean spansOver = event.getStartTime().toLocalDate().isBefore(date) &&
                 event.getEndTime().toLocalDate().isAfter(date);
+        boolean dateMatch = startsToday || endsToday || spansOver;
 
-        return startsToday || endsToday || spansOver;
+        // If no filters are applied, only check date
+        if (userIds.isEmpty() && roomIds.isEmpty()) {
+            return dateMatch;
+        }
+        boolean userMatch = true;
+        if (userIds.isPresent() && !userIds.get().isEmpty() && event.getUser() != null) {
+            Set<String> userIdSet = Arrays.stream(userIds.get().split(","))
+                    .collect(Collectors.toSet());
+            userMatch = userIdSet.contains(String.valueOf(event.getUser().getId()));
+        }
+
+        // Room filter
+        boolean roomMatch = true;
+        if (roomIds.isPresent() && !roomIds.get().isEmpty() && event.getRoom() != null) {
+            Set<String> roomIdSet = Arrays.stream(roomIds.get().split(","))
+                    .collect(Collectors.toSet());
+            roomMatch = roomIdSet.contains(String.valueOf(event.getRoom().getId()));
+        }
+
+        return dateMatch && userMatch && roomMatch;
     }
 
     private double calculateHoursInDay(Event event, LocalDate date) {
