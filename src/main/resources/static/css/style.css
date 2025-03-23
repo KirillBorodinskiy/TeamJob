@@ -133,7 +133,6 @@
     width: auto;
     max-width: 90%;
     height: auto;
-
     margin: 10px 0;
     padding: 15px;
     background-color: var(--color-accent);
@@ -142,6 +141,11 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+#loginForm, #signupForm {
+    gap: 1em;
+    display: flex;
+    flex-direction: column;
+}
 
 .signup-container, .login-container {
     max-width: 400px;
@@ -418,8 +422,26 @@ body {
     z-index: 1;
 }
 
+.container {
+    margin: 5vh auto;
+    padding: 2em;
+    display: flex;
+    flex-direction: column;
+    width: 80vw;
+    border-radius: 1em;
+    box-shadow: #000000 0 0 6px;
+    gap: 2em;
+}
+
+.details-container {
+
+    color: var(--color-tertiary);
+    font-size: large;
+}
 
 .event-title, .event-time, .event-details, .event-room, .event-user, .event-desc {
+    color: var(--color-primary);
+    text-decoration: none;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -431,17 +453,6 @@ body {
     margin-bottom: 3px;
 }
 
-.event-title {
-    font-size: large;
-    font-weight: bold;
-    margin-bottom: 3px;
-    white-space: nowrap;
-}
-
-.event-details {
-    display: flex;
-    flex-direction: column;
-}
 
 .event-desc {
     margin-top: 3px;

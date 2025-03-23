@@ -11,7 +11,8 @@
 </head>
 <body id="noscroll">
 <div class="navigation">
-    <a th:href="@{/calendar(date=${previousWeek})}" class="nav-link">&lt; Previous Week</a>
+    <a th:href="@{/calendar(date=${previousWeek},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">&lt; Previous
+        Week</a>
 
     <h2>
         Week of
@@ -20,7 +21,8 @@
         </span>
     </h2>
 
-    <a th:href="@{/calendar(date=${nextWeek})}" class="nav-link">Next Week &gt;</a>
+    <a th:href="@{/calendar(date=${nextWeek},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">Next Week
+        &gt;</a>
 </div>
 
 
@@ -63,8 +65,8 @@
         </form>
 
         <button type="submit" form="filterEventsForm" id="filterButton">Filter</button>
-        <a href="/config/rooms" class="nav-link">Change rooms</a>
-        <a href="/config/events" class="nav-link">Change events</a>
+        <a href="/config/rooms" class="nav-link">Modify rooms</a>
+        <a href="/config/events" class="nav-link">Modify events</a>
     </div>
     <div id="scrollable">
         <div class="time-column">
@@ -90,14 +92,14 @@
                     </div>
                     <div th:each="event : ${day.events}"
                          th:class="'event'"
-                         th:style="'height: calc(' + ${event.getDurationInADay()} + '* var(--hour-height));top: calc(' + ${event.getStartTimeToUse()} + ' * var(--hour-height) + 0px);'"
-                         th:title="${event.description}">
-                        <div class="event-title" th:text="${event.title}"></div>
+                         th:style="'height: calc(' + ${event.getDurationInADay()} + '* var(--hour-height));top: calc(' + ${event.getStartTimeToUse()} + ' * var(--hour-height) + 0px);'">
+                        <a class="event-title" th:href="@{/event/{id}(id=${event.id})}" th:text="${event.title}"></a>
                         <div class="event-time"
                              th:text="${#temporals.format(event.startTime, 'HH:mm') + ' - ' + #temporals.format(event.endTime, 'HH:mm')}"></div>
                         <div class="event-details">
-                            <span class="event-room" th:if="${event.room != null}"
-                                  th:text="${'Room: ' + event.room.name}"></span>
+                            <a class="event-room" th:if="${event.room != null}"
+                               th:href="@{/room/{id}(id=${event.room.getId()})}"
+                               th:text="${'Room: ' + event.room.name}"></a>
 
                             <span class="event-user" th:if="${event.user != null}"
                                   th:text="${'User: ' + event.user.username}"></span>
@@ -115,33 +117,51 @@
 </body>
 
 <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const preselectedUserIds = urlParams.get('userIds') ? urlParams.get('userIds').split(',') : [];
+    const preselectedRoomIds = urlParams.get('roomIds') ? urlParams.get('roomIds').split(',') : [];
     document.addEventListener('DOMContentLoaded', function () {
         setupMultiSelectDropdown(
             'userSearchInput',
             'userSelectItems',
             'filterUser',
-            'userSelectedContainer'
+            'userSelectedContainer',
+            preselectedUserIds
         );
 
         setupMultiSelectDropdown(
             'roomSearchInput',
             'roomSelectItems',
             'filterRoom',
-            'roomSelectedContainer'
+            'roomSelectedContainer',
+            preselectedRoomIds
         );
 
     });
 
-    function setupMultiSelectDropdown(inputId, itemsId, hiddenFieldId, selectedContainerId) {
+    function setupMultiSelectDropdown(inputId, itemsId, hiddenFieldId, selectedContainerId, preselectedValues = []) {
         const searchInput = document.getElementById(inputId);
         const selectItems = document.getElementById(itemsId);
         const hiddenField = document.getElementById(hiddenFieldId);
         const selectedContainer = document.getElementById(selectedContainerId);
         const allItems = selectItems.querySelectorAll('div');
 
-        // Track selected values
-        let selectedValues = [];
+        // Track selected values while initializing with given filters
+        let selectedValues = [...preselectedValues];
 
+        hiddenField.value = selectedValues.join(',');
+        // Initialize selected items
+        if (preselectedValues.length > 0) {
+            for (let i = 0; i < allItems.length; i++) {
+                const value = allItems[i].getAttribute('data-value');
+                const name = allItems[i].getAttribute('data-name');
+
+                if (preselectedValues.includes(value)) {
+                    addSelectedItem(value, name);
+                    allItems[i].classList.add('selected');
+                }
+            }
+        }
         // Show dropdown when input is focused
         searchInput.addEventListener('focus', function () {
             selectItems.classList.remove('select-hide');
@@ -173,8 +193,6 @@
                     this.classList.add('selected');
                 }
 
-                // Clear input and keep dropdown open
-                searchInput.value = '';
                 searchInput.focus();
             });
         }
@@ -188,25 +206,30 @@
 
         // Function to add a selected item
         function addSelectedItem(value, name) {
-            // Create tag element
-            const tag = document.createElement('div');
-            tag.className = 'selected-tag';
-            tag.dataset.value = value;
-            tag.innerHTML = name + '<span class="tag-remove">&times;</span>';
+            // Only add if not already in the container
+            if (!selectedContainer.querySelector(`.selected-tag[data-value="${value}"]`)) {
+                // Create tag element
+                const tag = document.createElement('div');
+                tag.className = 'selected-tag';
+                tag.dataset.value = value;
+                tag.innerHTML = name + '<span class="tag-remove">&times;</span>';
 
-            // Add remove event
-            tag.querySelector('.tag-remove').addEventListener('click', function () {
-                removeSelectedItem(value);
-            });
+                // Add remove event
+                tag.querySelector('.tag-remove').addEventListener('click', function () {
+                    removeSelectedItem(value);
+                });
 
-            // Add to container
-            selectedContainer.appendChild(tag);
+                // Add to container
+                selectedContainer.appendChild(tag);
 
-            // Update selected values array
-            selectedValues.push(value);
+                // Update selected values array if not already included
+                if (!selectedValues.includes(value)) {
+                    selectedValues.push(value);
+                }
 
-            // Update hidden field
-            hiddenField.value = selectedValues.join(',');
+                // Update hidden field
+                hiddenField.value = selectedValues.join(',');
+            }
         }
 
         // Function to remove a selected item

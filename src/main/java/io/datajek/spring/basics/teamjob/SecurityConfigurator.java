@@ -59,7 +59,7 @@ public class SecurityConfigurator {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/login", "/signup", "/error").permitAll()
+                        .requestMatchers("/", "/login", "/signup","signin","signout", "/error").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/config/**").authenticated()
