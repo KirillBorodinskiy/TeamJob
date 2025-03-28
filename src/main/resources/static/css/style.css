@@ -92,9 +92,6 @@
     margin-top: 10px;
 }
 
-.add-form.active {
-    display: block;
-}
 
 .form-group input, .form-group textarea, .form-group select {
     width: 100%;
@@ -203,18 +200,40 @@ body {
     width: 100%;
 }
 
-#side-panel {
+#sidepanel {
+    transition: all 1s ease-in-out;
     position: sticky;
     top: 0;
     z-index: 10;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5em;
-    padding: 1em;
     background-color: var(--color-tertiary);
     color: var(--color-primary);
     max-height: calc(100vh - 80px);
     overflow-y: auto;
+    width: 20vw
+}
+
+.sidepanel-active {
+    width: 10px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+}
+
+#sidepanel-content,#sidepanel-creation{
+    opacity: 1;
+    gap: 1.5em;
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    transition: opacity 1.5s ease-in-out !important;
+
+}
+
+.hidden {
+    transition: opacity 0.5s ease-in-out !important;
+    opacity: 0 !important;
+    width:0 !important;
+    height:0 !important;
+    display: none !important;
 }
 
 #filterEventsForm {

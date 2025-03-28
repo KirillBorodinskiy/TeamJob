@@ -51,11 +51,10 @@
         await validateTokenAndRedirect();
     });
 
-    // Function to validate token and redirect
     async function validateTokenAndRedirect() {
         try {
-            console.log('Making request to /calendar/');
-            const response = await authFetch('/calendar/', {method: 'GET'});
+            console.log('Making request to validateJWT');
+            const response = await authFetch('/api/v1/validateJWT', {method: 'Post'});
             console.log('Response received:', response.status);
 
             if (response.ok) {

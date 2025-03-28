@@ -15,11 +15,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class TokenFilter extends OncePerRequestFilter {
     private final JwtCore jwtCore;
     private final UserDetailsService userDetailsService;
+    private final List<String> PUBLIC_PATHS = Arrays.asList("/login", "/auth/", "/css/", "/js/", "/images/", "/signup", "/signin", "/signout", "/error");
 
     public TokenFilter(JwtCore jwtCore, UserDetailsService userDetailsService) {
         this.jwtCore = jwtCore;
@@ -30,43 +33,82 @@ public class TokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        try {
-            // First, try to get the token from the Authorization header
-            String jwt = extractTokenFromHeader(request);
 
-            // If no token in header, try to get it from cookies
+        String path = request.getRequestURI();
+
+        // Skip authentication for public paths
+        if (isPublicPath(path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        try {
+            String jwt = extractTokenFromHeader(request);
             if (jwt == null) {
                 jwt = extractTokenFromCookies(request);
             }
 
-            // If found a token, process it
-            if (jwt != null) {
-                String username = jwtCore.getNameFromJwtToken(jwt);
-
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
+            if (jwt != null && processToken(jwt)) {
+                filterChain.doFilter(request, response);
+                return;
             }
+
+            // Handle missing token
+            handleAuthenticationFailure(request, response, "Missing JWT token");
+
         } catch (JwtException e) {
-            // If token validation fails, clear any existing authentication
-            SecurityContextHolder.clearContext();
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid JWT token");
-            //TODO: Redirect to login;
-            return ;
+            // Handle invalid token
+            handleAuthenticationFailure(request, response, "Invalid JWT token: " + e.getMessage());
         }
-        filterChain.doFilter(request, response);
     }
 
+
     /**
-     * Extracts JWT token from Authorization header if present
+     * Process the JWT token and set up authentication
+     *
+     * @return true if authentication was successful
      */
+    private boolean processToken(String jwt) {
+        String username = jwtCore.getNameFromJwtToken(jwt);
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    null,
+                    userDetails.getAuthorities()
+            );
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            return true;
+        }
+        return false;
+    }
+
+    private void handleAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, String message)
+            throws IOException {
+        SecurityContextHolder.clearContext();
+
+        // Determine if it's an API request or a browser request
+        boolean isApiRequest = isApiRequest(request);
+
+        if (isApiRequest) {
+            // For API requests, return 401 status code
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write(message);
+        } else {
+            // For browser requests, redirect to login page
+            response.sendRedirect("/signin");
+        }
+    }
+
+    private boolean isApiRequest(HttpServletRequest request) {
+        return request.getRequestURI().startsWith("/api/") || request.getRequestURI().startsWith("/auth/");
+    }
+
+    private boolean isPublicPath(String path) {
+        return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
+    }
+
     private String extractTokenFromHeader(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
         if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
@@ -75,9 +117,6 @@ public class TokenFilter extends OncePerRequestFilter {
         return null;
     }
 
-    /**
-     * Extracts JWT token from cookies if present
-     */
     private String extractTokenFromCookies(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
