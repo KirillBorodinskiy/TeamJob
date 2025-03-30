@@ -299,22 +299,18 @@
     });
 
     function addNewEvent(hour, day) {
-        // Convert hour to integer and ensure proper formatting
         const hourInt = parseInt(hour);
         const formattedHour = hourInt.toString().padStart(2, '0');
 
-        // Use the day directly as it's already in YYYY-MM-DD format
         document.getElementById('startDate').value = day;
         document.getElementById('endDate').value = day;
 
-        // Set start time to the clicked hour with 00 minutes
         document.getElementById('startTime').value = `${formattedHour}:00`;
 
         // Set end time to one hour later
         const endHour = (hourInt + 1) % 24;
         document.getElementById('endTime').value = `${endHour.toString().padStart(2, '0')}:00`;
 
-        // Validate initial values
         validateDateTimeRange();
 
         // Toggle visibility of panels
