@@ -58,7 +58,7 @@
 }
 
 .save-btn {
-    background-color: var(--color-tertiary);
+    background-color: var(--color-gold);
     color: white;
     border: none;
     padding: 10px 15px;
@@ -201,6 +201,7 @@ body {
 }
 
 #sidepanel {
+    min-width: fit-content;
     transition: all 1s ease-in-out;
     position: sticky;
     top: 0;
@@ -212,7 +213,7 @@ body {
     width: 20vw
 }
 
-.sidepanel-active {
+.sidepanel-hidden {
     width: 10px !important;
     overflow: hidden !important;
     padding: 0 !important;
@@ -243,7 +244,7 @@ body {
     gap: 1.5em;
 }
 
-#filterButton {
+.filterButton {
     background-color: var(--color-gold);
     color: var(--color-additional);
     font-size: larger;
@@ -252,7 +253,11 @@ body {
     cursor: pointer;
     border-radius: 4px;
 }
-
+#eventForm{
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
 .form-group {
     display: flex;
     align-items: center;
@@ -310,6 +315,7 @@ body {
     flex-wrap: wrap;
     padding: 2px;
     min-height: 24px;
+    max-width: 13em;
 }
 
 .selected-tag {

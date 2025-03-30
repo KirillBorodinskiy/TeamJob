@@ -68,7 +68,7 @@
                 </div>
             </form>
 
-            <button type="submit" form="filterEventsForm" id="filterButton">Filter</button>
+            <button type="submit" form="filterEventsForm" class="filterButton">Filter</button>
             <a href="/config/rooms" class="nav-link">Modify rooms</a>
             <a href="/config/events" class="nav-link">Modify events</a>
         </div>
@@ -116,7 +116,7 @@
                          style="display: none; color: red; margin-top: 5px;"></div>
                 </div>
 
-                <button type="submit" class="save-btn">Save Event</button>
+                <button type="submit" class="filterButton">Save Event</button>
             </form>
         </div>
     </div>
@@ -319,8 +319,21 @@
     }
 
     function toggleSidepanel() {
-        document.getElementById('sidepanel').classList.toggle('sidepanel-active');
-        document.getElementById('sidepanel-content').classList.toggle('hidden');
+        const sidepanel = document.getElementById('sidepanel');
+        const sidepanelContent = document.getElementById('sidepanel-content');
+        const sidepanelCreation = document.getElementById('sidepanel-creation');
+
+        if (sidepanel.classList.contains("sidepanel-hidden")) {
+            sidepanel.classList.remove("sidepanel-hidden");
+            sidepanelContent.classList.remove('hidden');
+
+            sidepanelCreation.classList.add('hidden');//Just in case
+        }else{
+            sidepanel.classList.add("sidepanel-hidden");
+            sidepanelContent.classList.add('hidden');
+
+            sidepanelCreation.classList.add('hidden');//Just in case
+        }
 
     }
 
