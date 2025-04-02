@@ -15,6 +15,7 @@ import java.util.Set;
  *   <li>username</li>
  *   <li>email</li>
  *   <li>password: Hashed password</li>
+ *   <li>roles: A set of roles associated with the user.</li>
  * </ul>
  */
 @Setter

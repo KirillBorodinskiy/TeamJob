@@ -238,7 +238,7 @@ body {
 }
 
 #filterEventsForm {
-    text-align: center;
+    /*text-align: center;*/
     display: flex;
     flex-direction: column;
     gap: 1.5em;
@@ -260,7 +260,7 @@ body {
 }
 .form-group {
     display: flex;
-    align-items: center;
+    /*align-items: center;*/
     gap: 0.5em;
     flex-direction: column;
 }
