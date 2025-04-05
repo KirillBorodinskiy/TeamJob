@@ -1,7 +1,7 @@
 package io.datajek.spring.basics.teamjob;
 
 
-import io.datajek.spring.basics.teamjob.data.Event;
+import io.datajek.spring.basics.teamjob.data.EventInADay;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
@@ -19,6 +19,6 @@ public class WeekDay {
     private final String dayName;
     private final boolean isToday;
 
-    private List<Event>  events;
+    private List<EventInADay>  events;
 
 }

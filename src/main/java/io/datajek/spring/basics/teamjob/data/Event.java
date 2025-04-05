@@ -2,8 +2,6 @@ package io.datajek.spring.basics.teamjob.data;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -20,8 +18,6 @@ import java.time.LocalDateTime;
  *   <li>isRecurring</li>
  * </ul>
  */
-@Setter
-@Getter
 @Data
 @Entity
 @Table(name = "events")

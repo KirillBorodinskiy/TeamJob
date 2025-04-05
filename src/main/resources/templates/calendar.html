@@ -11,62 +11,445 @@
 </head>
 <body id="noscroll">
 <div class="navigation">
-    <a th:href="@{/calendar(date=${previousWeek})}" class="nav-link">&lt; Previous Week</a>
-    <a href="/config/rooms" class="nav-link">Change rooms</a>
+    <div class="sidepanel-toggle" onclick="toggleSidepanel()">
+        <span>&#9776;</span>
+    </div>
+    <a th:href="@{/calendar(date=${previousWeek},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">&lt; Previous
+        Week</a>
+
     <h2>
         Week of
         <span th:text="${#temporals.format(currentWeekStart, 'MMMM d, yyyy')}"
-              style="color: hsl(46.8, 92.9%, 61.6%);"></span>
+              style="color: var(--color-gold)">
+        </span>
     </h2>
-    <a href="/config/events" class="nav-link">Change events</a>
-    <a th:href="@{/calendar(date=${nextWeek})}" class="nav-link">Next Week &gt;</a>
+
+    <a th:href="@{/calendar(date=${nextWeek},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">Next Week
+        &gt;</a>
 </div>
 
 
 <div class="calendar-container">
+    <div id="sidepanel">
+        <div id="sidepanel-content">
+            <form id="filterEventsForm">
+            <span>
+                Filter events:
+            </span>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" th:name="date" th:value="${currentWeekStart}"/>
 
-    <div class="time-column">
-        <div class="day-header time-header">
-            <span>Time</span>
+                <div class="form-group">
+                    <label for="filterUser">By user</label>
+                    <div class="multi-select">
+                        <div class="selected-container" id="userSelectedContainer">
+                        </div>
+                        <input type="text" id="userSearchInput" placeholder="Choose users" autocomplete="off">
+                        <div class="select-items select-hide" id="userSelectItems">
+                            <div th:each="user : ${users}" th:data-value="${user.id}" th:data-name="${user.username}"
+                                 th:text="${user.username}"></div>
+                        </div>
+                        <input type="hidden" id="filterUser" name="userIds" value="">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="filterRoom">By room</label>
+                    <div class="multi-select">
+                        <div class="selected-container" id="roomSelectedContainer">
+                        </div>
+                        <input type="text" id="roomSearchInput" placeholder="Choose rooms" autocomplete="off">
+                        <div class="select-items select-hide" id="roomSelectItems">
+                            <div th:each="room : ${rooms}" th:data-value="${room.id}" th:data-name="${room.name}"
+                                 th:text="${room.name}"></div>
+                        </div>
+                        <input type="hidden" id="filterRoom" name="roomIds" value="">
+                    </div>
+                </div>
+            </form>
+
+            <button type="submit" form="filterEventsForm" class="filterButton">Filter</button>
+            <a href="/config/rooms" class="nav-link">Modify rooms</a>
+            <a href="/config/events" class="nav-link">Modify events</a>
         </div>
-        <div class="time-slots">
-            <div th:each="hour : ${hours}" class="time-slot">
-                <span th:text="${hour + ':00'}"></span>
-            </div>
+
+        <div id="sidepanel-creation" class="hidden">
+            <form id="eventForm">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="form-group">
+                    <label for="eventTitle">Event Title</label>
+                    <input type="text" id="eventTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="userSelect">User</label>
+                    <select id="userSelect" name="userId" required>
+                        <option value="">Select a user</option>
+                        <option th:each="user : ${users}" th:value="${user.id}"
+                                th:text="${user.username}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="roomSelect">Room</label>
+                    <select id="roomSelect" name="roomId" required>
+                        <option value="">Select a room</option>
+                        <option th:each="room : ${rooms}" th:value="${room.id}" th:text="${room.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="startDate">Start Date & Time</label>
+                    <div class="time-container">
+                        <input type="date" id="startDate" name="startDate" required>
+                        <input type="time" id="startTime" name="startTime" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="endDate">End Date & Time</label>
+                    <div class="time-container">
+                        <input type="date" id="endDate" name="endDate" required>
+                        <input type="time" id="endTime" name="endTime" required>
+                    </div>
+                    <div class="error-message" id="date-time-error"
+                         style="display: none; color: red; margin-top: 5px;"></div>
+                </div>
+
+                <button type="submit" class="filterButton">Save Event</button>
+            </form>
         </div>
     </div>
-
-    <div class="week-grid">
-        <div th:each="day : ${weekDays}"
-             th:class="'day-column' + (${day.today} ? ' today' : '') + (${day.date.equals(selectedDate)} ? ' selected' : '')">
-            <div class="day-header">
-                <span class="day-name" th:text="${day.dayName}"></span>
-                <span class="date" th:text="${#temporals.format(day.date, 'MMM d')}"></span>
+    <div id="scrollable">
+        <div class="time-column">
+            <div class="day-header time-header">
+                <span>Time</span>
             </div>
-            <div class="day-time-grid">
-                <div th:each="hour : ${hours}" class="hour-slot">
+            <div class="time-slots">
+                <div th:each="hour : ${hours}" class="time-slot">
+                    <span th:text="${hour + ':00'}"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-grid">
+            <div th:each="day : ${weekDays}"
+                 th:class="'day-column' + (${day.today} ? ' today' : '') + (${day.date.equals(selectedDate)} ? ' selected' : '')">
+                <div class="day-header">
+                    <span class="day-name" th:text="${day.dayName}"></span>
+                    <span class="date" th:text="${#temporals.format(day.date, 'MMM d')}"></span>
+                </div>
+                <div class="day-time-grid">
+                    <div th:each="hour : ${hours}" class="hour-slot" th:data-hour="${hour}"
+                         th:data-day="${day.date}">
+                    </div>
                     <div th:each="event : ${day.events}"
-                         th:if="${event.startTime.getHour() == hour}"
                          th:class="'event'"
-                         th:style="'height: calc(' + ${T(java.time.Duration).between(event.startTime, event.endTime).toMinutes() / 60.0} + ' * var(--hour-height));margin-top: calc(' + ${(event.startTime.getMinute()) / 60.0} + ' * var(--hour-height));'"
-                         th:title="${event.description}">
-                        <div class="event-title" th:text="${event.title}"></div>
+                         th:draggable="true"
+                         th:style="'height: calc(' + ${event.getDurationInADay()} + '* var(--hour-height));top: calc(' + ${event.getStartTimeToUse()} + ' * var(--hour-height) + 0px);'">
+                        <a class="event-title" th:href="@{/event/{id}(id=${event.id})}"
+                           th:text="${event.title}"></a>
                         <div class="event-time"
                              th:text="${#temporals.format(event.startTime, 'HH:mm') + ' - ' + #temporals.format(event.endTime, 'HH:mm')}"></div>
                         <div class="event-details">
-            <span class="event-room" th:if="${event.room != null}"
-                  th:text="${'Room: ' + event.room.name}"></span>
+                            <a class="event-room" th:if="${event.room != null}"
+                               th:href="@{/room/{id}(id=${event.room.getId()})}"
+                               th:text="${'Room: ' + event.room.name}"></a>
+
                             <span class="event-user" th:if="${event.user != null}"
                                   th:text="${'User: ' + event.user.username}"></span>
+
                             <span class="event-desc" th:if="${event.description}"
                                   th:text="${#strings.abbreviate(event.description, 50)}"></span>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 </body>
+
+<script>
+    const eventForm = document.getElementById('eventForm');
+
+
+    function getCsrfToken() {
+        return document.querySelector("meta[name='_csrf']").content;
+    }
+
+    function getCsrfHeader() {
+        return document.querySelector("meta[name='_csrf_header']").content;
+    }
+
+    function validateDateTimeRange() {
+        const startDate = document.getElementById('startDate').value;
+        const startTime = document.getElementById('startTime').value;
+        const endDate = document.getElementById('endDate').value;
+        const endTime = document.getElementById('endTime').value;
+
+        if (!startDate || !startTime || !endDate || !endTime) {
+            return false;
+        }
+
+        const startDateTime = new Date(`${startDate}T${startTime}`);
+        const endDateTime = new Date(`${endDate}T${endTime}`);
+
+        const errorElement = document.getElementById('date-time-error');
+
+        if (endDateTime <= startDateTime) {
+            errorElement.textContent = "End date/time must be after start date/time";
+            errorElement.style.display = "block";
+            return false;
+        }
+
+        errorElement.style.display = "none";
+        return true;
+    }
+
+    // Add validation to the date and time fields
+    document.getElementById('startDate').addEventListener('change', validateDateTimeRange);
+    document.getElementById('startTime').addEventListener('change', validateDateTimeRange);
+    document.getElementById('endDate').addEventListener('change', validateDateTimeRange);
+    document.getElementById('endTime').addEventListener('change', validateDateTimeRange);
+
+    eventForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Validate the date range first
+        if (!validateDateTimeRange()) {
+            return;
+        }
+
+        // Combine date and time inputs into datetime strings
+        const startDate = document.getElementById('startDate').value;
+        const startTime = document.getElementById('startTime').value;
+        const endDate = document.getElementById('endDate').value;
+        const endTime = document.getElementById('endTime').value;
+
+        const startDateTime = `${startDate}T${startTime}:00`;
+        const endDateTime = `${endDate}T${endTime}:00`;
+
+        const formData = {
+            title: document.getElementById('eventTitle').value,
+            description: document.getElementById('eventDescription').value,
+            roomId: document.getElementById('roomSelect').value,
+            userId: document.getElementById('userSelect').value,
+            startTime: startDateTime,
+            endTime: endDateTime,
+        };
+
+        try {
+            const response = await fetch('/api/v1/addevents', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [getCsrfHeader()]: getCsrfToken()
+                },
+                credentials: 'include',
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                let errorMessage;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || 'Failed to save event';
+                } catch (e) {
+                    errorMessage = 'Failed to save event';
+                }
+                alert(`Failed to save event: ${errorMessage}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to save event');
+        }
+    });
+    const urlParams = new URLSearchParams(window.location.search);
+    const preselectedUserIds = urlParams.get('userIds') ? urlParams.get('userIds').split(',') : [];
+    const preselectedRoomIds = urlParams.get('roomIds') ? urlParams.get('roomIds').split(',') : [];
+    document.addEventListener('DOMContentLoaded', function () {
+        setupMultiSelectDropdown(
+            'userSearchInput',
+            'userSelectItems',
+            'filterUser',
+            'userSelectedContainer',
+            preselectedUserIds
+        );
+
+        setupMultiSelectDropdown(
+            'roomSearchInput',
+            'roomSelectItems',
+            'filterRoom',
+            'roomSelectedContainer',
+            preselectedRoomIds
+        );
+        const hourSlots = document.querySelectorAll('.hour-slot');
+        hourSlots.forEach(function (slot) {
+            slot.addEventListener('click', function () {
+                const hour = this.getAttribute('data-hour');
+                const day = this.getAttribute('data-day');
+                addNewEvent(hour, day);
+            });
+        });
+
+    });
+
+    function addNewEvent(hour, day) {
+        const hourInt = parseInt(hour);
+        const formattedHour = hourInt.toString().padStart(2, '0');
+
+        document.getElementById('startDate').value = day;
+        document.getElementById('endDate').value = day;
+
+        document.getElementById('startTime').value = `${formattedHour}:00`;
+
+        // Set end time to one hour later
+        const endHour = (hourInt + 1) % 24;
+        document.getElementById('endTime').value = `${endHour.toString().padStart(2, '0')}:00`;
+
+        validateDateTimeRange();
+
+        // Toggle visibility of panels
+        document.getElementById('sidepanel-creation').classList.remove('hidden');
+        document.getElementById('sidepanel-content').classList.add('hidden');
+    }
+
+    function toggleSidepanel() {
+        const sidepanel = document.getElementById('sidepanel');
+        const sidepanelContent = document.getElementById('sidepanel-content');
+        const sidepanelCreation = document.getElementById('sidepanel-creation');
+
+        if (sidepanel.classList.contains("sidepanel-hidden")) {
+            sidepanel.classList.remove("sidepanel-hidden");
+            sidepanelContent.classList.remove('hidden');
+
+            sidepanelCreation.classList.add('hidden');//Just in case
+        }else{
+            sidepanel.classList.add("sidepanel-hidden");
+            sidepanelContent.classList.add('hidden');
+
+            sidepanelCreation.classList.add('hidden');//Just in case
+        }
+
+    }
+
+    function setupMultiSelectDropdown(inputId, itemsId, hiddenFieldId, selectedContainerId, preselectedValues = []) {
+        const searchInput = document.getElementById(inputId);
+        const selectItems = document.getElementById(itemsId);
+        const hiddenField = document.getElementById(hiddenFieldId);
+        const selectedContainer = document.getElementById(selectedContainerId);
+        const allItems = selectItems.querySelectorAll('div');
+
+        // Track selected values while initializing with given filters
+        let selectedValues = [...preselectedValues];
+
+        hiddenField.value = selectedValues.join(',');
+        // Initialize selected items
+        if (preselectedValues.length > 0) {
+            for (let i = 0; i < allItems.length; i++) {
+                const value = allItems[i].getAttribute('data-value');
+                const name = allItems[i].getAttribute('data-name');
+
+                if (preselectedValues.includes(value)) {
+                    addSelectedItem(value, name);
+                    allItems[i].classList.add('selected');
+                }
+            }
+        }
+        // Show dropdown when input is focused
+        searchInput.addEventListener('focus', function () {
+            selectItems.classList.remove('select-hide');
+        });
+
+        // Filter items as user types
+        searchInput.addEventListener('input', function () {
+            const filter = this.value.toUpperCase();
+
+            for (let i = 0; i < allItems.length; i++) {
+                const txtValue = allItems[i].textContent || allItems[i].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    allItems[i].style.display = "";
+                } else {
+                    allItems[i].style.display = "none";
+                }
+            }
+        });
+
+        // Handle selection
+        for (let i = 0; i < allItems.length; i++) {
+            allItems[i].addEventListener('click', function () {
+                const value = this.getAttribute('data-value');
+                const name = this.getAttribute('data-name');
+
+                // Only add if not already selected
+                if (!selectedValues.includes(value)) {
+                    addSelectedItem(value, name);
+                    this.classList.add('selected');
+                }
+
+                searchInput.focus();
+            });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            if (e.target !== searchInput && !selectItems.contains(e.target)) {
+                selectItems.classList.add('select-hide');
+            }
+        });
+
+        // Function to add a selected item
+        function addSelectedItem(value, name) {
+            // Only add if not already in the container
+            if (!selectedContainer.querySelector(`.selected-tag[data-value="${value}"]`)) {
+                // Create tag element
+                const tag = document.createElement('div');
+                tag.className = 'selected-tag';
+                tag.dataset.value = value;
+                tag.innerHTML = name + '<span class="tag-remove">&times;</span>';
+
+                // Add remove event
+                tag.querySelector('.tag-remove').addEventListener('click', function () {
+                    removeSelectedItem(value);
+                });
+
+                // Add to container
+                selectedContainer.appendChild(tag);
+
+                // Update selected values array if not already included
+                if (!selectedValues.includes(value)) {
+                    selectedValues.push(value);
+                }
+
+                // Update hidden field
+                hiddenField.value = selectedValues.join(',');
+            }
+        }
+
+        // Function to remove a selected item
+        function removeSelectedItem(value) {
+            // Remove from selected values array
+            selectedValues = selectedValues.filter(item => item !== value);
+
+            // Remove tag element
+            const tag = selectedContainer.querySelector(`.selected-tag[data-value="${value}"]`);
+            if (tag) {
+                selectedContainer.removeChild(tag);
+            }
+
+            // Un-mark item in dropdown
+            const item = selectItems.querySelector(`div[data-value="${value}"]`);
+            if (item) {
+                item.classList.remove('selected');
+            }
+
+            // Update hidden field
+            hiddenField.value = selectedValues.join(',');
+        }
+    }
+</script>
 </html>

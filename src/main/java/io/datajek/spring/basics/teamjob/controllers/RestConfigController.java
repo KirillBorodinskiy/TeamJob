@@ -10,6 +10,8 @@ import io.datajek.spring.basics.teamjob.data.Room;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +29,17 @@ public class RestConfigController {
     @Autowired
     public void setEventRepository(EventRepository eventRepository) {
         this.eventRepository = eventRepository;
+    }
+
+
+    @PostMapping("/validateJWT")
+    public ResponseEntity<?> validateJWT() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/addrooms")

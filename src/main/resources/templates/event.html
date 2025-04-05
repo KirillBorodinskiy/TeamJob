@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Event ' + ${event.id}"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="details-container">
+        <b style="font-size:larger">Event id:</b>
+        <span th:text="${event.id}"/>
+    </div>
+    <div class="details-container">
+        <b>Event Name:</b>
+        <span th:text="${event.title}"/>
+    </div>
+    <div class="details-container">
+        <b>Room:</b>
+        <span th:text="${event.room.name}"/>
+    </div>
+    <div class="details-container">
+        <b>Start Time:</b>
+        <span th:text="${#temporals.format(event.startTime, 'MMMM d, yyyy h:mm')}"/>
+    </div>
+    <div class="details-container">
+        <b>End Time:</b>
+        <span th:text="${#temporals.format(event.endTime, 'MMMM d, yyyy h:mm')}"/>
+    </div>
+    <div class="details-container">
+        <b>User:</b>
+        <span th:text="${event.user.getUsername()}"/>
+    </div>
+    <button th:onclick="'deleteEvent(' + ${event.id} + ')'">Remove event</button>
+</div>
+</body>
+<script>
+    async function deleteEvent(eventId) {
+        const response = await authFetch('/deleteevents/' + eventId, {method: 'DELETE'});
+        if (response.status === 204) {
+            window.location.href = '/calendar';
+        } else {
+            alert('Failed to delete event');
+        }
+    }
+
+    function authFetch(url, options = {}) {
+        options.credentials = 'include';
+        return fetch(url, options);
+    }
+</script>
+</html>
