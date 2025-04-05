@@ -1,13 +1,9 @@
 package io.datajek.spring.basics.teamjob.data;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
-@Setter
-@Getter
 @Data
 @Table(name = "roles")
 public class Role {

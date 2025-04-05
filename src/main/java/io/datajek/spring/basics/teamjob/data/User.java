@@ -2,8 +2,6 @@ package io.datajek.spring.basics.teamjob.data;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,8 +16,6 @@ import java.util.Set;
  *   <li>roles: A set of roles associated with the user.</li>
  * </ul>
  */
-@Setter
-@Getter
 @Data
 @Entity
 @Table(name = "users")
