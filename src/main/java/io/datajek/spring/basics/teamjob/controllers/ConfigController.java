@@ -47,5 +47,10 @@ public class ConfigController {
         return "events";
     }
 
+    @GetMapping({"/users"})
+    public String Users(Model model) {
+        model.addAttribute("users", userRepository.findAll());
+        return "users";
+    }
 
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-    <title>Rooms editor</title>
+    <title>User editor</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
         <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,28 +13,28 @@
 <body>
 <div class="mod-container">
     <div class="add-room">
-        <button class="add-btn" id="addRoomBtn">Add a new room</button>
+        <button class="add-btn" id="addRoomBtn">Add a new user</button>
         <div class="add-form" id="addRoomForm">
             <form id="roomForm">
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                 <div class="form-group">
-                    <label for="roomName">Room Name</label>
+                    <label for="roomName">User Name</label>
                     <input type="text" id="roomName" name="name">
                 </div>
                 <div class="form-group">
                     <label for="roomDescription">Description</label>
                     <textarea id="roomDescription" name="description" rows="3"></textarea>
                 </div>
-                <button type="submit" class="save-btn">Save Room</button>
+                <button type="submit" class="save-btn">Save User</button>
             </form>
         </div>
     </div>
 
     <div class="rooms-list" id="roomList">
-        <div th:each="room : ${rooms}" class="room-card">
-            <h3 th:text="${room.name}">Room Name</h3>
-            <p th:text="${room.description ?: 'No description'}">Description</p>
-            <button class="delete-btn" th:onclick="'deleteRoom(' + ${room.id} + ')'">&#x2715;</button>
+        <div th:each="user : ${users}" class="room-card">
+            <h3 th:text="${user.username}">User Name</h3>
+            <p th:text="${user.email ?: 'No email'}">Email</p>
+            <button class="delete-btn" th:onclick="'deleteRoom(' + ${user.id} + ')'">&#x2715;</button>
         </div>
     </div>
 </div>

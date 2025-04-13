@@ -95,7 +95,8 @@
                 document.getElementById('success-alert').style.display = 'block';
                 document.getElementById('error-alert').style.display = 'none';
             } else {
-                document.getElementById('error-alert').textContent = data;
+                console.error('Error:', data);
+                document.getElementById('error-alert').textContent = "An error occurred. Please try again.";
                 document.getElementById('error-alert').style.display = 'block';
                 document.getElementById('success-alert').style.display = 'none';
             }

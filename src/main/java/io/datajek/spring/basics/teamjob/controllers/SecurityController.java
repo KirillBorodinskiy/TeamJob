@@ -1,5 +1,6 @@
 package io.datajek.spring.basics.teamjob.controllers;
 
+import io.datajek.spring.basics.teamjob.DefaultValueService;
 import io.datajek.spring.basics.teamjob.JwtCore;
 import io.datajek.spring.basics.teamjob.data.Repositories.RoleRepository;
 import io.datajek.spring.basics.teamjob.data.Repositories.UserRepository;
@@ -102,7 +103,7 @@ public class SecurityController {
         user.setPassword(hashedPassword);
         user.setUsername(signupRequest.getUsername());
         user.setEmail(signupRequest.getEmail());
-        Role userRole = roleRepository.findByName("ROLE_USER")
+        Role userRole = roleRepository.findByName(DefaultValueService.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
         user.addRole(userRole);
         userRepository.save(user);

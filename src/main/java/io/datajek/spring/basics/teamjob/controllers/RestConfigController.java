@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1")
 public class RestConfigController {
-    RoomRepository roomRepository;
-    EventRepository eventRepository;
+    private RoomRepository roomRepository;
+    private EventRepository eventRepository;
     private UserRepository userRepository;
 
     @Autowired
