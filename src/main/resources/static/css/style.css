@@ -219,7 +219,7 @@ body {
     padding: 0 !important;
 }
 
-#sidepanel-content,#sidepanel-creation{
+#sidepanel-filter,#sidepanel-creation{
     opacity: 1;
     gap: 1.5em;
     padding: 1em;
@@ -434,6 +434,7 @@ body {
 }
 
 .event {
+    border:2px solid var(--color-tertiary);
     min-height: 2em;
     max-width: 100%;
     overflow: hidden;

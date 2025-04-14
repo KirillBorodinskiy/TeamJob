@@ -57,16 +57,32 @@ public class RestConfigController {
 
     @PostMapping("/addevents")
     public ResponseEntity<Event> addEvents(@RequestBody EventRequest eventRequest) {
+        //First check if the room isn't already booked
+        if (eventRepository.findOverlappingEventsInRoom
+                (
+                        eventRequest.getStartTime(),
+                        eventRequest.getEndTime(),
+                        roomRepository.findById(eventRequest.getRoomId())
+                )
+        ) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
         Event event = new Event();
+        //Check if the user exists
+        if (eventRequest.getUserId() != null) {
+            event.setUser(userRepository.findById(eventRequest.getUserId())
+                    .orElseThrow(
+                            () -> new IllegalArgumentException("User not found with ID: " + eventRequest.getUserId())
+                    )
+            );
+        }
         event.setTitle(eventRequest.getTitle());
         event.setDescription(eventRequest.getDescription());
         event.setRoom(roomRepository.findById(eventRequest.getRoomId()).orElse(null));
-        if (eventRequest.getUserId() != null) {
-            event.setUser(userRepository.findById(eventRequest.getUserId())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + eventRequest.getUserId())));
-        }
+
         event.setStartTime(eventRequest.getStartTime());
         event.setEndTime(eventRequest.getEndTime());
+
         Event savedEvent = eventRepository.save(event);
         return ResponseEntity.ok(savedEvent);
     }

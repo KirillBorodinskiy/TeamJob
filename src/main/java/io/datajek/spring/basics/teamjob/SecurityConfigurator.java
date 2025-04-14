@@ -98,7 +98,7 @@ public class SecurityConfigurator {
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         // Protected endpoints
-                        .requestMatchers("/config/**").hasRole("CONFIG")
+                        .requestMatchers("/config/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)

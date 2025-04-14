@@ -1,8 +1,10 @@
 package io.datajek.spring.basics.teamjob;
 
 import io.datajek.spring.basics.teamjob.data.Repositories.RoleRepository;
+import io.datajek.spring.basics.teamjob.data.Repositories.RoomRepository;
 import io.datajek.spring.basics.teamjob.data.Repositories.UserRepository;
 import io.datajek.spring.basics.teamjob.data.Role;
+import io.datajek.spring.basics.teamjob.data.Room;
 import io.datajek.spring.basics.teamjob.data.User;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +19,17 @@ import java.util.HashSet;
 public class DefaultValueService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private RoomRepository roomRepository;
     private PasswordEncoder passwordEncoder;
     public static final String ROLE_USER = "ROLE_USER";
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     public static final String ROLE_CONFIG = "ROLE_CONFIG";
 
     @Autowired
-    public DefaultValueService(RoleRepository roleRepository, UserRepository userRepository) {
+    public DefaultValueService(RoleRepository roleRepository, UserRepository userRepository, RoomRepository roomRepository) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
+        this.roomRepository = roomRepository;
     }
 
     @Autowired
@@ -87,8 +91,31 @@ public class DefaultValueService {
 
             // Force a flush to ensure data is committed
             userRepository.flush();
+
+
+            Room room = new Room();
+            room.setName("Room 1");
+            room.setDescription("Room 1 description");
+            createRoom(room);
+
+            Room room2 = new Room();
+            room2.setName("Room 2");
+            room2.setDescription("Room 2 description");
+            createRoom(room2);
+
+            roomRepository.flush();
+
         } catch (Exception e) {
             System.err.println("Error inserting default roles: " + e.getMessage() + e.getCause());
+        }
+    }
+
+    private void createRoom(Room room) {
+        if (!roomRepository.existsByName(room.getName())) {
+            roomRepository.save(room);
+            System.out.println("Room " + room.getName() + " created");
+        } else {
+            System.out.println("Room " + room.getName() + " already exists");
         }
     }
 
@@ -100,5 +127,10 @@ public class DefaultValueService {
         } else {
             System.out.println("User " + user.getUsername() + " already exists");
         }
+    }
+
+    @Autowired
+    public void setRoomRepository(RoomRepository roomRepository) {
+        this.roomRepository = roomRepository;
     }
 }

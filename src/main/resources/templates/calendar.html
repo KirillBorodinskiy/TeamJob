@@ -11,10 +11,10 @@
 </head>
 <body id="noscroll">
 <div class="navigation">
-    <div class="sidepanel-toggle" onclick="toggleSidepanel()">
-        <span>Filtering sidepanel</span>
-        <span>Creation sidepanel</span>
-        <span>Hide sidepanel</span>
+    <div class="sidepanel-toggle">
+        <button onclick="toggleSidepanel('filter')">Filtering sidepanel</button>
+        <button onclick="toggleSidepanel('creation')">Creation sidepanel</button>
+        <button onclick="toggleSidepanel('hide')">Hide sidepanel</button>
     </div>
     <a th:href="@{/calendar(date=${previousWeek},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">&lt; Previous
         Week</a>
@@ -33,7 +33,7 @@
 
 <div class="calendar-container">
     <div id="sidepanel">
-        <div id="sidepanel-content">
+        <div id="sidepanel-filter">
             <form id="filterEventsForm">
             <span>
                 Filter events:
@@ -176,15 +176,6 @@
 <script>
     const eventForm = document.getElementById('eventForm');
 
-
-    function getCsrfToken() {
-        return document.querySelector("meta[name='_csrf']").content;
-    }
-
-    function getCsrfHeader() {
-        return document.querySelector("meta[name='_csrf_header']").content;
-    }
-
     function validateDateTimeRange() {
         const startDate = document.getElementById('startDate').value;
         const startTime = document.getElementById('startTime').value;
@@ -247,7 +238,6 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    [getCsrfHeader()]: getCsrfToken()
                 },
                 credentials: 'include',
                 body: JSON.stringify(formData)
@@ -256,18 +246,23 @@
             if (response.ok) {
                 window.location.reload();
             } else {
-                let errorMessage;
+                let errorMessage = getErrorMessageForStatusCode(response.status);
+
+                // Try to get more specific error from response body
                 try {
                     const errorData = await response.json();
-                    errorMessage = errorData.message || 'Failed to save event';
+                    if (errorData.message) {
+                        errorMessage += `: ${errorData.message}`;
+                    }
                 } catch (e) {
-                    errorMessage = 'Failed to save event';
+
                 }
+
                 alert(`Failed to save event: ${errorMessage}`);
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Failed to save event');
+            alert('Failed to save event: Network error');
         }
     });
     const urlParams = new URLSearchParams(window.location.search);
@@ -300,6 +295,22 @@
 
     });
 
+    function getErrorMessageForStatusCode(status) {
+        const errorMessages = {
+            400: 'Bad request - Please check your input data',
+            401: 'Unauthorized - Please log in again',
+            403: 'Forbidden - You don\'t have permission for this action',
+            404: 'Not found - The requested resource doesn\'t exist',
+            409: 'Conflict - This event conflicts with another event',
+            422: 'Validation error - Please check your event details',
+            429: 'Too many requests - Please try again later',
+            500: 'Server error - Please try again later',
+            503: 'Service unavailable - Please try again later'
+        };
+
+        return errorMessages[status] ;
+    }
+
     function addNewEvent(hour, day) {
         const hourInt = parseInt(hour);
         const formattedHour = hourInt.toString().padStart(2, '0');
@@ -317,24 +328,28 @@
 
         // Toggle visibility of panels
         document.getElementById('sidepanel-creation').classList.remove('hidden');
-        document.getElementById('sidepanel-content').classList.add('hidden');
+        document.getElementById('sidepanel-filter').classList.add('hidden');
     }
 
-    function toggleSidepanel() {
+    function toggleSidepanel(value) {
         const sidepanel = document.getElementById('sidepanel');
-        const sidepanelContent = document.getElementById('sidepanel-content');
+        const sidepanelFilter = document.getElementById('sidepanel-filter');
         const sidepanelCreation = document.getElementById('sidepanel-creation');
 
-        if (sidepanel.classList.contains("sidepanel-hidden")) {
-            sidepanel.classList.remove("sidepanel-hidden");
-            sidepanelContent.classList.remove('hidden');
-
-            sidepanelCreation.classList.add('hidden');//Just in case
-        }else{
+        if (value === 'filter') {
+            sidepanel.classList.remove('hidden');
+            sidepanelFilter.classList.remove('hidden');
+            sidepanelCreation.classList.add('hidden');
+        } else if (value === 'creation') {
+            sidepanel.classList.remove('hidden');
+            sidepanelCreation.classList.remove('hidden');
+            sidepanelFilter.classList.add('hidden');
+        } else if (value === 'hide') {
             sidepanel.classList.add("sidepanel-hidden");
-            sidepanelContent.classList.add('hidden');
-
-            sidepanelCreation.classList.add('hidden');//Just in case
+            sidepanelFilter.classList.add('hidden');
+            sidepanelCreation.classList.add('hidden');
+        } else {
+            console.error("Invalid value for toggleSidepanel");
         }
 
     }

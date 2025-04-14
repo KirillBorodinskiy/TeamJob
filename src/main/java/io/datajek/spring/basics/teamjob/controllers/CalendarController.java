@@ -50,13 +50,13 @@ public class CalendarController {
         LocalDate firstDayOfWeek = targetDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
         List<WeekDay> weekDays = new ArrayList<>();
-        List<Event> allEvents = eventRepository.findAll();
+        List<Event> allEvents = eventRepository.findOverlappingEvents(firstDayOfWeek.atStartOfDay(), firstDayOfWeek.plusDays(7).atStartOfDay());
 
         for (int i = 0; i < 7; i++) {
             LocalDate currentDate = firstDayOfWeek.plusDays(i);
             List<EventInADay> dayEvents = convertToDayEvents(allEvents, currentDate, userIds, roomIds);
 
-            weekDays.add(new WeekDay(
+                weekDays.add(new WeekDay(
                     currentDate,
                     currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()),
                     currentDate.equals(LocalDate.now()),
