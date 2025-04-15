@@ -180,7 +180,7 @@
 <script>
     const eventForm = document.getElementById('eventForm');
 
-    function validateDateTimeRange() {
+    async function validateDateTimeRange() {
         const startDate = document.getElementById('startDate').value;
         const startTime = document.getElementById('startTime').value;
         const endDate = document.getElementById('endDate').value;
@@ -201,6 +201,33 @@
             return false;
         }
 
+        // Check availability with the API
+        try {
+            const response = await fetch('api/v1/checkavailability', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    startTime: `${startDate}T${startTime}:00`,
+                    endTime: `${endDate}T${endTime}:00`,
+                    roomId: document.getElementById('roomSelect').value,
+                })
+            });
+
+            const data = await response.json();
+            if (data===false) {
+                errorElement.textContent = "The selected time slot is not available";
+                errorElement.style.display = "block";
+                return false;
+            }
+        } catch (error) {
+            console.error("Error checking availability:", error);
+            errorElement.textContent = "Failed to check time slot availability";
+            errorElement.style.display = "block";
+            return false;
+        }
         errorElement.style.display = "none";
         return true;
     }

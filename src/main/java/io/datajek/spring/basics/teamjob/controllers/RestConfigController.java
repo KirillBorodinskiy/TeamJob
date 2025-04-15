@@ -1,12 +1,9 @@
 package io.datajek.spring.basics.teamjob.controllers;
 
-import io.datajek.spring.basics.teamjob.data.Event;
-import io.datajek.spring.basics.teamjob.data.EventRequest;
+import io.datajek.spring.basics.teamjob.data.*;
 import io.datajek.spring.basics.teamjob.data.Repositories.EventRepository;
 import io.datajek.spring.basics.teamjob.data.Repositories.RoomRepository;
 import io.datajek.spring.basics.teamjob.data.Repositories.UserRepository;
-import io.datajek.spring.basics.teamjob.data.RoomRequest;
-import io.datajek.spring.basics.teamjob.data.Room;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +50,20 @@ public class RestConfigController {
         Room savedRoom = roomRepository.save(room);
 
         return ResponseEntity.ok(savedRoom);
+    }
+
+    @PostMapping("/checkavailability")
+    public Boolean checkAvailability(@RequestBody RoomAvailabilityRequest roomAvailabilityRequest) {
+        if (roomRepository.findById(roomAvailabilityRequest.getRoomId()).isPresent()) {
+            // Invert the result since true from repository means there IS a conflict
+            return !eventRepository.findOverlappingEventsInRoom(
+                    roomAvailabilityRequest.getStartTime(),
+                    roomAvailabilityRequest.getEndTime(),
+                    roomRepository.findById(roomAvailabilityRequest.getRoomId())
+            );
+        } else {
+            return false;
+        }
     }
 
     @PostMapping("/addevents")
