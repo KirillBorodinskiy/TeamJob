@@ -203,7 +203,7 @@
 
         // Check availability with the API
         try {
-            const response = await fetch('api/v1/checkavailability', {
+            const response = await fetch('/api/v1/checkavailability', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -242,7 +242,7 @@
         e.preventDefault();
 
         // Validate the date range first
-        if (!validateDateTimeRange()) {
+        if (!await validateDateTimeRange()) {
             return;
         }
 

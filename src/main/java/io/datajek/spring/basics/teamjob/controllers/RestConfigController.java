@@ -56,14 +56,17 @@ public class RestConfigController {
     public Boolean checkAvailability(@RequestBody RoomAvailabilityRequest roomAvailabilityRequest) {
         if (roomRepository.findById(roomAvailabilityRequest.getRoomId()).isPresent()) {
             // Invert the result since true from repository means there IS a conflict
-            return !eventRepository.findOverlappingEventsInRoom(
+            if(!eventRepository.findOverlappingEventsInRoom(
                     roomAvailabilityRequest.getStartTime(),
                     roomAvailabilityRequest.getEndTime(),
-                    roomRepository.findById(roomAvailabilityRequest.getRoomId())
-            );
-        } else {
-            return false;
+                    roomRepository.findById(roomAvailabilityRequest.getRoomId()))
+            ) {
+                return true;
+            }else{
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND).hasBody();
+            }
         }
+        return false;
     }
 
     @PostMapping("/addevents")
