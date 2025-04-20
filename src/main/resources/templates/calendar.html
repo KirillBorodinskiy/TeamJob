@@ -31,9 +31,12 @@
 
     <div id="sidepanel">
         <div id="sidepanel-toggle">
-            <button class="sidepanel-button gold-border" id="sidepanel-button-left" onclick="toggleSidepanel('filter')">Filter
+            <button class="sidepanel-button gold-border" id="sidepanel-button-left" onclick="toggleSidepanel('filter')">
+                Filter
             </button>
-            <button class="sidepanel-button" id="sidepanel-button-right" onclick="toggleSidepanel('create')">Create
+
+            <button class="sidepanel-button" id="sidepanel-button-right" onclick="toggleSidepanel('create')">
+                Create
             </button>
         </div>
 
@@ -113,6 +116,12 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="is_recurring">Is recurring?</label>
+                    <input type="checkbox" id="is_recurring" name="is_recurring">
+                    <label for="is_recurring_end_date">End date</label>
+                    <input type="date" id="is_recurring_end_date" name="is_recurring_end_date" required>
+                </div>
+                <div class="form-group">
                     <label for="endDate">End Date & Time</label>
                     <div class="time-container">
                         <input type="date" id="endDate" name="endDate" required>
@@ -127,49 +136,52 @@
         </div>
     </div>
     <div id="scrollable">
-        <div class="time-column">
-            <div class="day-header time-header">
-                <span>Time</span>
-            </div>
-            <div class="time-slots">
-                <div th:each="hour : ${hours}" class="time-slot">
-                    <span th:text="${hour + ':00'}"></span>
+        <div id="now-line"></div>
+        <div class="flex-row">
+            <div class="time-column">
+                <div class="day-header time-header">
+                    <span>Time</span>
                 </div>
-            </div>
-        </div>
-
-        <div class="week-grid">
-            <div th:each="day : ${weekDays}"
-                 th:class="'day-column' + (${day.today} ? ' today' : '') + (${day.date.equals(selectedDate)} ? ' selected' : '')">
-                <div class="day-header">
-                    <span class="day-name" th:text="${day.dayName}"></span>
-                    <span class="date" th:text="${#temporals.format(day.date, 'MMM d')}"></span>
-                </div>
-                <div class="day-time-grid">
-                    <div th:each="hour : ${hours}" class="hour-slot" th:data-hour="${hour}"
-                         th:data-day="${day.date}">
+                <div class="time-slots">
+                    <div th:each="hour : ${hours}" class="time-slot">
+                        <span th:text="${hour + ':00'}"></span>
                     </div>
-                    <div th:each="event : ${day.events}"
-                         th:class="'event'"
-                         th:draggable="true"
-                         th:style="'height: calc(' + ${event.getDurationInADay()} + '* var(--hour-height));top: calc(' + ${event.getStartTimeToUse()} + ' * var(--hour-height) + 0px);'">
-                        <a class="event-title" th:href="@{/event/{id}(id=${event.id})}"
-                           th:text="${event.title}"></a>
-                        <div class="event-time"
-                             th:text="${#temporals.format(event.startTime, 'HH:mm') + ' - ' + #temporals.format(event.endTime, 'HH:mm')}"></div>
-                        <div class="event-details">
-                            <a class="event-room" th:if="${event.room != null}"
-                               th:href="@{/room/{id}(id=${event.room.getId()})}"
-                               th:text="${'Room: ' + event.room.name}"></a>
+                </div>
+            </div>
 
-                            <span class="event-user" th:if="${event.user != null}"
-                                  th:text="${'User: ' + event.user.username}"></span>
+            <div class="week-grid">
 
-                            <span class="event-desc" th:if="${event.description}"
-                                  th:text="${#strings.abbreviate(event.description, 50)}"></span>
+                <div th:each="day : ${weekDays}"
+                     th:class="'day-column' + (${day.today} ? ' today' : '') + (${day.date.equals(selectedDate)} ? ' selected' : '')">
+                    <div class="day-header">
+                        <span class="day-name" th:text="${day.dayName}"></span>
+                        <span class="date" th:text="${#temporals.format(day.date, 'MMM d')}"></span>
+                    </div>
+                    <div class="day-time-grid">
+                        <div th:each="hour : ${hours}" class="hour-slot" th:data-hour="${hour}"
+                             th:data-day="${day.date}">
+                        </div>
+                        <div th:each="event : ${day.events}"
+                             th:class="'event'"
+                             th:draggable="true"
+                             th:style="'height: calc(' + ${event.getDurationInADay()} + '* var(--hour-height));top: calc(' + ${event.getStartTimeToUse()} + ' * var(--hour-height) + 0px);'">
+                            <a class="event-title" th:href="@{/event/{id}(id=${event.id})}"
+                               th:text="${event.title}"></a>
+                            <div class="event-time"
+                                 th:text="${#temporals.format(event.startTime, 'HH:mm') + ' - ' + #temporals.format(event.endTime, 'HH:mm')}"></div>
+                            <div class="event-details">
+                                <a class="event-room" th:if="${event.room != null}"
+                                   th:href="@{/room/{id}(id=${event.room.getId()})}"
+                                   th:text="${'Room: ' + event.room.name}"></a>
+
+                                <span class="event-user" th:if="${event.user != null}"
+                                      th:text="${'User: ' + event.user.username}"></span>
+
+                                <span class="event-desc" th:if="${event.description}"
+                                      th:text="${#strings.abbreviate(event.description, 50)}"></span>
+                            </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -178,6 +190,22 @@
 </body>
 
 <script>
+
+    function updateNowLine() {
+        const time = new Date();
+        const hour = time.getHours();
+        const minutes = time.getMinutes();
+        //This gets the height of the time slot with all the CSS applied
+        const hourHeight = document.getElementsByClassName('time-slot')[0].getBoundingClientRect().height;
+
+        //This gets the top position of the time slots container (The start of our scrollable area)
+        const calendarTop = document.getElementsByClassName('time-slot')[0].getBoundingClientRect().top;
+
+        const position = calendarTop + ((hour) + minutes / 60) * (hourHeight);
+
+        document.getElementById('now-line').style.top = position + 'px';
+    }
+
     const eventForm = document.getElementById('eventForm');
 
     async function validateDateTimeRange() {
@@ -217,7 +245,7 @@
             });
 
             const data = await response.json();
-            if (data===false) {
+            if (data === false) {
                 errorElement.textContent = "The selected time slot is not available";
                 errorElement.style.display = "block";
                 return false;
@@ -260,6 +288,8 @@
             description: document.getElementById('eventDescription').value,
             roomId: document.getElementById('roomSelect').value,
             userId: document.getElementById('userSelect').value,
+            is_recurring: document.getElementById('is_recurring').checked,
+            is_recurring_end_date: document.getElementById('is_recurring_end_date').value,
             startTime: startDateTime,
             endTime: endDateTime,
         };
@@ -323,6 +353,9 @@
                 addNewEvent(hour, day);
             });
         });
+
+        setTimeout(updateNowLine, 200); // Give it a moment to load and then update the line
+        setInterval(updateNowLine, 60000); // Update every minute
 
     });
 

@@ -11,5 +11,7 @@ public class EventRequest {
     private LocalDateTime endTime;
     private Long userId;
     private Long roomId;
+    private boolean isRecurring;
+    private LocalDateTime is_recurring_end_date;
     private String description;
 }
