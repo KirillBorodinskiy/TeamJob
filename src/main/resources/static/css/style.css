@@ -103,10 +103,6 @@
     box-sizing: border-box;
 }
 
-.time-container {
-    display: flex;
-    gap: 10px;
-}
 
 .checkbox-group {
     display: flex;
@@ -200,8 +196,8 @@ body {
 }
 
 .flex-row {
-    display: flex;
-    flex-direction: row;
+    display: flex !important;
+    flex-direction: row !important;
 }
 
 #now-line {
@@ -213,6 +209,20 @@ body {
     left: 0;
     pointer-events: none;
     box-shadow: 0 1px 0 1px #00000014;
+}
+
+fieldset {
+    border: none;
+}
+
+#is_recurring {
+    width: 2em;
+    height: 2em;
+}
+
+#is_recurring_zone {
+    align-items: center;
+    justify-content: space-evenly;
 }
 
 #sidepanel {
@@ -359,7 +369,6 @@ body {
 
 .form-group {
     display: flex;
-    /*align-items: center;*/
     gap: 0.5em;
     flex-direction: column;
 }
