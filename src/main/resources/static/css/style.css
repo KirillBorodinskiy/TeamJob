@@ -13,7 +13,8 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 1em;
+    padding-top: 1em;
+    padding-bottom: 1em;
     top: 0;
     left: 0;
     height: 3em;
@@ -40,7 +41,7 @@
     font-size: 0.9em;
 }
 
-.rooms-container, .events-container {
+.mod-container {
     max-width: 80svh;
     margin: 2rem auto;
     padding: 20px;
@@ -102,10 +103,6 @@
     box-sizing: border-box;
 }
 
-.time-container {
-    display: flex;
-    gap: 10px;
-}
 
 .checkbox-group {
     display: flex;
@@ -195,9 +192,39 @@ body {
 
 #scrollable {
     overflow-y: scroll;
-    display: flex;
-    flex-direction: row;
     width: 100%;
+}
+
+.flex-row {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+#now-line {
+    position: relative;
+    width: 100%;
+    height: 3px;
+    background-color: var(--color-gold);
+    z-index: 5;
+    left: 0;
+    pointer-events: none;
+    box-shadow: 0 1px 0 1px #00000014;
+}
+
+fieldset {
+    border: none;
+}
+#is_recurring_end_date_zone{
+    display:none;
+}
+#is_recurring {
+    width: 2em;
+    height: 2em;
+}
+
+#is_recurring_zone {
+    align-items: center;
+    justify-content: space-evenly;
 }
 
 #sidepanel {
@@ -213,13 +240,43 @@ body {
     width: 20vw
 }
 
+#sidepanel-toggle {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.sidepanel-button {
+    background-color: var(--color-secondary);
+    color: var(--color-primary);
+    font-size: larger;
+    border: none;
+    padding: 1em;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#sidepanel-button-left {
+    border-radius: 20px 0 0 20px;
+}
+
+#sidepanel-button-right {
+    border-radius: 0 20px 20px 0;
+}
+
+.gold-border {
+    box-shadow: inset 0 0 0 2px var(--color-gold);
+}
+
 .sidepanel-hidden {
     width: 10px !important;
     overflow: hidden !important;
     padding: 0 !important;
 }
 
-#sidepanel-content,#sidepanel-creation{
+#sidepanel-filter, #sidepanel-creation {
     opacity: 1;
     gap: 1.5em;
     padding: 1em;
@@ -229,16 +286,68 @@ body {
 
 }
 
+.unique-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid var(--color-tertiary);
+}
+
+.unique-table th, .unique-table td {
+    border: 1px solid var(--color-tertiary);
+    padding: 10px;
+}
+
+.unique-table tr:nth-child(odd) {
+    background-color: var(--color-primary);
+}
+
+.unique-table tr:nth-child(even) {
+    background-color: var(--color-secondary);
+}
+
+.copyable {
+    cursor: pointer;
+    position: relative;
+}
+
+.copyable:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.copy-tooltip {
+    position: absolute;
+    background: var(--color-additional);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    bottom: 20%;
+    left: 80%;
+    white-space: nowrap;
+    display: none;
+    pointer-events: none;
+}
+
+#remover-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: larger;
+    width: 100%;
+    margin-top: 40px;
+}
+
 .hidden {
     transition: opacity 0.5s ease-in-out !important;
     opacity: 0 !important;
-    width:0 !important;
-    height:0 !important;
+    width: 0 !important;
+    height: 0 !important;
     display: none !important;
 }
 
 #filterEventsForm {
-    /*text-align: center;*/
     display: flex;
     flex-direction: column;
     gap: 1.5em;
@@ -253,14 +362,15 @@ body {
     cursor: pointer;
     border-radius: 4px;
 }
-#eventForm{
+
+#eventForm {
     display: flex;
     flex-direction: column;
     gap: 1em;
 }
+
 .form-group {
     display: flex;
-    /*align-items: center;*/
     gap: 0.5em;
     flex-direction: column;
 }
@@ -434,6 +544,7 @@ body {
 }
 
 .event {
+    border: 2px solid var(--color-tertiary);
     min-height: 2em;
     max-width: 100%;
     overflow: hidden;

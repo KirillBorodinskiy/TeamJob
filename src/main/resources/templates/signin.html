@@ -54,7 +54,7 @@
     async function validateTokenAndRedirect() {
         try {
             console.log('Making request to validateJWT');
-            const response = await authFetch('/api/v1/validateJWT', {method: 'Post'});
+            const response = await fetch('/api/v1/validateJWT', {method: 'Post', credentials: 'include'});
             console.log('Response received:', response.status);
 
             if (response.ok) {
@@ -66,11 +66,6 @@
         } catch (error) {
             console.error('Error during validation:', error);
         }
-    }
-
-    function authFetch(url, options = {}) {
-        options.credentials = 'include';
-        return fetch(url, options);
     }
 
     document.getElementById('loginForm').addEventListener('submit', async function (event) {

@@ -13,7 +13,8 @@ public class EventInADay {
     private String description;
     private Room room;
     private User user;
-//    private boolean isRecurring;
+    private boolean isRecurring;
+    private LocalDateTime is_recurring_end_date;
     private double durationInADay;
     private double startTimeToUse;
     private double endTimeToUse;

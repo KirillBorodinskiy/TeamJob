@@ -50,13 +50,13 @@ public class CalendarController {
         LocalDate firstDayOfWeek = targetDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
         List<WeekDay> weekDays = new ArrayList<>();
-        List<Event> allEvents = eventRepository.findAll();
+        List<Event> allEvents = eventRepository.findOverlappingEvents(firstDayOfWeek.atStartOfDay(), firstDayOfWeek.plusDays(7).atStartOfDay());
 
         for (int i = 0; i < 7; i++) {
             LocalDate currentDate = firstDayOfWeek.plusDays(i);
             List<EventInADay> dayEvents = convertToDayEvents(allEvents, currentDate, userIds, roomIds);
 
-            weekDays.add(new WeekDay(
+                weekDays.add(new WeekDay(
                     currentDate,
                     currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()),
                     currentDate.equals(LocalDate.now()),
@@ -97,6 +97,8 @@ public class CalendarController {
                             event.getDescription(),
                             event.getRoom(),
                             event.getUser(),
+                            event.isRecurring(),
+                            event.getIsRecurringEndDate(),
                             durationInADay,
                             startTimeToUse,
                             endTimeToUse,
@@ -116,6 +118,8 @@ public class CalendarController {
         boolean spansOver = event.getStartTime().toLocalDate().isBefore(date) &&
                 event.getEndTime().toLocalDate().isAfter(date);
         boolean dateMatch = startsToday || endsToday || spansOver;
+        //The filtering above is still needed even after findOverlappingEvents is used, as we are filtering each day
+
 
         // If no filters are applied, only check date
         if (userIds.isEmpty() && roomIds.isEmpty()) {

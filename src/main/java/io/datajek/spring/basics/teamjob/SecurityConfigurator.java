@@ -1,5 +1,7 @@
 package io.datajek.spring.basics.teamjob;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +15,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
@@ -21,8 +22,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Primary
 @Configuration
@@ -77,15 +77,30 @@ public class SecurityConfigurator {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setContentType("application/json");
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+                            Map<String, Object> errorDetails = new HashMap<>();
+                            errorDetails.put("status", HttpStatus.UNAUTHORIZED.value());
+                            errorDetails.put("error", "Unauthorized");
+                            errorDetails.put("message", authException.getMessage());
+                            errorDetails.put("path", request.getRequestURI());
+                            errorDetails.put("timestamp", new Date().getTime());
+
+                            ObjectMapper mapper = new ObjectMapper();
+                            mapper.writeValue(response.getOutputStream(), errorDetails);
+                        })
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         // Public resources
                         .requestMatchers("/", "/login", "/signup", "/signin", "/signout", "/error").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         // Protected endpoints
-                        .requestMatchers("/config/**").hasRole("CONFIGURATOR")
+                        .requestMatchers("/api/v1/**").hasRole("USER")
+                        .requestMatchers("/config/**").hasRole("CONFIG")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)

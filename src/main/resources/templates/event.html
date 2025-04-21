@@ -11,31 +11,39 @@
 </head>
 <body>
 <div class="container">
-    <div class="details-container">
-        <b style="font-size:larger">Event id:</b>
-        <span th:text="${event.id}"/>
-    </div>
-    <div class="details-container">
-        <b>Event Name:</b>
-        <span th:text="${event.title}"/>
-    </div>
-    <div class="details-container">
-        <b>Room:</b>
-        <span th:text="${event.room.name}"/>
-    </div>
-    <div class="details-container">
-        <b>Start Time:</b>
-        <span th:text="${#temporals.format(event.startTime, 'MMMM d, yyyy h:mm')}"/>
-    </div>
-    <div class="details-container">
-        <b>End Time:</b>
-        <span th:text="${#temporals.format(event.endTime, 'MMMM d, yyyy h:mm')}"/>
-    </div>
-    <div class="details-container">
-        <b>User:</b>
-        <span th:text="${event.user.getUsername()}"/>
-    </div>
-    <button th:onclick="'deleteEvent(' + ${event.id} + ')'">Remove event</button>
+    <table class="unique-table">
+        <tr class="details-container">
+            <th style="font-size:larger">Event id:</th>
+            <td class="copyable" th:text="${event.id}" th:data-value="${event.id}"></td>
+        </tr>
+        <tr class="details-container">
+            <th>Event Name:</th>
+            <td class="copyable" th:text="${event.title}" th:data-value="${event.title}"></td>
+        </tr>
+        <tr class="details-container">
+            <th>Room:</th>
+            <td class="copyable" th:text="${event.room.name}" th:data-value="${event.room.name}"></td>
+        </tr>
+        <tr class="details-container">
+            <th>Start Time:</th>
+            <td class="copyable" th:text="${#temporals.format(event.startTime, 'MMMM d, yyyy h:mm')}"
+                th:data-value="${#temporals.format(event.startTime, 'MMMM d, yyyy h:mm')}"></td>
+        </tr>
+        <tr class="details-container">
+            <th>End Time:</th>
+            <td class="copyable" th:text="${#temporals.format(event.endTime, 'MMMM d, yyyy h:mm')}"
+                th:data-value="${#temporals.format(event.endTime, 'MMMM d, yyyy h:mm')}"></td>
+        </tr>
+        <tr class="details-container">
+            <th>User:</th>
+            <td class="copyable" th:text="${event.user.getUsername()}" th:data-value="${event.user.getUsername()}"></td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width:100%;text-align: center; padding: 0;">
+                <button id="remover-button" th:onclick="'deleteEvent(' + ${event.id} + ')'">Remove event</button>
+            </td>
+        </tr>
+    </table>
 </div>
 </body>
 <script>
@@ -52,5 +60,37 @@
         options.credentials = 'include';
         return fetch(url, options);
     }
+
+    //Adding a tooltip to each copyable element
+    document.addEventListener('DOMContentLoaded', function () {
+        const copyables = document.querySelectorAll('.copyable');
+
+        copyables.forEach(element => {
+            const tooltip = document.createElement('span');
+            tooltip.className = 'copy-tooltip';
+            tooltip.textContent = 'Click to copy';
+            element.appendChild(tooltip);
+
+            element.addEventListener('mouseover', function () {
+                tooltip.style.display = 'block';
+            });
+
+            element.addEventListener('mouseout', function () {
+                tooltip.style.display = 'none';
+                tooltip.textContent = 'Click to copy';
+            });
+
+            element.addEventListener('click', function () {
+                const textToCopy = this.getAttribute('data-value');
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    tooltip.textContent = 'Copied!';
+                    tooltip.style.display = 'block';
+                    setTimeout(() => {
+                        tooltip.style.display = 'none';
+                    }, 1000);
+                });
+            });
+        });
+    });
 </script>
 </html>

@@ -11,18 +11,24 @@
 </head>
 <body>
 <div class="container">
-    <div class="details-container">
-        <b style="font-size:larger">Room id:</b>
-        <span th:text="${room.id}"/>
-    </div>
-    <div class="details-container">
-        <b>Room Name:</b>
-        <span th:text="${room.name}"/>
-    </div>
-
-    <button th:onclick="'deleteRoom(' + ${room.id} + ')'">Remove room</button>
+    <table class="unique-table">
+        <tr class="details-container">
+            <th style="font-size:larger">Room id:</th>
+            <td class="copyable" th:text="${room.id}" th:data-value="${room.id}"></td>
+        </tr>
+        <tr class="details-container">
+            <th>Room Name:</th>
+            <td class="copyable" th:text="${room.name}" th:data-value="${room.name}"></td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width:100%;text-align: center; padding: 0;">
+                <button id="remover-button" th:onclick="'deleteRoom(' + ${room.id} + ')'">Remove room</button>
+            </td>
+        </tr>
+    </table>
 </div>
 </body>
+<
 <script>
     async function deleteRoom(roomId) {
         const response = await authFetch('/deleterooms/' + roomId, {method: 'DELETE'});
@@ -37,5 +43,36 @@
         options.credentials = 'include';
         return fetch(url, options);
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const copyables = document.querySelectorAll('.copyable');
+
+        copyables.forEach(element => {
+            const tooltip = document.createElement('span');
+            tooltip.className = 'copy-tooltip';
+            tooltip.textContent = 'Click to copy';
+            element.appendChild(tooltip);
+
+            element.addEventListener('mouseover', function () {
+                tooltip.style.display = 'block';
+            });
+
+            element.addEventListener('mouseout', function () {
+                tooltip.style.display = 'none';
+                tooltip.textContent = 'Click to copy';
+            });
+
+            element.addEventListener('click', function () {
+                const textToCopy = this.getAttribute('data-value');
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    tooltip.textContent = 'Copied!';
+                    tooltip.style.display = 'block';
+                    setTimeout(() => {
+                        tooltip.style.display = 'none';
+                    }, 1000);
+                });
+            });
+        });
+    });
 </script>
 </html>
