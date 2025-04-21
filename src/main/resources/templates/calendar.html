@@ -130,10 +130,12 @@
                             <path d="M8 21H3v-5"></path>
                         </svg>
                         <label for="is_recurring">Is recurring?</label>
-                        <input type="checkbox" id="is_recurring" name="is_recurring">
+                        <input type="checkbox" id="is_recurring" onclick="toggleOccurence()" name="is_recurring">
                     </div>
-                    <label for="is_recurring_end_date">End date</label>
-                    <input type="date" id="is_recurring_end_date" name="is_recurring_end_date" required>
+                </fieldset>
+                <fieldset class="form-group " id="is_recurring_end_date_zone">
+                    <label for="is_recurring_end_date">Last day of occurence</label>
+                    <input type="date" id="is_recurring_end_date" name="is_recurring_end_date">
                 </fieldset>
 
                 <fieldset class="form-group ">
@@ -149,6 +151,7 @@
             </form>
         </div>
     </div>
+
     <div id="scrollable">
         <div id="now-line"></div>
         <div class="flex-row">
@@ -204,7 +207,15 @@
 </body>
 
 <script>
-
+    function toggleOccurence() {
+        const isRecurring = document.getElementById('is_recurring').checked;
+        const endDateField = document.getElementById('is_recurring_end_date_zone');
+        if (isRecurring) {
+            endDateField.style.display = 'flex';
+        } else {
+            endDateField.style.display = 'none';
+        }
+    }
     function updateNowLine() {
         const time = new Date();
         const hour = time.getHours();
@@ -215,7 +226,7 @@
         //This gets the top position of the time slots container (The start of our scrollable area)
         const calendarTop = document.getElementsByClassName('time-slot')[0].getBoundingClientRect().top;
 
-        const position = calendarTop + ((hour) + minutes / 60) * (hourHeight);
+        const position = calendarTop + ((hour-1) + minutes / 60) * (hourHeight);
 
         document.getElementById('now-line').style.top = position + 'px';
     }
@@ -391,6 +402,7 @@
     }
 
     function addNewEvent(hour, day) {
+        toggleSidepanel('create');
         const hourInt = parseInt(hour);
         const formattedHour = hourInt.toString().padStart(2, '0');
 

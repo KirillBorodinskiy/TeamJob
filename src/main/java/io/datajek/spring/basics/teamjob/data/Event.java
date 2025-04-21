@@ -2,8 +2,11 @@ package io.datajek.spring.basics.teamjob.data;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents an event entity mapped to the 'events' table in the database.
@@ -39,6 +42,12 @@ public class Event {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(nullable = false)
+    private boolean isRecurring;
+
+    @Column
+    private LocalDateTime isRecurringEndDate;
+
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
@@ -72,9 +81,10 @@ public class Event {
     private LocalDateTime endTime;
 
     /**
-     * Indicates whether the event is recurring.
-     * This field can be null.
+     * The tags associated with the event.
+     * This field is stored as a PostgreSQL array in the database.
      */
-    @Column
-    private Boolean isRecurring;
+    @Type(io.hypersistence.utils.hibernate.type.array.ListArrayType.class)
+    @Column(name = "tags", columnDefinition = "text[]")
+    private Set<String> tags = new HashSet<>();
 }

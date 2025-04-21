@@ -214,7 +214,9 @@ body {
 fieldset {
     border: none;
 }
-
+#is_recurring_end_date_zone{
+    display:none;
+}
 #is_recurring {
     width: 2em;
     height: 2em;

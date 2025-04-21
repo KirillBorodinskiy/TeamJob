@@ -13,53 +13,81 @@
 <body>
 <div class="mod-container">
     <h1>Event Management</h1>
-    <div class="add-event">
-        <button class="add-btn" id="addEventBtn">Add a new event</button>
-        <div class="add-form" id="addEventForm">
-            <form id="eventForm">
-                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-                <div class="form-group">
-                    <label for="eventTitle">Event Title</label>
-                    <input type="text" id="eventTitle" name="title" required>
-                </div>
-                <div class="form-group">
-                    <label for="eventDescription">Description</label>
-                    <textarea id="eventDescription" name="description" rows="3"></textarea>
-                </div>
-                <div class="form-group">
+    <div class="add-form" id="addEventForm">
+        <form id="eventForm">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+
+            <fieldset class="form-group">
+                <label for="eventTitle">Event Title</label>
+                <input type="text" id="eventTitle" name="title" required>
+            </fieldset>
+
+            <fieldset class="form-group">
+                <label for="eventDescription">Description</label>
+                <textarea id="eventDescription" name="description" rows="3"></textarea>
+            </fieldset>
+
+            <fieldset class="form-group">
+                <div>
                     <label for="userSelect">User</label>
                     <select id="userSelect" name="userId" required>
                         <option value="">Select a user</option>
                         <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}"></option>
                     </select>
                 </div>
-                <div class="form-group">
+
+                <div>
                     <label for="roomSelect">Room</label>
                     <select id="roomSelect" name="roomId" required>
                         <option value="">Select a room</option>
                         <option th:each="room : ${rooms}" th:value="${room.id}" th:text="${room.name}"></option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="startDate">Start Date & Time</label>
-                    <div class="time-container">
+            </fieldset>
+
+            <fieldset class="form-group">
+                <legend>Start Date & Time</legend>
+                <div class="time-container">
+                    <div>
+                        <label for="startDate">Date</label>
                         <input type="date" id="startDate" name="startDate" required>
+                    </div>
+                    <div>
+                        <label for="startTime">Time</label>
                         <input type="time" id="startTime" name="startTime" required>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="endDate">End Date & Time</label>
-                    <div class="time-container">
+            </fieldset>
+
+            <fieldset class="form-group">
+                <div class="flex-row" id="is_recurring_zone">
+                    <label for="is_recurring">Is recurring?</label>
+                    <input type="checkbox" id="is_recurring" name="is_recurring">
+                </div>
+                <div id="recurring_end_container" style="display: none;">
+                    <label for="is_recurring_end_date">End date</label>
+                    <input type="date" id="is_recurring_end_date" name="is_recurring_end_date">
+                </div>
+            </fieldset>
+
+            <fieldset class="form-group">
+                <legend>End Date & Time</legend>
+                <div class="time-container">
+                    <div>
+                        <label for="endDate">Date</label>
                         <input type="date" id="endDate" name="endDate" required>
+                    </div>
+                    <div>
+                        <label for="endTime">Time</label>
                         <input type="time" id="endTime" name="endTime" required>
                     </div>
-                    <div class="error-message" id="date-time-error"
-                         style="display: none; color: red; margin-top: 5px;"></div>
                 </div>
+                <div class="error-message" id="date-time-error"
+                     style="display: none; color: red; margin-top: 5px;"></div>
+            </fieldset>
 
-                <button type="submit" class="save-btn">Save Event</button>
-            </form>
-        </div>
+            <button type="submit" class="save-btn">Save Event</button>
+        </form>
     </div>
 
     <div class="event-list" id="eventList">
@@ -177,6 +205,8 @@
             description: document.getElementById('eventDescription').value,
             roomId: document.getElementById('roomSelect').value,
             userId: document.getElementById('userSelect').value,
+            is_recurring: document.getElementById('is_recurring').checked,
+            is_recurring_end_date: document.getElementById('is_recurring_end_date').value,
             startTime: startDateTime,
             endTime: endDateTime,
         };

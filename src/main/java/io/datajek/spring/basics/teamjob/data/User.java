@@ -2,6 +2,7 @@ package io.datajek.spring.basics.teamjob.data;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Type;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -56,6 +57,15 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+
+    /**
+     * The tags associated with the user.
+     * This field is stored as a PostgreSQL array in the database.
+     */
+    @Type(io.hypersistence.utils.hibernate.type.array.ListArrayType.class)
+    @Column(name = "tags", columnDefinition = "text[]")
+    private Set<String> tags = new HashSet<>();
+
 
     public void addRole(Role userRole) {
         this.roles.add(userRole);
