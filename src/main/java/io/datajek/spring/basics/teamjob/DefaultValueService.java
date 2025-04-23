@@ -1,8 +1,8 @@
 package io.datajek.spring.basics.teamjob;
 
-import io.datajek.spring.basics.teamjob.data.Repositories.RoleRepository;
-import io.datajek.spring.basics.teamjob.data.Repositories.RoomRepository;
-import io.datajek.spring.basics.teamjob.data.Repositories.UserRepository;
+import io.datajek.spring.basics.teamjob.data.repositories.RoleRepository;
+import io.datajek.spring.basics.teamjob.data.repositories.RoomRepository;
+import io.datajek.spring.basics.teamjob.data.repositories.UserRepository;
 import io.datajek.spring.basics.teamjob.data.Role;
 import io.datajek.spring.basics.teamjob.data.Room;
 import io.datajek.spring.basics.teamjob.data.User;

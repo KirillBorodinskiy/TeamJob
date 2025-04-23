@@ -1,4 +1,4 @@
-package io.datajek.spring.basics.teamjob.data.Repositories;
+package io.datajek.spring.basics.teamjob.data.repositories;
 
 import io.datajek.spring.basics.teamjob.data.Event;
 import io.datajek.spring.basics.teamjob.data.Room;
@@ -35,8 +35,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT COUNT(e) > 0 FROM Event e WHERE (e.startTime <= :endTime AND e.endTime >= :startTime) AND e.room = :room")
     Boolean findOverlappingEventsInRoom(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("room") Optional<Room> room);
 
-
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"SqlResolve", "unused"})
     @Query(value = "SELECT * FROM events WHERE tags && CAST(:tags AS text[])", nativeQuery = true)
     List<Event> findByTagsAnyMatch(@Param("tags") List<String> tags);
 

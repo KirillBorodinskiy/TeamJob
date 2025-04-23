@@ -1,4 +1,4 @@
-package io.datajek.spring.basics.teamjob.data.Repositories;
+package io.datajek.spring.basics.teamjob.data.repositories;
 
 import io.datajek.spring.basics.teamjob.data.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,7 +18,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     Boolean existsByName(String name);
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"SqlResolve", "unused"})
     @Query(value = "SELECT * FROM rooms WHERE tags && CAST(:tags AS text[])", nativeQuery = true)
     List<Room> findByTagsAnyMatch(@Param("tags") List<String> tags);
 
