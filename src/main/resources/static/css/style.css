@@ -30,13 +30,13 @@
     height: 100%;
 }
 
-.day-name {
+.day-name, .room-name {
     color: var(--color-tertiary);
     font-weight: bold;
     display: block;
 }
 
-.date {
+.date, .location {
     color: #666;
     font-size: 0.9em;
 }
@@ -186,18 +186,21 @@ body {
 }
 
 #noscroll {
-    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: auto;
     background: var(--color-tertiary);
 }
 
 #scrollable {
     overflow-y: scroll;
+    overflow-x: auto;
     width: 100%;
 }
 
 .flex-row {
     display: flex !important;
     flex-direction: row !important;
+    min-width: min-content;
 }
 
 #now-line {
@@ -214,7 +217,7 @@ body {
 fieldset {
     border: none;
 }
-#is_recurring_end_date_zone{
+#isRecurringEndDate_zone{
     display:none;
 }
 #is_recurring {
@@ -509,8 +512,18 @@ fieldset {
     width: 100%;
     background: var(--color-primary);
 }
+.day-grid {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    background: var(--color-primary);
+}
 
-.day-column {
+.room-column {
+    min-width: 150px;
+}
+
+.day-column, .room-column {
     border-right: 1px solid var(--border-color);
 }
 
@@ -518,7 +531,7 @@ fieldset {
     background-color: var(--today-bg-color);
 }
 
-.day-header {
+.day-header, .room-header {
     position: sticky;
     top: 0;
     width: 100%;
@@ -532,7 +545,7 @@ fieldset {
     background: var(--color-primary);
 }
 
-.day-time-grid {
+.day-time-grid, .room-time-grid {
     position: relative;
 }
 
@@ -679,7 +692,3 @@ input {
     border-color: #c3e6cb;
     color: var(--color-accent);
 }
-
-
-
-

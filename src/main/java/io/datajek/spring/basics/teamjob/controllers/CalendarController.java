@@ -1,6 +1,7 @@
 package io.datajek.spring.basics.teamjob.controllers;
 
 
+import io.datajek.spring.basics.teamjob.RoomDay;
 import io.datajek.spring.basics.teamjob.WeekDay;
 import io.datajek.spring.basics.teamjob.data.Event;
 import io.datajek.spring.basics.teamjob.data.EventInADay;
@@ -56,7 +57,7 @@ public class CalendarController {
             LocalDate currentDate = firstDayOfWeek.plusDays(i);
             List<EventInADay> dayEvents = convertToDayEvents(allEvents, currentDate, userIds, roomIds);
 
-                weekDays.add(new WeekDay(
+            weekDays.add(new WeekDay(
                     currentDate,
                     currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()),
                     currentDate.equals(LocalDate.now()),
@@ -79,6 +80,46 @@ public class CalendarController {
         model.addAttribute("roomIds", roomIds);
 
         return "calendar";
+    }
+
+    @GetMapping("/day")
+    public String showDayCalendar(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+            @RequestParam(required = false) String userIds,
+            @RequestParam(required = false) String roomIds,
+            Model model
+    ) {
+        List<Event> allEvents = eventRepository.findOverlappingEvents(date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+        List<EventInADay> dayEvents = convertToDayEvents(allEvents, date, userIds, roomIds);
+        List<RoomDay> roomDays = new ArrayList<>();
+        List<Room> rooms = roomRepository.findAll();
+
+        //Filter rooms that have events on this day
+        List<Room> filteredRooms = rooms.stream()
+                .filter(room -> dayEvents.stream().anyMatch(event -> event.getRoom() != null && Objects.equals(event.getRoom().getId(), room.getId())))
+                .toList();
+
+        LocalDate previousDay = date.minusDays(1);
+        LocalDate nextDay = date.plusDays(1);
+
+        for (Room room : filteredRooms) {
+            List<EventInADay> roomEvents = dayEvents.stream()
+                    .filter(event -> event.getRoom() != null && Objects.equals(event.getRoom().getId(), room.getId()))
+                    .collect(Collectors.toList());
+            roomDays.add(new RoomDay(room, roomEvents));
+        }
+        List<Integer> hours = IntStream.rangeClosed(0, 23).boxed().collect(Collectors.toList());
+        model.addAttribute("hours", hours);
+        AddRepositories(model, eventRepository, userRepository, roomRepository);
+        model.addAttribute("roomDays", roomDays);
+        model.addAttribute("currentDay", date);
+        model.addAttribute("previousDay", previousDay);
+        model.addAttribute("nextDay", nextDay);
+        model.addAttribute("selectedDate", date);
+        model.addAttribute("userIds", userIds);
+        model.addAttribute("roomIds", roomIds);
+
+        return "calendar-day";
     }
 
     private List<EventInADay> convertToDayEvents(List<Event> allEvents, LocalDate currentDate, String userIds, String roomIds) {
