@@ -43,7 +43,7 @@ public class ConfigController {
 
     @GetMapping({"/events"})
     public String Events(Model model) {
-        CalendarController.AddRepositories(model, eventRepository, userRepository, roomRepository);
+        model.addAttribute("events", eventRepository.findAll());
         return "events";
     }
 
