@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Week Calendar</title>
+    <title>Room Calendar</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,22 +11,23 @@
 </head>
 <body id="noscroll">
 <div class="navigation">
-    <a th:href="@{/calendar/(date=${selectedDate},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">Home</a>
+    <a th:href="@{/calendar/(date=${currentDay},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">Home</a>
 
     <a th:href="@{/calendar/findRoom}" class="nav-link">Find available</a>
 
-    <a th:href="@{/calendar(date=${previousWeek},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">&lt; Previous
-        Week</a>
+    <a th:href="@{/calendar/day(date=${previousDay},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">
+        &lt;Previous Day</a>
 
     <h2>
-        Week of
-        <span th:text="${#temporals.format(currentWeekStart, 'MMMM d, yyyy')}"
+        Events for
+        <span th:text="${#temporals.format(selectedDate, 'MMMM d, yyyy')}"
               style="color: var(--color-gold)">
         </span>
     </h2>
 
-    <a th:href="@{/calendar(date=${nextWeek},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">Next Week
-        &gt;</a>
+    <a th:href="@{/calendar/day(date=${nextDay},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">
+        Next Day&gt;
+    </a>
 </div>
 
 
@@ -45,17 +46,14 @@
 
         <div id="sidepanel-filter">
             <form id="filterEventsForm">
-            <span>
-                Filter events:
-            </span>
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <input type="hidden" th:name="date" th:value="${currentWeekStart}"/>
+                <input type="hidden" th:name="date" th:value="${selectedDate}"/>
 
                 <div class="form-group">
-                    <label for="userSearchInput">By user</label>
+                    <label for="userSearchInput">Show user</label>
                     <div class="multi-select">
                         <div class="selected-container" id="userSelectedContainer"></div>
-                        <input type="text" id="userSearchInput" placeholder="Choose users" autocomplete="off">
+                        <input type="text" id="userSearchInput" placeholder="All by default" autocomplete="off">
                         <div class="select-items select-hide" id="userSelectItems">
                             <div th:each="user : ${users}" th:data-value="${user.id}" th:data-name="${user.username}"
                                  th:text="${user.username}"></div>
@@ -65,11 +63,11 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="roomSearchInput">By room</label>
+                    <label for="roomSearchInput">Show rooms</label>
                     <div class="multi-select">
                         <div class="selected-container" id="roomSelectedContainer">
                         </div>
-                        <input type="text" id="roomSearchInput" placeholder="Choose rooms" autocomplete="off">
+                        <input type="text" id="roomSearchInput" placeholder="All by default" autocomplete="off">
                         <div class="select-items select-hide" id="roomSelectItems">
                             <div th:each="room : ${rooms}" th:data-value="${room.id}" th:data-name="${room.name}"
                                  th:text="${room.name}"></div>
@@ -136,9 +134,9 @@
                         <input type="checkbox" id="is_recurring" onclick="toggleOccurence()" name="is_recurring">
                     </div>
                 </fieldset>
-                <fieldset class="form-group " id="is_recurring_end_date_zone">
-                    <label for="is_recurring_end_date">Last day of occurence</label>
-                    <input type="date" id="is_recurring_end_date" name="is_recurring_end_date">
+                <fieldset class="form-group " id="isRecurringEndDate_zone">
+                    <label for="isRecurringEndDate">Last day of occurence</label>
+                    <input type="date" id="isRecurringEndDate" name="isRecurringEndDate">
                 </fieldset>
 
                 <fieldset class="form-group ">
@@ -169,21 +167,18 @@
                 </div>
             </div>
 
-            <div class="week-grid">
+            <div class="day-grid">
 
-                <div th:each="day : ${weekDays}"
-                     th:class="'day-column' + (${day.isToday()} ? ' today' : '') + (${day.date.equals(selectedDate)} ? ' selected' : '')">
-                    <div class="day-header"
-                         th:data-date="${#temporals.format(day.date, 'yyyy-MM-dd')}"
-                         onclick="goToDate(this)">
-                        <span class="day-name" th:text="${day.getDayName()}"></span>
-                        <span class="date" th:text="${#temporals.format(day.date, 'MMM d')}"></span>
+                <div th:each="roomDay : ${roomDays}"
+                     th:class="'room-column'">
+                    <div class="room-header">
+                        <span class="room-name" th:text="${roomDay.room.name}"></span>
                     </div>
-                    <div class="day-time-grid">
+                    <div class="room-time-grid">
                         <div th:each="hour : ${hours}" class="hour-slot" th:data-hour="${hour}"
-                             th:data-day="${day.date}">
+                             th:data-room="${roomDay.room.id}" th:data-day="${selectedDate}">
                         </div>
-                        <div th:each="event : ${day.events}"
+                        <div th:each="event : ${roomDay.getEvents()}"
                              th:class="'event'"
                              th:draggable="true"
                              th:style="'height: calc(' + ${event.getDurationInADay()} + '* var(--hour-height));top: calc(' + ${event.getStartTimeToUse()} + ' * var(--hour-height) + 0px);'">
@@ -192,10 +187,6 @@
                             <div class="event-time"
                                  th:text="${#temporals.format(event.startTime, 'HH:mm') + ' - ' + #temporals.format(event.endTime, 'HH:mm')}"></div>
                             <div class="event-details">
-                                <a class="event-room" th:if="${event.room != null}"
-                                   th:href="@{/room/{id}(id=${event.room.getId()})}"
-                                   th:text="${'Room: ' + event.room.name}"></a>
-
                                 <span class="event-user" th:if="${event.user != null}"
                                       th:text="${'User: ' + event.user.username}"></span>
 
@@ -212,22 +203,9 @@
 </body>
 
 <script>
-    function goToDate(element) {
-        const dateString = element.getAttribute('data-date');
-        if (dateString) {
-            const currentParams = new URLSearchParams(window.location.search);
-            const userIds = currentParams.get('userIds') || '';
-            const roomIds = currentParams.get('roomIds') || '';
-
-            window.location.href = `/calendar/day?date=${dateString}&userIds=${userIds}&roomIds=${roomIds}`;
-        } else {
-            console.error('Could not find data-date attribute on element:', element);
-        }
-    }
-
     function toggleOccurence() {
         const isRecurring = document.getElementById('is_recurring').checked;
-        const endDateField = document.getElementById('is_recurring_end_date_zone');
+        const endDateField = document.getElementById('isRecurringEndDate_zone');
         if (isRecurring) {
             endDateField.style.display = 'flex';
         } else {
@@ -334,7 +312,7 @@
             roomId: document.getElementById('roomSelect').value,
             userId: document.getElementById('userSelect').value,
             is_recurring: document.getElementById('is_recurring').checked,
-            is_recurring_end_date: document.getElementById('is_recurring_end_date').value,
+            isRecurringEndDate: document.getElementById('isRecurringEndDate').value,
             startTime: startDateTime,
             endTime: endDateTime,
         };
@@ -395,7 +373,8 @@
             slot.addEventListener('click', function () {
                 const hour = this.getAttribute('data-hour');
                 const day = this.getAttribute('data-day');
-                addNewEvent(hour, day);
+                const roomId = this.getAttribute('data-room');
+                addNewEvent(hour, day, roomId);
             });
         });
 
@@ -420,7 +399,7 @@
         return errorMessages[status] || `Unknown error (${status})`;
     }
 
-    function addNewEvent(hour, day) {
+    function addNewEvent(hour, day, roomId) {
         toggleSidepanel('create');
         const hourInt = parseInt(hour);
         const formattedHour = hourInt.toString().padStart(2, '0');
@@ -433,6 +412,11 @@
         // Set end time to one hour later
         const endHour = (hourInt + 1) % 24;
         document.getElementById('endTime').value = `${endHour.toString().padStart(2, '0')}:00`;
+
+        // Set the room
+        if (roomId) {
+            document.getElementById('roomSelect').value = roomId;
+        }
 
         validateDateTimeRange();
 

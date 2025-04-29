@@ -14,7 +14,7 @@ public class EventInADay {
     private Room room;
     private User user;
     private boolean isRecurring;
-    private LocalDateTime is_recurring_end_date;
+    private LocalDateTime isRecurringEndDate;
     private double durationInADay;
     private double startTimeToUse;
     private double endTimeToUse;

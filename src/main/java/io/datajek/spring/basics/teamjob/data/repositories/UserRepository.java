@@ -1,4 +1,4 @@
-package io.datajek.spring.basics.teamjob.data.Repositories;
+package io.datajek.spring.basics.teamjob.data.repositories;
 
 import io.datajek.spring.basics.teamjob.data.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,7 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<Object> findByEmail(String attr0);
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"SqlResolve", "unused"})
     @Query(value = "SELECT * FROM users WHERE tags && CAST(:tags AS text[])", nativeQuery = true)
     List<User> findByTagsAnyMatch(@Param("tags") List<String> tags);
 

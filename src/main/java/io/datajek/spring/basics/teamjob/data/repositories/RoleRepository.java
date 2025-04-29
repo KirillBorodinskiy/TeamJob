@@ -1,4 +1,4 @@
-package io.datajek.spring.basics.teamjob.data.Repositories;
+package io.datajek.spring.basics.teamjob.data.repositories;
 
 import io.datajek.spring.basics.teamjob.data.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,7 +10,7 @@ import java.util.Set;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
     Optional<Role> findByName(String name);
-
+    @SuppressWarnings("unused")
     Set<Role> findAllByName(String name);
 
     Boolean existsByName(String name);

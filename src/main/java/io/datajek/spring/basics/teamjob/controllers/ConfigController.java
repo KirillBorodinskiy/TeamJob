@@ -1,8 +1,8 @@
 package io.datajek.spring.basics.teamjob.controllers;
 
-import io.datajek.spring.basics.teamjob.data.Repositories.EventRepository;
-import io.datajek.spring.basics.teamjob.data.Repositories.RoomRepository;
-import io.datajek.spring.basics.teamjob.data.Repositories.UserRepository;
+import io.datajek.spring.basics.teamjob.data.repositories.EventRepository;
+import io.datajek.spring.basics.teamjob.data.repositories.RoomRepository;
+import io.datajek.spring.basics.teamjob.data.repositories.UserRepository;
 import io.datajek.spring.basics.teamjob.data.Room;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -43,7 +43,7 @@ public class ConfigController {
 
     @GetMapping({"/events"})
     public String Events(Model model) {
-        CalendarController.AddRepositories(model, eventRepository, userRepository, roomRepository);
+        model.addAttribute("events", eventRepository.findAll());
         return "events";
     }
 

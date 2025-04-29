@@ -1,8 +1,8 @@
 package io.datajek.spring.basics.teamjob.controllers;
 
 import io.datajek.spring.basics.teamjob.data.Event;
-import io.datajek.spring.basics.teamjob.data.Repositories.EventRepository;
-import io.datajek.spring.basics.teamjob.data.Repositories.RoomRepository;
+import io.datajek.spring.basics.teamjob.data.repositories.EventRepository;
+import io.datajek.spring.basics.teamjob.data.repositories.RoomRepository;
 import io.datajek.spring.basics.teamjob.data.Room;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

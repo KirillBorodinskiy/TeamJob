@@ -38,6 +38,10 @@
             <th>User:</th>
             <td class="copyable" th:text="${event.user.getUsername()}" th:data-value="${event.user.getUsername()}"></td>
         </tr>
+        <tr class="details-container">
+            <th>Tags:</th>
+            <td class="copyable" th:text="${#strings.listJoin(event.tags,',')}" th:data-value="${#strings.listJoin(event.tags,',')}"></td>
+        </tr>
         <tr>
             <td colspan="2" style="width:100%;text-align: center; padding: 0;">
                 <button id="remover-button" th:onclick="'deleteEvent(' + ${event.id} + ')'">Remove event</button>

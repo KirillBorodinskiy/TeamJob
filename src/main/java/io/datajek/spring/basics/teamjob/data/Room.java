@@ -11,13 +11,25 @@ import java.util.Set;
 @Entity
 @Table(name = "rooms")
 public class Room {
+    /**
+     * Represents the primary key of the 'rooms' table.
+     * This field is automatically generated.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * The name of the room.
+     * This field is unique and cannot be null.
+     */
     @Column(nullable = false, unique = true)
     private String name;
 
+    /**
+     * Provides an optional description for the room entity.
+     * This field can store additional details or notes about the room.
+     */
     @Column()
     private String description;
 
