@@ -217,9 +217,11 @@ body {
 fieldset {
     border: none;
 }
-#isRecurringEndDate_zone{
-    display:none;
+
+#isRecurringEndDate_zone {
+    display: none;
 }
+
 #is_recurring {
     width: 2em;
     height: 2em;
@@ -431,7 +433,13 @@ fieldset {
     max-width: 13em;
 }
 
+.selected {
+    background: #b4b2b2 !important;
+    color: white !important;
+}
+
 .selected-tag {
+    color: var(--color-primary);
     background-color: var(--color-tertiary);
     border-radius: 3px;
     margin: 2px;
@@ -512,6 +520,7 @@ fieldset {
     width: 100%;
     background: var(--color-primary);
 }
+
 .day-grid {
     display: flex;
     flex-direction: row;
@@ -572,7 +581,7 @@ fieldset {
 }
 
 .container {
-    margin: 5vh auto;
+    margin: 15vh auto;
     padding: 2em;
     display: flex;
     flex-direction: column;
