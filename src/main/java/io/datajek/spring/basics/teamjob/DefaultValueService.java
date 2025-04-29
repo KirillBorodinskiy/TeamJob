@@ -1,13 +1,13 @@
 package io.datajek.spring.basics.teamjob;
 
-import io.datajek.spring.basics.teamjob.data.repositories.EventRepository;
-import io.datajek.spring.basics.teamjob.data.repositories.RoleRepository;
-import io.datajek.spring.basics.teamjob.data.repositories.RoomRepository;
-import io.datajek.spring.basics.teamjob.data.repositories.UserRepository;
 import io.datajek.spring.basics.teamjob.data.Event;
 import io.datajek.spring.basics.teamjob.data.Role;
 import io.datajek.spring.basics.teamjob.data.Room;
 import io.datajek.spring.basics.teamjob.data.User;
+import io.datajek.spring.basics.teamjob.data.repositories.EventRepository;
+import io.datajek.spring.basics.teamjob.data.repositories.RoleRepository;
+import io.datajek.spring.basics.teamjob.data.repositories.RoomRepository;
+import io.datajek.spring.basics.teamjob.data.repositories.UserRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,10 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 import static java.util.Collections.singleton;
 
@@ -37,6 +34,25 @@ public class DefaultValueService {
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     public static final String ROLE_CONFIG = "ROLE_CONFIG";
 
+
+    private static final List<String> SAMPLE_ROOM_TAGS = Arrays.asList(
+            "Meeting Room", "Conference Room", "Projector", "Whiteboard", "Large",
+            "Small", "Quiet Zone", "Lab", "Computer Class", "Auditorium",
+            "Video Conferencing", "Ground Floor", "Restricted Access"
+    );
+
+    private static final List<String> SAMPLE_USER_TAGS = Arrays.asList(
+            "IT Support", "Developer", "Manager", "Teacher", "Student", "Admin Staff",
+            "HR", "Finance", "Marketing", "Part-Time", "Remote", "Math Dept",
+            "Science Dept", "Trainer"
+    );
+
+    private static final List<String> SAMPLE_EVENT_TAGS = Arrays.asList(
+            "Meeting", "Urgent", "Client Call", "Internal", "Project Alpha", "Project Beta",
+            "Training", "Workshop", "Presentation", "Review", "Planning",
+            "Optional", "Recurring", "Cancelled", "Team Building"
+    );
+
     @Autowired
     public DefaultValueService(RoleRepository roleRepository, UserRepository userRepository, RoomRepository roomRepository, EventRepository eventRepository) {
         this.roleRepository = roleRepository;
@@ -45,95 +61,10 @@ public class DefaultValueService {
         this.eventRepository = eventRepository;
     }
 
+
     @Autowired
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
-    }
-
-    @PostConstruct
-    @Transactional
-    public void insert() {
-        try {
-            if (!roleRepository.existsByName(DefaultValueService.ROLE_CONFIG)) {
-                Role roleUser = new Role();
-                roleUser.setName(DefaultValueService.ROLE_CONFIG);
-                roleRepository.save(roleUser);
-                System.out.println("Role " + DefaultValueService.ROLE_CONFIG + " created");
-            } else {
-                System.out.println("Role " + DefaultValueService.ROLE_CONFIG + " already exists");
-            }
-
-            if (!roleRepository.existsByName(DefaultValueService.ROLE_ADMIN)) {
-                Role roleAdmin = new Role();
-                roleAdmin.setName(DefaultValueService.ROLE_ADMIN);
-                roleRepository.save(roleAdmin);
-                System.out.println("Role " + DefaultValueService.ROLE_ADMIN + " created");
-            } else {
-                System.out.println("Role " + DefaultValueService.ROLE_ADMIN + " already exists");
-            }
-
-            if (!roleRepository.existsByName(DefaultValueService.ROLE_USER)) {
-                Role roleConfig = new Role();
-                roleConfig.setName(DefaultValueService.ROLE_USER);
-                roleRepository.save(roleConfig);
-                System.out.println("Role " + DefaultValueService.ROLE_USER + " created");
-            } else {
-                System.out.println("Role " + DefaultValueService.ROLE_USER + " already exists");
-            }
-
-            // Force a flush to ensure data is committed
-            roleRepository.flush();
-
-
-            User adminUser = new User();
-            adminUser.setUsername("adminadmin");
-            adminUser.setPassword(passwordEncoder.encode("adminadmin"));
-            adminUser.setEmail("adminadmin@gmail.com");
-            adminUser.setRoles(new HashSet<>(roleRepository.findAll()));
-
-            createUser(adminUser);
-
-            User user = new User();
-            user.setUsername("useruser");
-            user.setPassword(passwordEncoder.encode("useruser"));
-            user.setEmail("useruser@user.com");
-            Role userRole = roleRepository.findByName(DefaultValueService.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Default role not found"));
-            user.setRoles(new HashSet<>(singleton(userRole)));
-            createUser(user);
-
-            // Force a flush to ensure data is committed
-            userRepository.flush();
-
-            // Generate fake data for testing
-            System.out.println("Generating fake data for testing...");
-            generateFakeUsers(20);
-            generateFakeRooms(15);
-            generateFakeEvents(7);
-            System.out.println("Fake data generation completed.");
-
-        } catch (Exception e) {
-            System.err.println("Error inserting default roles: " + e.getMessage() + e.getCause());
-        }
-    }
-
-    private void createRoom(Room room) {
-        if (!roomRepository.existsByName(room.getName())) {
-            roomRepository.save(room);
-            System.out.println("Room " + room.getName() + " created");
-        } else {
-            System.out.println("Room " + room.getName() + " already exists");
-        }
-    }
-
-    private void createUser(User user) {
-        if (!userRepository.existsByUsername(user.getUsername())) {
-            user.setRoles(new HashSet<>(roleRepository.findAll()));
-            userRepository.save(user);
-            System.out.println("User " + user.getUsername() + " created");
-        } else {
-            System.out.println("User " + user.getUsername() + " already exists");
-        }
     }
 
     @Autowired
@@ -146,6 +77,102 @@ public class DefaultValueService {
         this.eventRepository = eventRepository;
     }
 
+    @PostConstruct
+    @Transactional
+    public void insert() {
+        try {
+            // Create Roles
+            createRoleIfNotExists(DefaultValueService.ROLE_CONFIG);
+            createRoleIfNotExists(DefaultValueService.ROLE_ADMIN);
+            createRoleIfNotExists(DefaultValueService.ROLE_USER);
+            roleRepository.flush();
+
+            // Create Admin User
+            User adminUser = new User();
+            adminUser.setUsername("adminadmin");
+            adminUser.setPassword(passwordEncoder.encode("adminadmin"));
+            adminUser.setEmail("adminadmin@gmail.com");
+            adminUser.setRoles(new HashSet<>(roleRepository.findAll()));
+            // Combine specific role tags with some random relevant tags
+            Set<String> adminTags = new HashSet<>(Arrays.asList("Admin", "System"));
+            adminTags.addAll(getRandomTags(SAMPLE_USER_TAGS, 2));
+            adminUser.setTags(adminTags);
+            createUser(adminUser);
+
+            // --- Create Regular User ---
+            User user = new User();
+            user.setUsername("useruser");
+            user.setPassword(passwordEncoder.encode("useruser"));
+            user.setEmail("useruser@user.com");
+
+            Role userRole = roleRepository.findByName(DefaultValueService.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Default role ROLE_USER not found"));
+            user.setRoles(new HashSet<>(singleton(userRole)));
+
+            Set<String> regularUserTags = new HashSet<>(Arrays.asList("Standard", "General"));
+            regularUserTags.addAll(getRandomTags(SAMPLE_USER_TAGS, 1));
+            user.setTags(regularUserTags);
+            createUser(user);
+
+            userRepository.flush();
+
+            // Generate Fake Data
+            System.out.println("Generating fake data for testing...");
+            generateFakeUsers(20); // Will get user tags assigned within
+            generateFakeRooms(15); // Will get room tags assigned within
+            generateFakeEvents(7); // Will get event tags assigned within
+            System.out.println("Fake data generation completed.");
+
+        } catch (Exception e) {
+            System.err.println("Error inserting default data: " + e.getMessage());
+        }
+    }
+
+    private void createRoleIfNotExists(String roleName) {
+        if (!roleRepository.existsByName(roleName)) {
+            Role role = new Role();
+            role.setName(roleName);
+            roleRepository.save(role);
+            System.out.println("Role " + roleName + " created");
+        } else {
+            System.out.println("Role " + roleName + " already exists");
+        }
+    }
+
+    private void createRoom(Room room) {
+
+        if (room.getTags() == null || room.getTags().isEmpty()) {
+            room.setTags(getRandomTags(SAMPLE_ROOM_TAGS, 3));
+        }
+
+        if (!roomRepository.existsByName(room.getName())) {
+            roomRepository.save(room);
+            System.out.println("Room " + room.getName() + " created with tags: " + room.getTags());
+        } else {
+            System.out.println("Room " + room.getName() + " already exists");
+        }
+    }
+
+    private void createUser(User user) {
+
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            Role userRole = roleRepository.findByName(DefaultValueService.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Default role ROLE_USER not found for user creation"));
+            user.setRoles(new HashSet<>(singleton(userRole)));
+        }
+
+        if (user.getTags() == null || user.getTags().isEmpty()) {
+            user.setTags(getRandomTags(SAMPLE_USER_TAGS, 2));
+        }
+
+        if (!userRepository.existsByUsername(user.getUsername())) {
+            userRepository.save(user);
+            System.out.println("User " + user.getUsername() + " created with tags: " + user.getTags());
+        } else {
+            System.out.println("User " + user.getUsername() + " already exists");
+        }
+    }
+
     /**
      * Generates fake users for testing purposes.
      *
@@ -156,9 +183,6 @@ public class DefaultValueService {
         String[] lastNames = {"Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor"};
         Random random = new Random();
 
-        Role userRole = roleRepository.findByName(DefaultValueService.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Default role not found"));
-
         for (int i = 0; i < count; i++) {
             String firstName = firstNames[random.nextInt(firstNames.length)];
             String lastName = lastNames[random.nextInt(lastNames.length)];
@@ -168,8 +192,6 @@ public class DefaultValueService {
             user.setUsername(username);
             user.setPassword(passwordEncoder.encode("password"));
             user.setEmail(username + "@example.com");
-            user.setRoles(new HashSet<>(singleton(userRole)));
-
             createUser(user);
         }
     }
@@ -180,17 +202,16 @@ public class DefaultValueService {
      * @param count The number of fake rooms to generate
      */
     private void generateFakeRooms(int count) {
-        String[] roomNames = {"Conference Room", "Meeting Room", "Auditorium", "Training Room", "Board Room",
-                "Classroom", "Lecture Hall", "Workshop", "Studio", "Lab"};
+        String[] roomBaseNames = {"Conference Room", "Meeting Room", "Auditorium", "Training Room", "Board Room",
+                "Classroom", "Lecture Hall", "Workshop", "Studio", "Lab", "Gym", "Office", "Lounge"};
         Random random = new Random();
 
         for (int i = 0; i < count; i++) {
-            String name = roomNames[random.nextInt(roomNames.length)] + " " + (i + 3); // Start from 3 since we already have Room 1 and Room 2
+            String name = roomBaseNames[random.nextInt(roomBaseNames.length)] + " " + (i + 1);
 
             Room room = new Room();
             room.setName(name);
             room.setDescription("Description for " + name);
-
             createRoom(room);
         }
     }
@@ -225,32 +246,22 @@ public class DefaultValueService {
                 "Webinar on industry trends"
         };
 
-        // Get the start of the previous week (Monday)
         LocalDate previousWeekStart = LocalDate.now()
                 .minusWeeks(1)
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-        // Generate events for 3 weeks (previous, current, and next week)
         for (int week = 0; week < 3; week++) {
             LocalDate weekStart = previousWeekStart.plusWeeks(week);
-
-            // Generate events for each day of the week
             for (int day = 0; day < 7; day++) {
                 LocalDate currentDate = weekStart.plusDays(day);
-
-                // Generate multiple events per day
                 for (int i = 0; i < eventsPerDay; i++) {
-                    // Random start time between 8 AM and 5 PM
-                    int startHour = 8 + random.nextInt(9); // 8 AM to 4 PM max
-                    int startMinute = random.nextInt(4) * 15; // 0, 15, 30, or 45 minutes
-
+                    // ... (time calculation logic remains the same) ...
+                    int startHour = 8 + random.nextInt(9);
+                    int startMinute = random.nextInt(4) * 15;
                     LocalTime startTime = LocalTime.of(startHour, startMinute);
-
-                    // Event duration between 30 minutes and 2 hours
-                    int durationMinutes = (random.nextInt(4) + 1) * 30; // 30, 60, 90, or 120 minutes
+                    int durationMinutes = (random.nextInt(4) + 1) * 30;
                     LocalTime endTime = startTime.plusMinutes(durationMinutes);
 
-                    // Create the event
                     Event event = new Event();
                     event.setTitle(eventTitles[random.nextInt(eventTitles.length)]);
                     event.setDescription(eventDescriptions[random.nextInt(eventDescriptions.length)]);
@@ -259,17 +270,39 @@ public class DefaultValueService {
                     event.setUser(users.get(random.nextInt(users.size())));
                     event.setRoom(rooms.get(random.nextInt(rooms.size())));
                     event.setRecurring(false);
+                    event.setTags(getRandomTags(SAMPLE_EVENT_TAGS, 2));
 
-                    // Check for overlapping events in the same room
                     if (!eventRepository.findOverlappingEventsInRoom(
                             event.getStartTime(),
                             event.getEndTime(),
                             Optional.of(event.getRoom()))) {
                         eventRepository.save(event);
-                        System.out.println("Event created: " + event.getTitle() + " on " + currentDate);
+                        System.out.println("Event created: " + event.getTitle() +
+                                " on " + currentDate + " with tags: " + event.getTags());
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Helper method to get random tags from a given list.
+     *
+     * @param tagList The list of tags to choose from
+     * @param count   The number of tags to select randomly
+     * @return A Set of randomly selected tags
+     */
+    private Set<String> getRandomTags(List<String> tagList, int count) {
+        Random random = new Random();
+        Set<String> selectedTags = new HashSet<>();
+
+        // Ensure we don't try to get more tags than exist
+        int actualCount = Math.min(count, tagList.size());
+
+        while (selectedTags.size() < actualCount) {
+            selectedTags.add(tagList.get(random.nextInt(tagList.size())));
+        }
+
+        return selectedTags;
     }
 }
