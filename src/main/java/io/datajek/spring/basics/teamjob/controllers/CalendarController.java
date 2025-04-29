@@ -2,6 +2,7 @@ package io.datajek.spring.basics.teamjob.controllers;
 
 
 import io.datajek.spring.basics.teamjob.RoomDay;
+import io.datajek.spring.basics.teamjob.SearchResult;
 import io.datajek.spring.basics.teamjob.WeekDay;
 import io.datajek.spring.basics.teamjob.data.Event;
 import io.datajek.spring.basics.teamjob.data.EventInADay;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
@@ -120,6 +122,199 @@ public class CalendarController {
         model.addAttribute("roomIds", roomIds);
 
         return "calendar-day";
+    }
+
+    @GetMapping("/findRoom")
+    public String findRoom(Model model) {
+        gatherAllTags(model);
+        return "findAvailable";
+    }
+
+    @GetMapping("/findAvailable")
+    public String findAvailable(
+            @RequestParam(required = false) String[] searchType,
+            @RequestParam(required = false) String tags,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
+            Model model) {
+
+        // Default to current date if not provided
+        LocalDate searchDate = (date != null) ? date : LocalDate.now();
+
+        // Parse time strings to LocalTime if provided
+
+        LocalTime searchStartTime = null;
+        LocalTime searchEndTime = null;
+
+        if (startTime != null && !startTime.isEmpty()) {
+            searchStartTime = LocalTime.parse(startTime);
+        }
+
+        if (endTime != null && !endTime.isEmpty()) {
+            searchEndTime = LocalTime.parse(endTime);
+        }
+
+        // Create LocalDateTime objects for start and end times
+        LocalDateTime startDateTime;
+        LocalDateTime endDateTime;
+
+        if (searchStartTime != null) {
+            startDateTime = LocalDateTime.of(searchDate, searchStartTime);
+        } else {
+            startDateTime = searchDate.atStartOfDay();
+        }
+
+        if (searchEndTime != null) {
+            endDateTime = LocalDateTime.of(searchDate, searchEndTime);
+        } else {
+            endDateTime = searchDate.atTime(23, 59, 59);
+        }
+
+        // Parse tags
+        Set<String> tagSet = new HashSet<>();
+        if (tags != null && !tags.isEmpty()) {
+            tagSet.addAll(Arrays.asList(tags.split(",")));
+        }
+
+        List<SearchResult> results = new ArrayList<>();
+
+        // If no search type is selected, default to searching for rooms
+        if (searchType == null || searchType.length == 0) {
+            searchType = new String[]{"rooms"};
+        }
+
+        // Search for rooms
+        if (Arrays.asList(searchType).contains("rooms")) {
+            List<Room> rooms = roomRepository.findAll();
+
+            // Filter rooms by tags if tags are provided
+            if (!tagSet.isEmpty()) {
+                rooms = rooms.stream()
+                        .filter(room -> room.getTags() != null && !Collections.disjoint(room.getTags(), tagSet))
+                        .toList();
+            }
+
+            // Check room availability
+            for (Room room : rooms) {
+                boolean isAvailable = true;
+
+                // Get all events in the date range
+                List<Event> allEvents = eventRepository.findOverlappingEvents(startDateTime, endDateTime);
+
+                // Filter events for this room
+                List<Event> roomEvents = allEvents.stream()
+                        .filter(event -> event.getRoom() != null && event.getRoom().getId().equals(room.getId()))
+                        .toList();
+
+                // Check if any events overlap with the search time range
+                if (searchStartTime != null && searchEndTime != null) {
+                    for (Event event : roomEvents) {
+                        // Check if event overlaps with search time range
+                        if (!(event.getEndTime().isBefore(startDateTime) ||
+                                event.getStartTime().isAfter(endDateTime))) {
+                            isAvailable = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (isAvailable) {
+                    results.add(new SearchResult("room", room.getId(), room.getName(), room.getTags(), searchDate));
+                }
+            }
+        }
+
+        // Search for people (users)
+        if (Arrays.asList(searchType).contains("people")) {
+            List<User> users = userRepository.findAll();
+
+            // Filter users by tags if tags are provided
+            if (!tagSet.isEmpty()) {
+                users = users.stream()
+                        .filter(user -> user.getTags() != null && !Collections.disjoint(user.getTags(), tagSet))
+                        .toList();
+            }
+
+            // Check user availability
+            for (User user : users) {
+                boolean isAvailable = true;
+
+                // Get all events in the date range
+                List<Event> allEvents = eventRepository.findOverlappingEvents(startDateTime, endDateTime);
+
+                // Filter events for this user
+                List<Event> userEvents = allEvents.stream()
+                        .filter(event -> event.getUser() != null && event.getUser().getId().equals(user.getId()))
+                        .toList();
+
+                // Check if any events overlap with the search time range
+                if (searchStartTime != null && searchEndTime != null) {
+                    for (Event event : userEvents) {
+                        // Check if event overlaps with search time range
+                        if (!(event.getEndTime().isBefore(startDateTime) ||
+                                event.getStartTime().isAfter(endDateTime))) {
+                            isAvailable = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (isAvailable) {
+                    results.add(new SearchResult("user", user.getId(), user.getUsername(), user.getTags(), searchDate));
+                }
+            }
+        }
+
+        // Search for events
+        if (Arrays.asList(searchType).contains("events")) {
+            List<Event> events = eventRepository.findOverlappingEvents(
+                    searchDate.atStartOfDay(),
+                    searchDate.plusDays(1).atStartOfDay());
+
+            // Filter events by tags if tags are provided
+            if (!tagSet.isEmpty()) {
+                events = events.stream()
+                        .filter(event -> event.getTags() != null && !Collections.disjoint(event.getTags(), tagSet))
+                        .toList();
+            }
+
+            // Add matching events to results
+            for (Event event : events) {
+                results.add(new SearchResult("event", event.getId(), event.getTitle(), event.getTags(), searchDate));
+            }
+        }
+
+        // Add all tags for the tag dropdown
+        gatherAllTags(model);
+        model.addAttribute("results", results);
+        model.addAttribute("searchType", searchType);
+        return "findAvailable";
+    }
+
+    private void gatherAllTags(Model model) {
+        Set<String> roomTags = new HashSet<>();
+        roomRepository.findAll().forEach(room -> {
+            if (room.getTags() != null) {
+                roomTags.addAll(room.getTags());
+            }
+        });
+        Set<String> userTags = new HashSet<>();
+        userRepository.findAll().forEach(user -> {
+            if (user.getTags() != null) {
+                userTags.addAll(user.getTags());
+            }
+        });
+        Set<String> eventTags = new HashSet<>();
+        eventRepository.findAll().forEach(event -> {
+            if (event.getTags() != null) {
+                eventTags.addAll(event.getTags());
+            }
+        });
+
+        model.addAttribute("roomTags", roomTags);
+        model.addAttribute("userTags", userTags);
+        model.addAttribute("eventTags", eventTags);
     }
 
     private List<EventInADay> convertToDayEvents(List<Event> allEvents, LocalDate currentDate, String userIds, String roomIds) {

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Available Spots</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="navigation">
+    <a th:href="@{/calendar/}" class="nav-link">Home</a>
+    <h2>Find Available</h2>
+</div>
+
+<div class="container">
+    <form id="findAvailableForm" th:action="@{/calendar/findAvailable}" method="get">
+        <div class="form-group">
+            <label>What are you looking for?</label>
+            <div class="checkbox-group">
+                <input type="radio" id="searchRooms" name="searchType" value="rooms" checked>
+                <label for="searchRooms">Rooms</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="radio" id="searchPeople" name="searchType" value="people">
+                <label for="searchPeople">People</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="radio" id="searchEvents" name="searchType" value="events">
+                <label for="searchEvents">Events</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="tagSearchInput">Search by tags</label>
+            <div class="multi-select">
+                <div class="selected-container" id="tagSelectedContainer"></div>
+                <input type="text" id="tagSearchInput" placeholder="Enter tags" autocomplete="off">
+                <div class="select-items select-hide" id="tagSelectItems">
+                    <div th:each="tag : ${eventTags}" th:data-value="${tag}" data-name="events"
+                         th:text="${tag}"></div>
+                    <div th:each="tag : ${roomTags}" th:data-value="${tag}" data-name="rooms" th:text="${tag}"></div>
+                    <div th:each="tag : ${userTags}" th:data-value="${tag}" data-name="people" th:text="${tag}"></div>
+                </div>
+                <input type="hidden" id="selectedTags" name="tags" value="">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="startDate">Date (Optional)</label>
+            <input type="date" id="startDate" name="date">
+        </div>
+
+        <div class="form-group">
+            <label for="startTime">Start Time (Optional)</label>
+            <input type="time" id="startTime" name="startTime">
+        </div>
+
+        <div class="form-group">
+            <label for="endTime">End Time (Optional)</label>
+            <input type="time" id="endTime" name="endTime">
+        </div>
+
+        <button type="submit" class="filterButton">Search</button>
+    </form>
+
+    <!-- Results section will be displayed when search is performed -->
+    <div th:if="${results != null}" class="results-container">
+        <h3>Available Options</h3>
+        <div th:if="${#lists.isEmpty(results)}">
+            <p>No available options found for your search criteria.</p>
+        </div>
+        <div th:unless="${#lists.isEmpty(results)}" class="results-list">
+            <div th:each="result : ${results}" class="result-card">
+                <div th:if="${result.type == 'room'}">
+                    <span class="room-name" th:text="${result.name}"></span>
+                    <span class="result-tags" th:text="${#strings.listJoin(result.tags, ', ')}"></span>
+                    <a th:href="@{/calendar/day(date=${result.date},roomIds=${result.id})}" class="nav-link">View in
+                        Calendar</a>
+                </div>
+                <div th:if="${result.type == 'user'}">
+                    <span class="day-name" th:text="${result.name}"></span>
+                    <span class="result-tags" th:text="${#strings.listJoin(result.tags, ', ')}"></span>
+                    <a th:href="@{/calendar/day(date=${result.date},userIds=${result.id})}" class="nav-link">View in
+                        Calendar</a>
+                </div>
+                <div th:if="${result.type == 'event'}">
+                    <span class="day-name" th:text="${result.name}"></span>
+                    <span class="result-tags" th:text="${#strings.listJoin(result.tags, ', ')}"></span>
+                    <a th:href="@{/event/{id}(id=${result.id})}" class="nav-link">View Event</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const preselectedTags = urlParams.get('tags') ? urlParams.get('tags').split(',') : [];
+
+        const searchTypeParam = urlParams.get('searchType');
+
+        // Set initial radio button state
+        if (searchTypeParam) {
+            const radioToCheck = document.querySelector(`input[name="searchType"][value="${searchTypeParam}"]`);
+            if (radioToCheck) {
+                radioToCheck.checked = true;
+            }
+        } else {
+            // Default to 'rooms' if no parameter is provided
+            document.getElementById('searchRooms').checked = true;
+        }
+
+        // Initial setup of the dropdown
+        setupMultiSelectDropdown(
+            'tagSearchInput',
+            'tagSelectItems',
+            'selectedTags',
+            'tagSelectedContainer',
+            preselectedTags // Pass initially selected tags from URL
+        );
+
+        // Add change listeners to radio buttons
+        const searchTypeRadios = document.querySelectorAll('input[name="searchType"]');
+        searchTypeRadios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                setupMultiSelectDropdown(
+                    'tagSearchInput',
+                    'tagSelectItems',
+                    'selectedTags',
+                    'tagSelectedContainer',
+                    [] // Pass empty array to clear selections on type change
+                );
+            });
+        });
+    });
+
+    function setupMultiSelectDropdown(inputId, itemsId, hiddenFieldId, selectedContainerId, initialSelectedValues = []) {
+        const currentSearchType = document.querySelector('input[name="searchType"]:checked').value;
+
+        const searchInput = document.getElementById(inputId);
+        const selectItems = document.getElementById(itemsId);
+        const hiddenField = document.getElementById(hiddenFieldId);
+        const selectedContainer = document.getElementById(selectedContainerId);
+        const allItemsInDropdown = selectItems.querySelectorAll('div'); // All tag divs
+
+        // Clear previous state from container and internal tracking
+        selectedContainer.innerHTML = '';
+        let selectedValues = [...initialSelectedValues]; // Initialize with potentially preselected values
+
+        // Filter available items and set visibility based on current search type
+        let availableItems = [];
+        allItemsInDropdown.forEach(item => {
+            const itemDataName = item.getAttribute('data-name');
+            if (itemDataName === currentSearchType) {
+                item.style.display = ""; // Show item if it matches the type
+                item.classList.remove('selected'); // Ensure it's not marked selected initially
+                availableItems.push(item); // Add to list of currently relevant items
+
+                // Remove old event listeners by replacing with a fresh clone
+                const newItem = item.cloneNode(true);
+                item.replaceWith(newItem);
+                availableItems[availableItems.length - 1] = newItem; // Update reference
+
+
+            } else {
+                item.style.display = "none"; // Hide item if it doesn't match
+            }
+        });
+
+
+        function addSelectedItem(value) {
+            if (!selectedValues.includes(value)) {
+                selectedValues.push(value); // Add to internal array
+
+                // Create tag element
+                const tag = document.createElement('div');
+                tag.className = 'selected-tag';
+                tag.dataset.value = value;
+                tag.innerHTML = name + '<span class="tag-remove">&times;</span>';
+
+                // Add remove event
+                tag.querySelector('.tag-remove').addEventListener('click', function () {
+                    removeSelectedItem(value);
+                });
+                // Add to container
+                selectedContainer.appendChild(tag);
+
+                // Mark item in dropdown as selected
+                const itemInDropdown = selectItems.querySelector(`div[data-value=value][data-name=currentSearchType]`);
+                if (itemInDropdown) {
+                    itemInDropdown.classList.add('selected');
+                }
+
+                updateHiddenField();
+            }
+        }
+
+        // Function to remove a selected item visually and update state
+        function removeSelectedItem(value) {
+            // Remove from selected values array
+            selectedValues = selectedValues.filter(item => item !== value);
+
+            // Remove tag element from container
+            const tagElement = selectedContainer.querySelector(`.selected-tag[data-value="${value}"]`);
+            if (tagElement) {
+                selectedContainer.removeChild(tagElement);
+            }
+
+            // Un-mark item in dropdown
+            const itemInDropdown = selectItems.querySelector(`div[data-value="${value}"][data-name="${expectedDataName}"]`);
+            if (itemInDropdown) {
+                itemInDropdown.classList.remove('selected');
+            }
+
+            updateHiddenField();
+            searchInput.focus(); // Keep focus for usability
+        }
+
+        // Function to update the hidden input field
+        function updateHiddenField() {
+            hiddenField.value = selectedValues.join(',');
+        }
+
+
+        // Add click listeners ONLY to the currently available items
+        availableItems.forEach(item => {
+            item.addEventListener('click', function () {
+                const value = this.getAttribute('data-value');
+                if (!this.classList.contains('selected')) {
+                    addSelectedItem(value);
+                } else {
+                    removeSelectedItem(value); // Allow clicking again to remove
+                }
+                searchInput.value = ''; // Clear search input after selection
+                filterDropdownItems(''); // Reset filter
+                searchInput.focus();
+            });
+        });
+
+
+        // Populate initial selections from initialSelectedValues
+        initialSelectedValues.forEach(value => {
+            const item = selectItems.querySelector(`div[data-value="${value}"][data-name="${expectedDataName}"]`);
+            if (item) { // Check if the preselected item is relevant for the current type
+                addSelectedItem(value); // This also marks it as selected
+            }
+        });
+        updateHiddenField(); // Set initial hidden field value
+
+
+        // --- Event listeners for input focus, input typing, and closing ---
+
+        searchInput.addEventListener('focus', function () {
+            selectItems.classList.remove('select-hide');
+            filterDropdownItems(this.value); // Filter based on current input value
+        });
+
+        searchInput.addEventListener('input', function () {
+            filterDropdownItems(this.value);
+        });
+
+        // Helper to filter dropdown items based on text input
+        function filterDropdownItems(filterText) {
+            const filter = filterText.toUpperCase();
+            availableItems.forEach(item => {
+                const txtValue = item.textContent || item.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    item.style.display = ""; // Show if matches filter
+                } else {
+                    item.style.display = "none"; // Hide if doesn't match
+                }
+            });
+        }
+
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            // Check if the click is outside the input and the dropdown items container
+            if (!searchInput.contains(e.target) && !selectItems.contains(e.target)) {
+                selectItems.classList.add('select-hide');
+            }
+        });
+    }
+</script>
+</body>
+</html>
