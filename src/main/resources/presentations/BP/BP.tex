@@ -1,0 +1,430 @@
+%% LyX 2.4.3 created this file.  For more info, see https://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[11pt,oneside,czech,american]{book}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\setcounter{secnumdepth}{3}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage[a4paper]{geometry}
+\geometry{verbose,tmargin=4cm,bmargin=3cm,lmargin=3cm,rmargin=2.5cm,headheight=0.8cm,headsep=1cm,footskip=0.5cm}
+\pagestyle{headings}
+\usepackage{setspace}
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\newenvironment{lyxlist}[1]
+	{\begin{list}{}
+		{\settowidth{\labelwidth}{#1}
+		 \setlength{\leftmargin}{\labelwidth}
+		 \addtolength{\leftmargin}{\labelsep}
+		 \renewcommand{\makelabel}[1]{##1\hfil}}}
+	{\end{list}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+%% Font setup: please leave the LyX font settings all set to 'default'
+%% if you want to use any of these packages:
+
+%% Use Times New Roman font for text and Belleek font for math
+%% Please make sure that the 'esint' package is turned off in the
+%% 'Math options' page.
+\usepackage[varg]{txfonts}
+
+%% Use Utopia text with Fourier-GUTenberg math
+%\usepackage{fourier}
+
+%% Bitstream Charter text with Math Design math
+%\usepackage[charter]{mathdesign}
+
+%%---------------------------------------------------------------------
+
+%% Make the multiline figure/table captions indent so that the second
+%% line "hangs" right below the first one.
+%\usepackage[format=hang]{caption}
+
+%% Indent even the first paragraph in each section
+\usepackage{indentfirst}
+
+%%---------------------------------------------------------------------
+
+\usepackage{pdfpages}
+
+%%---------------------------------------------------------------------
+
+%% Disable page numbers in the TOC. LOF, LOT (TOC automatically
+%% adds \thispagestyle{chapter} if not overriden
+%\addtocontents{toc}{\protect\thispagestyle{empty}}
+%\addtocontents{lof}{\protect\thispagestyle{empty}}
+%\addtocontents{lot}{\protect\thispagestyle{empty}}
+
+%% Shifts the top line of the TOC (not the title) 1cm upwards
+%% so that the whole TOC fits on 1 page. Additional page size
+%% adjustment is performed at the point where the TOC
+%% is inserted.
+%\addtocontents{toc}{\protect\vspace{-1cm}}
+
+%%---------------------------------------------------------------------
+
+% completely avoid orphans (first lines of a new paragraph on the bottom of a page)
+\clubpenalty=9500
+
+% completely avoid widows (last lines of paragraph on a new page)
+\widowpenalty=9500
+
+% disable hyphenation of acronyms
+\hyphenation{CDFA HARDI HiPPIES IKEM InterTrack MEGIDDO MIMD MPFA DICOM ASCLEPIOS MedInria}
+
+%%---------------------------------------------------------------------
+
+%% Print out all vectors in bold type instead of printing an arrow above them
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
+
+% Replace standard \cite by the parenthetical variant \citep
+%\renewcommand{\cite}{\citep}
+
+\makeatother
+\bibliography{export}
+\bibliographystyle{unsrt}
+\usepackage{biblatex}
+\usepackage{babel}
+\usepackage{hyperref}
+\begin{document}
+\def\documentdate{August 4, 2025}
+
+%%\def\documentdate{\today}
+
+\pagestyle{empty}
+{\centering
+
+\noindent{}%
+\begin{minipage}[c]{3cm}%
+\begin{center}
+\includegraphics[width=3cm,keepaspectratio,height=3cm]{Images/TITLE/cvut}
+\par\end{center}%
+\end{minipage}%
+\begin{minipage}[c]{0.6\linewidth}%
+\begin{center}
+{\large\textsc{Czech Technical University in Prague}}{\large}\\
+{\large Faculty of Nuclear Sciences and Physical Engineering}
+\par\end{center}%
+\end{minipage}%
+\begin{minipage}[c]{3cm}%
+\begin{center}
+\includegraphics[width=3cm,keepaspectratio,height=3cm]{Images/TITLE/fjfi}
+\par\end{center}%
+\end{minipage}
+
+\vspace{3cm}
+
+{\huge\textbf{Web application for team work organization}}{\huge\par}
+
+\vspace{1cm}
+
+\selectlanguage{czech}%
+{\huge\textbf{Webová aplikace pro organizaci týmové práce}}{\huge\par}
+
+\selectlanguage{american}%
+\vspace{2cm}
+
+{\large Bachelor's Degree Project}{\large\par}
+
+}
+
+\vfill{}
+
+\begin{lyxlist}{MMMMMMMMM}
+\begin{singlespace}
+\item [{Author:}] \textbf{Kirill Borodinskiy}
+\item [{Supervisor:}] \textbf{doc. Ing. Miroslav Virius, CSc.}
+\item [{Academic~year:}] 2024/2025
+\end{singlespace}
+\end{lyxlist}
+
+\includepdf[]{BPZADANI.pdf}
+
+\noindent{\Large\emph{Acknowledgment:}}{\Large\par}
+
+\noindent I would like to thank my mother Elena and my girlfriend Anastasiia for their moral support.
+I would like to thank my supervisor, Miroslav Virius, for their help in organization of my bachelor's thesis project.
+
+\vfill
+
+\noindent{\Large\emph{Author's declaration:}}{\Large\par}
+
+\noindent I declare that this Bachelor's Degree Project is entirely
+my own work and I have listed all the used sources in the bibliography.
+AI tools were used in full accordance with the guidelines established
+by CTU in Prague.
+
+\bigskip{}
+
+\noindent Prague, \documentdate\hfill{}Kirill Borodinskiy
+
+\vspace{2cm}
+
+\newpage{}
+
+\selectlanguage{czech}%
+\begin{onehalfspace}
+\noindent\emph{Název práce:}
+
+\noindent\textbf{Webová aplikace pro organizaci týmové práce}
+\end{onehalfspace}
+
+\bigskip{}
+
+\noindent\emph{Autor:} Kirill Borodinskiy
+
+\bigskip{}
+
+\noindent\emph{Studijní program:} Celý název studijního programu
+(nikoliv zkratka)\bigskip{}
+
+\noindent\emph{Specializace:} Celý název specializace (Pokud se studijní
+program nedělí na specializace, tuto řádku odstranit.)
+
+\bigskip{}
+
+\noindent\emph{Druh práce:} Bakalářská práce
+
+\bigskip{}
+
+\noindent\emph{Vedoucí práce:}doc.
+Ing.
+Miroslav Virius, CSc., DrSc.,
+pracoviště školitele (název instituce, fakulty, katedry...)
+
+\bigskip{}
+
+\bigskip{}
+
+\noindent\emph{Abstrakt:} Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+Abstrakt max.
+na 10 řádků.
+
+\bigskip{}
+
+\noindent\emph{Klíčová slova:} klíčová slova (nebo výrazy) seřazená
+podle abecedy a oddělená čárkou
+
+\selectlanguage{american}%
+\vfill{}
+~
+
+\begin{onehalfspace}
+\noindent\emph{Title:}
+
+\noindent\textbf{Title of the Work}
+\end{onehalfspace}
+
+\bigskip{}
+
+\noindent\emph{Author:} Kirill Borodinskiy
+
+\bigskip{}
+
+\noindent\emph{Abstract:} Max.
+10 lines of English abstract text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines of English abstract
+text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines of English
+abstract text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines
+of English abstract text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines of English abstract
+text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines of English
+abstract text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines
+of English abstract text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines of English abstract
+text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines of English
+abstract text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines
+of English abstract text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines of English abstract text.
+Max.
+10 lines of English abstract
+text.
+Max.
+10 lines of English abstract text.
+
+\bigskip{}
+
+\noindent\emph{Key words:} keywords in alphabetical order separated
+by commas
+
+\newpage{}
+
+\pagestyle{plain}
+
+\tableofcontents{}
+
+\newpage{}
+
+
+
+
+
+
+
+\chapter{Introduction}\label{ch:introduction}
+\section*{Motivation}
+Efficient team schedule planning is a complex challenge, particularly in organizations that require real-time coordination and resource management.
+Existing scheduling services often have significant limitations, such as proprietary nature, lack of customization, and dependence on third-party infrastructure.
+This project aims to develop a self-hosted open-source booking system designed for organizations that need a private, adaptable scheduling solution.
+The system will provide a web-based interface where users can:
+\begin{itemize}
+    \item Make and manage reservations
+    \item Check real-time room availability
+    \item  Filter bookings by person or room
+    \item View all reservations on a centralized calendar
+\end{itemize}
+
+The backend will be built using the Spring Framework, ensuring scalability, security, and ease of integration with existing infrastructure.
+Unlike cloud-based alternatives, this system will store all data locally, giving organizations complete privacy and control over scheduling information.
+By combining flexibility, transparency, and data privacy, this project can provide a practical alternative to commercial scheduling tools, empowering organizations with greater autonomy and customization options.
+\addcontentsline{toc}{section}{Motivation}
+
+
+\pagestyle{headings}
+Here we will talk about why the calendar is needed
+
+Firstly, lets take a look at the current solution used by my university,CTU. Rozvrh.fjfi.cvut.cz is a website where students can see their schedule.
+\section{The current solution}\label{sec:the-current-solution}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{img}
+  \caption{Screenshot of the current solution}
+  \label{fig:rozvrh}
+\end{figure}
+
+It can be seen on~\ref{fig:rozvrh} that while the website completes its main purpose, it is not customizable, which makes it hard to use.
+For example, if a student has a class that is from another year or/and program, they have to look at another picture and manually compare them.
+From my experience, many students have screenshots on their phones and they cross-out the classes that they are not registered to.
+They may have a few screenshots, for different programs or years.
+It is not a good solution, as it allows for misunderstandings and mistakes.
+
+\chapter{Methods}\label{ch:methods}
+\input{methods}
+
+\chapter*{Conclusion}
+
+\pagestyle{plain}
+
+\addcontentsline{toc}{chapter}{Conclusion}
+
+Text of the conclusion\ldots{}
+\begin{thebibliography}{1}
+\bibitem{Allen-Cahn}S. Allen, J. W. Cahn: \emph{A microscopic theory
+for antiphase boundary motion and its application to antiphase domain
+coarsening}.
+Acta Metall., 27:1084-1095, 1979.
+
+\bibitem{CINECA}G. Ballabio et al.: \emph{High Performance Systems
+User Guide}.
+High Performance Systems Department, CINECA, Bologna,
+2005. \url{www.cineca.it}
+
+\bibitem{rumpf3}J. Becker, T. Preusser, M. Rumpf: \emph{PDE methods
+in flow simulation post processing}.
+Computing and Visualization in
+Science, 3(3):159-167, 2000.
+
+\end{thebibliography}
+
+\end{document}

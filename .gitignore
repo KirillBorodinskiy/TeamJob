@@ -38,3 +38,10 @@ out/
 
 ### JTE ###
 /jte-classes/
+
+### LATEX ###
+*.aux
+*.log
+*.out
+*.toc
+.bash_history
