@@ -29,7 +29,10 @@
     padding: 15px;
     height: 100%;
 }
-
+.titlebold{
+    font-weight: bolder;
+    font-size: 1.5em;
+}
 .day-name, .room-name {
     color: var(--color-tertiary);
     font-weight: bold;
@@ -430,9 +433,21 @@ fieldset {
     flex-wrap: wrap;
     padding: 2px;
     min-height: 24px;
-    /*max-width: 13em;*/
-}
 
+}
+.results-list{
+    display:flex;
+    flex-direction: column;
+    gap: 1em;
+}
+.search-result-div{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    border-radius: 1em;
+    border:2px solid var(--color-tertiary);
+    padding: 1em;
+}
 .selected {
     background: #b4b2b2 !important;
     color: white !important;
