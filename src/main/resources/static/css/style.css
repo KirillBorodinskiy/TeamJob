@@ -430,7 +430,7 @@ fieldset {
     flex-wrap: wrap;
     padding: 2px;
     min-height: 24px;
-    max-width: 13em;
+    /*max-width: 13em;*/
 }
 
 .selected {
@@ -579,7 +579,13 @@ fieldset {
     padding: 5px;
     z-index: 1;
 }
-
+.event-placeholder{
+    height:4em;
+    top:40vh;
+    width: 9%;
+    position: sticky;
+    z-index: 10;
+}
 .container {
     margin: 15vh auto;
     padding: 2em;

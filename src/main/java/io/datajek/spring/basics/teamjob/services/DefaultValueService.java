@@ -1,4 +1,4 @@
-package io.datajek.spring.basics.teamjob;
+package io.datajek.spring.basics.teamjob.services;
 
 import io.datajek.spring.basics.teamjob.data.Event;
 import io.datajek.spring.basics.teamjob.data.Role;
@@ -36,21 +36,21 @@ public class DefaultValueService {
 
 
     private static final List<String> SAMPLE_ROOM_TAGS = Arrays.asList(
-            "Meeting Room", "Conference Room", "Projector", "Whiteboard", "Large",
-            "Small", "Quiet Zone", "Lab", "Computer Class", "Auditorium",
-            "Video Conferencing", "Ground Floor", "Restricted Access"
+            "rooms_Meeting Room", "rooms_Conference Room", "rooms_Projector", "rooms_Whiteboard", "rooms_Large",
+            "rooms_Small", "rooms_Quiet Zone", "rooms_Lab", "rooms_Computer Class", "rooms_Auditorium",
+            "rooms_Video Conferencing", "rooms_Ground Floor", "rooms_Restricted Access"
     );
 
     private static final List<String> SAMPLE_USER_TAGS = Arrays.asList(
-            "IT Support", "Developer", "Manager", "Teacher", "Student", "Admin Staff",
-            "HR", "Finance", "Marketing", "Part-Time", "Remote", "Math Dept",
-            "Science Dept", "Trainer"
+            "users_IT Support", "users_Developer", "users_Manager", "users_Teacher", "users_Student", "users_Admin Staff",
+            "users_HR", "users_Finance", "users_Marketing", "users_Part-Time", "users_Remote", "users_Math Dept",
+            "users_Science Dept", "users_Trainer"
     );
 
     private static final List<String> SAMPLE_EVENT_TAGS = Arrays.asList(
-            "Meeting", "Urgent", "Client Call", "Internal", "Project Alpha", "Project Beta",
-            "Training", "Workshop", "Presentation", "Review", "Planning",
-            "Optional", "Recurring", "Cancelled", "Team Building"
+            "event_Meeting", "event_Urgent", "event_Client Call", "event_Internal", "event_Project Alpha", "event_Project Beta",
+            "event_Training", "event_Workshop", "event_Presentation", "event_Review", "event_Planning",
+            "event_Optional", "event_Recurring", "event_Cancelled", "event_Team Building"
     );
 
     @Autowired

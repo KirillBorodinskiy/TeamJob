@@ -1,5 +1,6 @@
-package io.datajek.spring.basics.teamjob;
+package io.datajek.spring.basics.teamjob.services;
 
+import io.datajek.spring.basics.teamjob.UserDetailsImpl;
 import io.datajek.spring.basics.teamjob.data.repositories.UserRepository;
 import io.datajek.spring.basics.teamjob.data.User;
 import org.springframework.beans.factory.annotation.Autowired;

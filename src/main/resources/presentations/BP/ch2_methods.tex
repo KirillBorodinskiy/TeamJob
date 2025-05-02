@@ -5,6 +5,8 @@ This section will focus on the tools and techniques used to create a web applica
 % Расписать все варианты и в итоге выбрать итоговый.
 % Расписать всю структуру будущюю.
 % Интересные инструменты использованные указать.
+% Указать алгортм использованный в приложении.
+% Реальные человеческие отзывы сделать.
 
 % Spring Boot vs. Spring vs. C# vs. Django vs. Flask
 For the programming language, the options were as follows: Java Spring Boot framework, C\#.NET, and Python's Django and Flask.
@@ -139,8 +141,22 @@ The \texttt{/calendar} takes 3 non-required parameters.
     \item \textbf{userIds}: Filter the users shown on the central calendar.
     \item \textbf{roomIds}: Filter rooms displayed in the central calendar.
 \end{itemize}
-
-The \texttt{/calendar} then sends these data to \texttt{calendar.html}:
+Then, the \texttt{EventRepository} is used to find all the events that are happening in the week of the date sent.
+The \texttt{EventRepository} is a Spring Data JPA repository that allows for easy access to the database.
+They are split into a list of events that are happening on a specific day, where the days are filtered by comparing the \texttt{userIds} and \texttt{roomIds} with the events that are in the database.
+the data inside each event is such:
+\begin{itemize}
+    \item \textbf{eventId}
+    \item \textbf{eventTitle}
+    \item \textbf{eventDescription}
+    \item \textbf{eventStartTime} - the time when the event starts in LocalDateTime format.
+    \item \textbf{eventEndTime}
+    \item \textbf{eventRoomId} - the room that is assigned to this event.
+    \item \textbf{eventUserId} - the user that is assigned to this event.
+    \item \textbf{eventTags} - the tags that are assigned to this event.
+    \item \textbf{eventIsRecurring} - if the event is recurring or not.
+\end{itemize}
+The \texttt{/calendar} then sends such data to \texttt{calendar.html}:
 \begin{itemize}
     \item \textbf{userIds} \& \textbf{roomIds} (if supplied from request).
     \item \textbf{selectedDate} (if not provided, current date is used).
