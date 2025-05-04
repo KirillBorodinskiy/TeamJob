@@ -118,9 +118,9 @@ public class DefaultValueService {
 
             // Generate Fake Data
             System.out.println("Generating fake data for testing...");
-            generateFakeUsers(20); // Will get user tags assigned within
-            generateFakeRooms(15); // Will get room tags assigned within
-            generateFakeEvents(7); // Will get event tags assigned within
+            generateFakeUsers(10); // Will get user tags assigned within
+            generateFakeRooms(5); // Will get room tags assigned within
+            generateFakeEvents(2); // Will get event tags assigned within
             System.out.println("Fake data generation completed.");
 
         } catch (Exception e) {

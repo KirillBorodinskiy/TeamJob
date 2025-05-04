@@ -435,7 +435,7 @@ fieldset {
     min-height: 24px;
 
 }
-.results-list{
+.results-list, .room-availabilities {
     display:flex;
     flex-direction: column;
     gap: 1em;
@@ -447,6 +447,66 @@ fieldset {
     border-radius: 1em;
     border:2px solid var(--color-tertiary);
     padding: 1em;
+}
+
+.room-availability-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8em;
+    border-radius: 1em;
+    border: 2px solid var(--color-tertiary);
+    padding: 1em;
+    background-color: var(--color-primary);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.room-availability-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.room-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.room-tags {
+    font-size: 0.9em;
+    color: var(--color-secondary);
+}
+
+.unoccupied-slots h5 {
+    margin: 0.5em 0;
+    color: var(--color-tertiary);
+}
+
+.unoccupied-slots ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.unoccupied-slots li {
+    padding: 0.5em;
+    margin-bottom: 0.3em;
+    background-color: var(--today-bg-color);
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.unoccupied-slots li:hover {
+    background-color: var(--border-color);
+}
+
+.no-slots p {
+    color: var(--color-secondary);
+    font-style: italic;
 }
 .selected {
     background: #b4b2b2 !important;
@@ -500,7 +560,11 @@ fieldset {
     height: calc(100vh - 80px);
     margin-top: 80px;
 }
-
+#findAvailableForm{
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
 .time-column {
     height: fit-content;
     min-width: 70px;

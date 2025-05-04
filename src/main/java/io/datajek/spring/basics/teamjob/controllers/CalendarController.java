@@ -4,13 +4,10 @@ package io.datajek.spring.basics.teamjob.controllers;
 import io.datajek.spring.basics.teamjob.RoomDay;
 import io.datajek.spring.basics.teamjob.SearchResult;
 import io.datajek.spring.basics.teamjob.WeekDay;
-import io.datajek.spring.basics.teamjob.data.Event;
-import io.datajek.spring.basics.teamjob.data.EventInADay;
+import io.datajek.spring.basics.teamjob.data.*;
 import io.datajek.spring.basics.teamjob.data.repositories.EventRepository;
 import io.datajek.spring.basics.teamjob.data.repositories.RoomRepository;
 import io.datajek.spring.basics.teamjob.data.repositories.UserRepository;
-import io.datajek.spring.basics.teamjob.data.Room;
-import io.datajek.spring.basics.teamjob.data.User;
 import io.datajek.spring.basics.teamjob.services.CalendarService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -130,44 +127,33 @@ public class CalendarController {
 
     @GetMapping("/findAvailable")
     public String findAvailable(
-            @RequestParam(required = false) String[] searchType,
+            @RequestParam(required = false) String searchType,
             @RequestParam(required = false) String tags,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
-            @RequestParam(required = false) String startTime,
-            @RequestParam(required = false) String endTime,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "HH:mm") LocalTime startTime,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "HH:mm") LocalTime endTime,
+            @RequestParam(required = false) Integer durationMinutes,
             Model model) {
 
-        // Default to current date if not provided
-        LocalDate searchDate = (date != null) ? date : LocalDate.now();
-
-        // Parse time strings to LocalTime if provided
-
-        LocalTime searchStartTime = null;
-        LocalTime searchEndTime = null;
-
-        if (startTime != null && !startTime.isEmpty()) {
-            searchStartTime = LocalTime.parse(startTime);
+        // Default values
+        if (date == null) {
+            date = LocalDate.now();
+        }
+        if (startTime == null) {
+            startTime = LocalTime.of(0, 0);// BY DEFAULT START AT 00:00!!!!!!!!!!!!!!!!!!!!!!!!!!
+        }
+        if (endTime == null) {
+            endTime = LocalTime.of(23, 59);// BY DEFAULT END AT 23:59!!!!!!!!!!!!!!!!!!!!!!!!!!
+        }
+        if (durationMinutes == null) {
+            durationMinutes = 30; // Default duration
+        }
+        if (searchType == null) {
+            searchType = "rooms"; // Default search type
         }
 
-        if (endTime != null && !endTime.isEmpty()) {
-            searchEndTime = LocalTime.parse(endTime);
-        }
-
-        // Create LocalDateTime objects for start and end times
-        LocalDateTime startDateTime;
-        LocalDateTime endDateTime;
-
-        if (searchStartTime != null) {
-            startDateTime = LocalDateTime.of(searchDate, searchStartTime);
-        } else {
-            startDateTime = searchDate.atStartOfDay();
-        }
-
-        if (searchEndTime != null) {
-            endDateTime = LocalDateTime.of(searchDate, searchEndTime);
-        } else {
-            endDateTime = searchDate.atTime(23, 59, 59);
-        }
+        LocalDateTime searchStartTime = date.atTime(startTime);
+        LocalDateTime searchEndTime = date.atTime(endTime);
 
         // Parse tags
         Set<String> tagSet = new HashSet<>();
@@ -175,116 +161,34 @@ public class CalendarController {
             tagSet.addAll(Arrays.asList(tags.split(",")));
         }
 
-        List<SearchResult> results = new ArrayList<>();
+        List<SearchResult> results;
 
-        // If no search type is selected, default to searching for rooms
-        if (searchType == null || searchType.length == 0) {
-            searchType = new String[]{"rooms"};
+
+        // Generate available time request and search results
+        AvailableTimeRequest availableTimeRequest = calendarService.generateAvailableTimeRequest(
+                searchType,
+                searchStartTime,
+                searchEndTime,
+                durationMinutes,
+                tagSet
+        );
+
+        // Add availabilities to the model based on search type
+        switch (searchType) {
+            case "rooms" -> model.addAttribute("roomAvailabilities", availableTimeRequest.getRoomAvailabilities());
+            case "users" -> model.addAttribute("userAvailabilities", availableTimeRequest.getUserAvailabilities());
+            case "events" -> model.addAttribute("eventAvailabilities", availableTimeRequest.getEventAvailabilities());
         }
 
-        // Search for rooms
-        if (Arrays.asList(searchType).contains("rooms")) {
-            List<Room> rooms = roomRepository.findAll();
-
-            // Filter rooms by tags if tags are provided
-            if (!tagSet.isEmpty()) {
-                rooms = rooms.stream()
-                        .filter(room -> room.getTags() != null && !Collections.disjoint(room.getTags(), tagSet))
-                        .toList();
-            }
-
-            // Check room availability
-            for (Room room : rooms) {
-                boolean isAvailable = true;
-
-                // Get all events in the date range
-                List<Event> allEvents = eventRepository.findOverlappingEvents(startDateTime, endDateTime);
-
-                // Filter events for this room
-                List<Event> roomEvents = allEvents.stream()
-                        .filter(event -> event.getRoom() != null && event.getRoom().getId().equals(room.getId()))
-                        .toList();
-
-                // Check if any events overlap with the search time range
-                if (searchStartTime != null && searchEndTime != null) {
-                    for (Event event : roomEvents) {
-                        // Check if event overlaps with search time range
-                        if (!(event.getEndTime().isBefore(startDateTime) ||
-                                event.getStartTime().isAfter(endDateTime))) {
-                            isAvailable = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (isAvailable) {
-                    results.add(new SearchResult("room", room.getId(), room.getName(), room.getTags(), searchDate));
-                }
-            }
-        }
-
-        // Search for people (users)
-        if (Arrays.asList(searchType).contains("people")) {
-            List<User> users = userRepository.findAll();
-
-            // Filter users by tags if tags are provided
-            if (!tagSet.isEmpty()) {
-                users = users.stream()
-                        .filter(user -> user.getTags() != null && !Collections.disjoint(user.getTags(), tagSet))
-                        .toList();
-            }
-
-            // Check user availability
-            for (User user : users) {
-                boolean isAvailable = true;
-
-                // Get all events in the date range
-                List<Event> allEvents = eventRepository.findOverlappingEvents(startDateTime, endDateTime);
-
-                // Filter events for this user
-                List<Event> userEvents = allEvents.stream()
-                        .filter(event -> event.getUser() != null && event.getUser().getId().equals(user.getId()))
-                        .toList();
-
-                // Check if any events overlap with the search time range
-                if (searchStartTime != null && searchEndTime != null) {
-                    for (Event event : userEvents) {
-                        // Check if event overlaps with search time range
-                        if (!(event.getEndTime().isBefore(startDateTime) ||
-                                event.getStartTime().isAfter(endDateTime))) {
-                            isAvailable = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (isAvailable) {
-                    results.add(new SearchResult("user", user.getId(), user.getUsername(), user.getTags(), searchDate));
-                }
-            }
-        }
-
-        // Search for events
-        if (Arrays.asList(searchType).contains("events")) {
-            List<Event> events = eventRepository.findOverlappingEvents(
-                    searchDate.atStartOfDay(),
-                    searchDate.plusDays(1).atStartOfDay());
-
-            // Filter events by tags if tags are provided
-            if (!tagSet.isEmpty()) {
-                events = events.stream()
-                        .filter(event -> event.getTags() != null && !Collections.disjoint(event.getTags(), tagSet))
-                        .toList();
-            }
-
-            // Add matching events to results
-            for (Event event : events) {
-                results.add(new SearchResult("event", event.getId(), event.getTitle(), event.getTags(), searchDate));
-            }
-        }
+        // Generate search results from the available time request
+        results = calendarService.generateSearchResults(availableTimeRequest, date);
 
         // Add all tags for the tag dropdown
         calendarService.gatherAllTags(model);
+        model.addAttribute("date", date);
+        model.addAttribute("startTime", startTime);
+        model.addAttribute("durationMinutes", durationMinutes);
+        model.addAttribute("endTime", endTime);
         model.addAttribute("results", results);
         model.addAttribute("searchType", searchType);
         return "findAvailable";
