@@ -1,6 +1,6 @@
 package io.datajek.spring.basics.teamjob.services;
 
-import io.datajek.spring.basics.teamjob.SearchResult;
+import io.datajek.spring.basics.teamjob.data.SearchResult;
 import io.datajek.spring.basics.teamjob.data.*;
 import io.datajek.spring.basics.teamjob.data.repositories.EventRepository;
 import io.datajek.spring.basics.teamjob.data.repositories.RoomRepository;
