@@ -2,6 +2,7 @@ package io.datajek.spring.basics.teamjob.data;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.Type;
 
 import java.util.HashSet;
@@ -10,7 +11,8 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "rooms")
-public class Room {
+@EqualsAndHashCode(callSuper = true)
+public class Room extends Auditable {
     /**
      * Represents the primary key of the 'rooms' table.
      * This field is automatically generated.

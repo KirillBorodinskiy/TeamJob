@@ -2,6 +2,7 @@ package io.datajek.spring.basics.teamjob.data;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
@@ -20,11 +21,14 @@ import java.util.Set;
  *   <li>location: In format ... </li>
  *   <li>isRecurring</li>
  * </ul>
+ * This entity includes auditing fields (createdDate, createdBy, lastModifiedDate, lastModifiedBy)
+ * inherited from the Auditable base class.
  */
 @Data
 @Entity
 @Table(name = "events")
-public class Event {
+@EqualsAndHashCode(callSuper = true)
+public class Event extends Auditable {
 
     /**
      * The primary key of the 'events' table.
