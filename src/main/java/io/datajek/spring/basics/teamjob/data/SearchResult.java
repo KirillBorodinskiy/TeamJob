@@ -1,4 +1,4 @@
-package io.datajek.spring.basics.teamjob;
+package io.datajek.spring.basics.teamjob.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

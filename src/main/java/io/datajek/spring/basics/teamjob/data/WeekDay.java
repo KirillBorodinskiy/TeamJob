@@ -1,7 +1,6 @@
-package io.datajek.spring.basics.teamjob;
+package io.datajek.spring.basics.teamjob.data;
 
 
-import io.datajek.spring.basics.teamjob.data.EventInADay;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
