@@ -14,6 +14,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
+/**
+ * The CalendarService class provides various utility methods for managing and retrieving
+ * calendar data including events, users, rooms, and their availabilities. It utilizes
+ * repositories for accessing stored entities and provides filtering, availability checking,
+ * and time slot generation functionalities.
+ */
 @Service
 public class CalendarService {
 

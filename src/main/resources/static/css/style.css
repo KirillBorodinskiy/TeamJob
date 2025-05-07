@@ -439,6 +439,7 @@ fieldset {
     display:flex;
     flex-direction: column;
     gap: 1em;
+    padding: 2em;
 }
 .search-result-div{
     display: flex;
@@ -464,14 +465,6 @@ fieldset {
 .room-availability-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.room-header {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3em;
-    padding-bottom: 0.5em;
-    border-bottom: 1px solid var(--border-color);
 }
 
 .room-tags {
@@ -563,7 +556,8 @@ fieldset {
 #findAvailableForm{
     display: flex;
     flex-direction: column;
-    gap: 1em;
+    gap: 1.5em;
+    padding: 1em;
 }
 .time-column {
     height: fit-content;
@@ -662,7 +656,7 @@ fieldset {
     height:4em;
     top:40vh;
     width: 9%;
-    position: sticky;
+    position: fixed;
     z-index: 10;
 }
 .container {
