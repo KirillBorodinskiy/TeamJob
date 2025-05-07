@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT * FROM users WHERE tags && CAST(:tags AS text[])", nativeQuery = true)
     List<User> findByTagsAnyMatch(@Param("tags") List<String> tags);
 
+    @Query("SELECT DISTINCT e.user FROM Event e WHERE e.user IS NOT NULL AND e.startTime <= :endTime AND e.endTime >= :startTime")
+    List<User> findAllOccupiedByStartTimeAndEndTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 }

@@ -1,6 +1,6 @@
 package io.datajek.spring.basics.teamjob.controllers;
 
-import io.datajek.spring.basics.teamjob.DefaultValueService;
+import io.datajek.spring.basics.teamjob.services.DefaultValueService;
 import io.datajek.spring.basics.teamjob.JwtCore;
 import io.datajek.spring.basics.teamjob.data.repositories.RoleRepository;
 import io.datajek.spring.basics.teamjob.data.repositories.UserRepository;

@@ -35,6 +35,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT COUNT(e) > 0 FROM Event e WHERE (e.startTime <= :endTime AND e.endTime >= :startTime) AND e.room = :room")
     Boolean findOverlappingEventsInRoom(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("room") Optional<Room> room);
 
+    @Query("SELECT e FROM Event e WHERE (e.startTime <= :endTime AND e.endTime >= :startTime) AND e.room = :room")
+    List<Event> findAllOverlappingEventsInRoom(LocalDateTime startTime, LocalDateTime endTime, Optional<Room> room);
+
     @SuppressWarnings({"SqlResolve", "unused"})
     @Query(value = "SELECT * FROM events WHERE tags && CAST(:tags AS text[])", nativeQuery = true)
     List<Event> findByTagsAnyMatch(@Param("tags") List<String> tags);

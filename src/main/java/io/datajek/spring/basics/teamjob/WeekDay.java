@@ -20,5 +20,6 @@ public class WeekDay {
     private final boolean isToday;
 
     private List<EventInADay>  events;
+    private final int amountOfEvents;
 
 }
