@@ -2,6 +2,7 @@ package io.datajek.spring.basics.teamjob.data;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.Type;
 
 import java.util.HashSet;
@@ -16,11 +17,14 @@ import java.util.Set;
  *   <li>password: Hashed password</li>
  *   <li>roles: A set of roles associated with the user.</li>
  * </ul>
+ * This entity includes auditing fields (createdDate, createdBy, lastModifiedDate, lastModifiedBy)
+ * inherited from the Auditable base class.
  */
 @Data
 @Entity
 @Table(name = "users")
-public class User {
+@EqualsAndHashCode(callSuper = true)
+public class User extends Auditable {
 
     /**
      * The primary key of the 'users' table.

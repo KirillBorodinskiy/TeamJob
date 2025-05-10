@@ -1,6 +1,6 @@
 package io.datajek.spring.basics.teamjob.services;
 
-import io.datajek.spring.basics.teamjob.SearchResult;
+import io.datajek.spring.basics.teamjob.data.SearchResult;
 import io.datajek.spring.basics.teamjob.data.*;
 import io.datajek.spring.basics.teamjob.data.repositories.EventRepository;
 import io.datajek.spring.basics.teamjob.data.repositories.RoomRepository;
@@ -447,8 +447,6 @@ public class CalendarService {
         boolean spansOver = event.getStartTime().toLocalDate().isBefore(date) &&
                 event.getEndTime().toLocalDate().isAfter(date);
         boolean dateMatch = startsToday || endsToday || spansOver;
-        //The filtering above is still needed even after findOverlappingEvents is used, as we are filtering each day
-
 
         // If no filters are applied, only check date
         if (userIds.isEmpty() && roomIds.isEmpty()) {

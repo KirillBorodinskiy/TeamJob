@@ -15,38 +15,111 @@ The backend will be built using the Spring Framework, ensuring scalability, secu
 Unlike cloud-based alternatives, this system will store all data locally, giving organizations complete privacy and control over scheduling information.
 By combining flexibility, transparency, and data privacy, this project can provide a practical alternative to commercial scheduling tools, empowering organizations with greater autonomy and customization options.
 \addcontentsline{toc}{section}{Motivation}
-
+\newpage
 
 \pagestyle{headings}
-Here we will talk about why the calendar is needed
 
-Firstly, lets take a look at the current solution used by my university,CTU. Rozvrh.fjfi.cvut.cz is a website where students can see their schedule.
+
+
 \section{The current solution}\label{sec:the-current-solution}
 \begin{figure}[h]
-  \centering
-  \includegraphics[width=0.6\textwidth]{img}
-  \caption{Screenshot of the current solution}
-  \label{fig:rozvrh}
+    \centering
+    \includegraphics[width=0.6\textwidth]{img}
+    \caption{Screenshot of the current solution}
+    \label{fig:rozvrh}
 \end{figure}
+Initially, it is pertinent to examine the existing solution employed by my institution, CTU. The website Rozvrh.fjfi.cvut.cz serves as a platform where students can view their academic schedules.
 
-It can be seen on~\ref{fig:rozvrh} that while the website completes its main purpose, it is not customizable, which makes it hard to use.
-For example, if a student has a class that is from another year or/and program, they have to look at another picture and manually compare them.
-From my experience, many students have screenshots on their phones and they cross-out the classes that they are not registered to.
-They may have a few screenshots, for different programs or years.
-It is not a good solution, as it allows for misunderstandings and mistakes.
+It can be seen in~\ref{fig:rozvrh} that while the website completes its main purpose, it is not customizable, making it difficult to use.
+The current implementation presents several significant limitations that impact the user experience and efficiency.
 
-This is why a project focused on creating a calendar that is easy to use and customizable is needed.
-\section{The solution}\label{sec:the-solution}
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.6\textwidth]{TeamJob}
-  \caption{Screenshot of the new solution}
-  \label{fig:TeamJob}
-\end{figure}
-TeamJob is a web application that allows users to filter exactly what they want to see.
-By default, all the events that are happening this week are shown.
-The user can filter the events by the room and the person that is assigned to this event.
-This allows for a more precise view of the calendar, where the user can see only the events that are important to them.
-The user can also move between weeks.
-A specific day-view allows the user to see the events that are happening on a specific day, if there are too many events to show them all at once.
+\textbf{Limited Customization}: The system lacks personalization features, forcing all users to view the same static schedule format regardless of their specific needs or preferences.
 
+\textbf{Cross-Program Scheduling Complexity}: Students enrolled in classes over different years or programs face particular challenges.
+They must manually navigate between multiple schedule views and compare information from different sources.
+This process is not only time-consuming, but is also prone to errors.
+
+\textbf{Manual Workarounds}: The limitations of the current system have led to widespread adoption of inefficient workarounds.
+Many students resort to taking screenshots of their schedules and manually marking or crossing out irrelevant classes.
+This practice, while common, introduces several problems:
+Increased risk of scheduling conflicts due to manual tracking,
+difficulty in keeping track of schedule updates,
+time wasted on manual schedule management,
+potential for missed classes due to human error.
+
+
+\textbf{Integration Challenges}: The system operates in isolation, making it difficult to:
+sync with personal calendars,
+share schedules with other students, and
+export schedule data for other purposes.
+
+
+These limitations highlight the urgent need for a more sophisticated scheduling solution.
+A modern calendar system should address these issues by providing:
+
+\textbf{Personalization}: Allow users to customize their view based on their specific needs and preferences.
+
+\textbf{Cross-Program Integration}: Enable seamless viewing of classes across different programs and years.
+
+\textbf{Digital-First Approach}: Eliminate the need for manual workarounds by providing a comprehensive digital solution
+
+\textbf{Integration Capabilities}: Allow for easy sharing and synchronization with other tools and platforms.
+
+
+This project aims to develop such a solution, focusing on creating a calendar system that is not only functional, but also user-friendly and customizable.
+
+
+\section{Thesis Aims and Objectives}\label{sec:thesis-aims}
+The primary objective of this thesis is to explore and evaluate Java-based web development libraries while designing and implementing a practical team-work organization application.
+This project aims to demonstrate the application of modern Java web technologies in creating a functional and user-friendly system for team collaboration.
+
+\subsection{Primary Objectives}\label{subsec:primary-objectives}
+The development process is guided by several key objectives that form the foundation of this project.
+These objectives are designed to ensure a systematic and comprehensive approach to the development of the team-work organization system.
+
+The first objective focuses on the \textit{exploration and evaluation of technology}.
+In this phase, we will conduct comprehensive research into available Java web development libraries and frameworks.
+This exploration will encompass various aspects including web application development, database integration, user interface implementation, and security measures.
+Based on this research, we will carefully select and document the most appropriate technologies for the project's specific requirements.
+
+The second objective involves a thorough \textit{requirement analysis}.
+This phase will identify and document all the functional requirements necessary for effective team-work organization.
+Additionally, we will establish non-functional requirements covering performance expectations, security needs, usability standards, scalability considerations, and maintainability requirements.
+This comprehensive analysis will ensure that the system can meet both immediate and long-term organizational needs.
+
+\textit{The system design} is the third objective, where we will develop a complete system architecture incorporating the selected technologies.
+This includes designing an efficient database schema for the team work organization, creating detailed user interface mockups, defining system components and their interactions, and establishing a robust security architecture.
+The design phase will focus on creating a scalable and maintainable system structure.
+
+\textit{Implementation} forms the fourth objective, where we will develop core functionalities essential for the system's operation.
+This includes comprehensive user management capabilities, room creation and management features, event assignment and tracking systems, and advanced event displaying and filtering options.
+The implementation will also incorporate robust security measures, a responsive user interface, and ensure complete data integrity throughout the system.
+
+The final objective focuses on \textit{testing and validation}.
+This phase will involve developing and executing comprehensive test cases at multiple levels, including unit testing, integration testing, and user acceptance testing.
+We will verify all system functionality against the established requirements, document test results and any issues discovered, and implement necessary improvements based on testing outcomes.
+This thorough testing approach will ensure the reliability and effectiveness of the system in real-world applications.
+\newpage
+\subsection{Expected Outcomes}\label{subsec:expected-outcomes}
+The successful completion of these objectives will result in:
+
+\begin{itemize}
+    \item \textbf{A comprehensive understanding} of Java web development libraries and their practical applications
+
+    \item \textbf{A functional application} for team work organization that:
+    Facilitates efficient team collaboration,
+    Provides intuitive event management,
+    Ensures secure interactions with the system,
+    Offers responsive and user-friendly interface.
+
+
+    \item \textbf{Detailed documentation} covering: technology evaluation and selection process,
+    system architecture and design decisions,
+    implementation details, testing methodology, and results.
+
+
+    \item \textbf{Practical experience} in: Java web application development,
+    database design and implementation,
+    User interface development,
+    system testing and validation.
+\end{itemize}

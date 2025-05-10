@@ -1,5 +1,5 @@
 # Build stage
-FROM eclipse-temurin:17-jdk AS build
+FROM amazoncorretto:21 AS build
 WORKDIR /app
 
 COPY gradlew .
@@ -12,12 +12,9 @@ COPY src src
 RUN ./gradlew build --no-daemon
 
 # Runtime stage
-FROM eclipse-temurin:17-jre
+FROM amazoncorretto:21
 WORKDIR /app
 
-# Create a non-root user to run the application
-RUN groupadd -r spring && useradd -r -g spring spring
-USER spring:spring
 
 # Copy JAR from build stage
 COPY --from=build --chown=spring:spring /app/build/libs/*.jar app.jar

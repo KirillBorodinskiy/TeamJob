@@ -1,9 +1,9 @@
 package io.datajek.spring.basics.teamjob.controllers;
 
 
-import io.datajek.spring.basics.teamjob.RoomDay;
-import io.datajek.spring.basics.teamjob.SearchResult;
-import io.datajek.spring.basics.teamjob.WeekDay;
+import io.datajek.spring.basics.teamjob.data.RoomDay;
+import io.datajek.spring.basics.teamjob.data.SearchResult;
+import io.datajek.spring.basics.teamjob.data.WeekDay;
 import io.datajek.spring.basics.teamjob.data.*;
 import io.datajek.spring.basics.teamjob.data.repositories.EventRepository;
 import io.datajek.spring.basics.teamjob.data.repositories.RoomRepository;
