@@ -3,7 +3,6 @@ package io.datajek.spring.basics.teamjob.data;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -86,9 +85,9 @@ public class Event extends Auditable {
 
     /**
      * The tags associated with the event.
-     * This field is stored as a PostgreSQL array in the database.
      */
-    @Type(io.hypersistence.utils.hibernate.type.array.ListArrayType.class)
-    @Column(name = "tags", columnDefinition = "text[]")
+    @ElementCollection
+    @CollectionTable(name = "event_tags", joinColumns = @JoinColumn(name = "event_id"))
+    @Column(name = "tag")
     private Set<String> tags = new HashSet<>();
 }

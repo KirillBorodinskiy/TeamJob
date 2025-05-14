@@ -1,4 +1,4 @@
-package io.datajek.spring.basics.teamjob;
+package io.datajek.spring.basics.teamjob.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

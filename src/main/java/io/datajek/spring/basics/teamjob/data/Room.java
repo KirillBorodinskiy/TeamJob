@@ -3,7 +3,6 @@ package io.datajek.spring.basics.teamjob.data;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.Type;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,12 +34,9 @@ public class Room extends Auditable {
     @Column()
     private String description;
 
-    /**
-     * The tags associated with the room.
-     * This field is stored as a PostgreSQL array in the database.
-     */
-    @Type(io.hypersistence.utils.hibernate.type.array.ListArrayType.class)
-    @Column(name = "tags", columnDefinition = "text[]")
+    @ElementCollection
+    @CollectionTable(name = "room_tags", joinColumns = @JoinColumn(name = "room_id"))
+    @Column(name = "tag")
     private Set<String> tags = new HashSet<>();
 
 }

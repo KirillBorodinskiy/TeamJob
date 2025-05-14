@@ -3,7 +3,6 @@ package io.datajek.spring.basics.teamjob.data;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.Type;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -62,12 +61,9 @@ public class User extends Auditable {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    /**
-     * The tags associated with the user.
-     * This field is stored as a PostgreSQL array in the database.
-     */
-    @Type(io.hypersistence.utils.hibernate.type.array.ListArrayType.class)
-    @Column(name = "tags", columnDefinition = "text[]")
+    @ElementCollection
+    @CollectionTable(name = "user_tags", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "tag")
     private Set<String> tags = new HashSet<>();
 
 

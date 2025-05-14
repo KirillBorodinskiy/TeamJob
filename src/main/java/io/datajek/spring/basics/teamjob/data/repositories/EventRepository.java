@@ -40,7 +40,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllOverlappingEventsInRoom(LocalDateTime startTime, LocalDateTime endTime, Optional<Room> room);
 
     @SuppressWarnings({"SqlResolve", "unused"})
-    @Query(value = "SELECT * FROM events WHERE tags && CAST(:tags AS text[])", nativeQuery = true)
+    @Query("SELECT e FROM Event e JOIN e.tags t WHERE t IN :tags")
     List<Event> findByTagsAnyMatch(@Param("tags") List<String> tags);
 
 }
