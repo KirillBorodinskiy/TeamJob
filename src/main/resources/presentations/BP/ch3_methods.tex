@@ -1,0 +1,354 @@
+This section will focus on the tools and techniques used to create a web application tShreyashVardhan2024o manage time and space resources of an organization.
+
+
+\section{Defining the toolbelt}\label{sec:defining-the-toolbelt}
+% Расписать все варианты и в итоге выбрать итоговый.
+% Расписать всю структуру будущюю.
+% Интересные инструменты использованные указать.
+% Указать алгортм использованный в приложении.
+% Реальные человеческие отзывы сделать.
+
+% Spring Boot vs. Spring vs. C# vs. Django vs. Flask
+For the programming language, the options were as follows: Java Spring Boot framework, C\#.NET, and Python's Django and Flask.
+C\# was first removed, as learning about it would take a considerable amount of time.
+Python's Flask is easy to use, but not customizable enough.
+Subsequent analysis, as presented in the study~\cite{ShreyashVardhan2024}, indicates that Spring Boot exhibits superior performance.
+Moreover, my familiarity with Java might reduce the time required for development.
+Consequently, Spring Boot is selected as the back-end framework.
+Spring Boot, which is constructed on the Spring Framework, is recognized as a leading framework within the Java ecosystem due to its widespread popularity.
+It streamlines the original Spring Framework, thereby facilitating more straightforward maintenance and expediting deployment procedures.
+Henceforth, to maintain clarity, the term Spring Boot shall be used exclusively in reference to both the Spring Framework and Spring Boot.
+
+% Google Web Toolkit vs. Thymeleaf vs. React/other JS
+An often-utilized integration of back-end and front-end frameworks with Spring Boot is accomplished through Thymeleaf, a template rendering engine which processes page rendering on the server side, thereby reducing computational demand on the client-side systems.
+However, alternative solutions are available, including the currently prevalent React framework along with other JavaScript frameworks.
+Opting for these alternatives requires considerable investment in research.
+Given my proficiency in HTML, the Thymeleaf template system presents a straightforward learning curve.
+Nevertheless, a certain degree of JavaScript is essential for contemporary websites, thereby necessitating its use for handling specific tasks such as requests.
+
+
+% PostgreSQL vs. NoSQL vs. others
+For our database, PostgreSQL was chosen, as it is a popular ACID-compliant database.
+ACID stands for:
+\begin{itemize}
+    \item \textbf{Atomicity}: Transaction is either fully completed, or not, with no in-betweens.
+    \item \textbf{Consistency}: Guarantees that a transaction brings the database from a valid state to a valid state.
+    \item \textbf{Isolation}: Concurrent transactions do not interfere with each other.
+    \item \textbf{Durability}: Once a transaction is committed, it stays committed.
+\end{itemize}
+
+
+\subsection{Useful tools}\label{subsec:useful-tools}
+In this application, \textit{Lombok} was used to reduce the amount of boilerplate code.
+It allows for the usage of annotations such as \texttt{@Getter,@Setter} to automatically generate setters and setters for all fields that need them.
+In addition, annotations \texttt{@AllArgsConstructor,@NoArgsConstructor} can automatically create the correct construction function for the class.
+Finally, \texttt{@Data} combines \texttt{@Getter,@Setter} and some more functions in one annotation, so the classes remain clean and functional.
+
+The use of the tool is demonstrated in the list~\ref{lst:room-class}.
+It can be seen that no setter or getter functions are needed, no construction function is needed, and the class looks clean and complete.
+
+
+\begin{listing}[H]
+    \begin{minted}{java}
+
+@Data
+@Entity
+@Table(name = "rooms")
+@EqualsAndHashCode(callSuper = true)
+public class Room extends Auditable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String name;
+
+    @Column()
+    private String description;
+
+    @Type(io.hypersistence.utils.hibernate.type.array.ListArrayType.class)
+    @Column(name = "tags", columnDefinition = "text[]")
+    private Set<String> tags = new HashSet<>();
+
+}
+    \end{minted}
+    \caption{Lombok-annotated JPA entity}
+    \label{lst:room-class}
+\end{listing}
+
+\section{Introduction to Spring Boot}\label{sec:introduction-to-spring-boot}
+
+Spring Boot is a tool that allows the programmer to create a web server that uses the Model-View-Controller pattern, MVC for short.
+
+The model is a part responsible for the data logic.
+The connection to the database, the processing of the requested data and other back-end transactions are what this part consists of.
+
+The view is a part that displays the data to a user or gathers them from them.
+Whether HTML, plain text, or any other format such as our Thymeleaf.
+
+The controller is a connector between the previous two, where the data is additionally processed before being sent into either the database or a client of a user.
+
+
+\section{Schema of the database}\label{sec:schema-of-the-database}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{schemaDB}
+  \caption{Schema of the database for the application}
+  \label{fig:schemaDB}
+\end{figure}
+
+\subsection*{Database \ref{fig:schemaDB} Architecture}
+
+\begin{itemize}
+  \item \textbf{users}: Stores user credentials and personal data.
+  Each user has a unique \texttt{ID}.
+
+  \item \textbf{roles} \& \textbf{user\_roles}: Implements role-based access control via a many-to-many relation between users and roles.
+
+  \item \textbf{rooms}: Contains information on event locations.
+  Each room has a \texttt{name}, \texttt{description} and a unique \texttt{ID}.
+
+  \item \textbf{events}: Represents scheduled activities.
+  Includes data such as  \texttt{is\_recurring}, \texttt{title}, \texttt{start\_time} and \texttt{end\_time}.
+  Each event references a \texttt{user} and a \texttt{room} that were assigned to this event.
+
+  \item \textbf{users, events }and \textbf{rooms} all contain \texttt{tags} to help categorize them.
+\end{itemize}
+
+
+\newpage%                    NEW PAGE HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+\section{The implementation of a Spring Boot application}\label{sec:the-implementation-of-a-spring-boot-application}
+In our application, the main controller is CalendarController.
+It renders the main page /calendar.
+The non-required parameters of a request are: ``\textit{date}'', ``\textit{roomIds}'' and ``\textit{userIds}''.
+
+Parameter \("\)\textit{date}\("\) is simply the day of the week the calendar renders.
+If not provided, we use the default value of a current day.
+
+Parameters ``\textit{roomIds}'' and ``\textit{userIds}'' are used to filter out which events the user wants to see in their calendar.
+If not provided, events from every room and every user are displayed.
+
+In this controller a week around the current day is generated, all the events that are happening in that week are found and are put into an array that is then sent with the model.
+
+
+
+
+\newpage%                    NEW PAGE HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+\subsection{The architecture of the application}\label{subsec:the-architecture-of-the-application}
+
+The main file responsible for most tasks is CalendarController, where the \texttt{/calendar} endpoint is located.
+
+The \texttt{/calendar} takes 3 non-required parameters.
+\begin{itemize}
+    \item \textbf{date}: Show the events that happen on the week of the day sent.
+    \item \textbf{userIds}: Filter the users shown on the central calendar.
+    \item \textbf{roomIds}: Filter rooms displayed in the central calendar.
+\end{itemize}
+Then, the \texttt{EventRepository} is used to find all the events that are happening in the week of the date sent.
+The \texttt{EventRepository} is a Spring Data JPA repository that allows for easy access to the database.
+They are split into a list of events that are happening on a specific day, where the days are filtered by comparing the \texttt{userIds} and \texttt{roomIds} with the events that are in the database.
+the data inside each event is such:
+\begin{itemize}
+    \item \textbf{eventId}
+    \item \textbf{eventTitle}
+    \item \textbf{eventDescription}
+    \item \textbf{eventStartTime} - the time when the event starts in LocalDateTime format.
+    \item \textbf{eventEndTime}
+    \item \textbf{eventRoomId} - the room that is assigned to this event.
+    \item \textbf{eventUserId} - the user that is assigned to this event.
+    \item \textbf{eventTags} - the tags that are assigned to this event.
+    \item \textbf{eventIsRecurring} - if the event is recurring or not.
+\end{itemize}
+The \texttt{/calendar} then sends such data to \texttt{calendar.html}:
+\begin{itemize}
+    \item \textbf{userIds} \& \textbf{roomIds} (if supplied from request).
+    \item \textbf{selectedDate} (if not provided, current date is used).
+    \item \textbf{nextWeek} \& \textbf{previousWeek} to enable navigation within weeks.
+    \item \textbf{currentWeekStart}.
+    \item \textbf{weekDays} - a list of events that take place on a specific day.
+    \item \textbf{eventRepository}, \textbf{userRepository} and \textbf{roomRepository}
+\end{itemize}
+
+\subsection{Additional Calendar Endpoints}\label{subsec:additional-calendar-endpoints}
+
+The CalendarController also provides a day view endpoint at \texttt{/calendar/day}, which displays events for a specific day organized by room.
+This endpoint accepts the following parameters:
+
+\begin{itemize}
+    \item \textbf{date} (required): The specific date to display events for.
+    \item \textbf{userIds} (optional): Filter events by specific users.
+    \item \textbf{roomIds} (optional): Filter events by specific rooms.
+\end{itemize}
+
+The day view provides a more detailed perspective of events occurring on a single day, organized by room.
+This is particularly useful when there are many events scheduled on a specific day, making the weekly view potentially cluttered.
+
+Another important endpoint is \texttt{/calendar/findAvailable}, which allows users to search for available resources (rooms, users, or events) based on various criteria:
+
+\begin{itemize}
+    \item \textbf{searchType}: Specifies whether to search for ``rooms'', ``users'', or ``events''.
+    \item \textbf{tags}: Allows filtering by specific tags associated with the resources.
+    \item \textbf{date}: The date to search for availability (defaults to current date if not provided).
+    \item \textbf{startTime} \& \textbf{endTime}: The time range to check for availability.
+\end{itemize}
+
+This functionality is particularly valuable for quickly identifying available resources during a specific time slot, facilitating efficient scheduling and resource allocation.
+
+\subsection{The findAvailable Algorithm}\label{subsec:findavailable-algorithm}
+
+The findAvailable algorithm is a sophisticated process that identifies available time slots for rooms, users, or events within a specified time range.
+Here's how it works:
+
+\begin{enumerate}
+    \item \textbf{Input Processing}: The algorithm accepts several parameters:
+    \begin{itemize}
+        \item \texttt{searchType}: Determines whether to search for available rooms, users, or events (By default, ``rooms'')
+        \item \texttt{tags}: Optional tags to filter resources by (e.g., ``projector'', ``whiteboard'', etc.)
+        \item \texttt{date}, \texttt{startTime}, \texttt{endTime}: Define the time range to check (defaulting to the current date if not provided)
+        \item \texttt{durationMinutes}: Minimum duration required for an available time slot (By default, 30 minutes)
+    \end{itemize}
+
+    \item \textbf{Data Collection}: The system retrieves all events that overlap with the specified time range.
+
+    \item \textbf{Entity Filtering}: Based on the searchType, the algorithm filters entities (rooms, users, or events) by the provided tags.
+
+    \item \textbf{Availability Calculation}: For each entity, the algorithm:
+    \begin{itemize}
+        \item Identifies all events associated with the entity
+        \item Creates a list of occupied time slots from these events
+        \item Sorts occupied slots by start time and merges any overlapping slots
+        \item Calculates unoccupied time slots by finding gaps between occupied slots
+        \item Filters unoccupied slots by the minimum duration requirement
+    \end{itemize}
+
+    \item \textbf{Result Generation}: The algorithm creates a list of available entities along with their unoccupied time slots.
+\end{enumerate}
+
+\subsubsection{Implementation Details}
+
+The key component of this algorithm is the \texttt{calculateUnoccupiedTimesFromOccupied} method, which efficiently identifies available time slots by:
+
+\begin{enumerate}
+    \item Sorting occupied time slots by start time
+    \item Merging overlapping occupied slots
+    \item Iterating through occupied slots to find gaps (unoccupied times)
+    \item Filtering unoccupied slots by minimum duration
+    \item Sorting the resulting unoccupied slots
+\end{enumerate}
+
+\subsubsection{Handling Overlapping Time Slots}
+
+A critical aspect of the algorithm is the \texttt{removeOverlaps} method, which merges overlapping time intervals:
+
+\begin{enumerate}
+    \item The method requires that time slots are already sorted by start time
+    \item It iterates through adjacent pairs of time slots
+    \item When two slots overlap (the end time of one is after the start time of the next), they are merged
+    \item The merged slot spans from the start time of the first slot to the end time of the second slot
+    \item The second slot is removed from the list, and the iteration index is decremented to recheck the newly merged slot
+    \item This process continues until no more overlaps exist
+\end{enumerate}
+
+\subsubsection{Calculating Unoccupied Time Slots}
+
+The algorithm identifies unoccupied time slots through the following process:
+
+\begin{enumerate}
+    \item Start with the requested start time as the current point
+    \item For each occupied time slot (after sorting and merging):
+        \begin{itemize}
+            \item If the current point is before the start of the occupied slot, add an unoccupied slot from the current point to the start of the occupied slot
+            \item Update the current point to the end of the occupied slot
+        \end{itemize}
+    \item After processing all occupied slots, if the current point is before the requested end time, add a final unoccupied slot from the current point to the requested end time
+    \item Filter the resulting unoccupied slots to include only those that meet or exceed the minimum duration requirement
+\end{enumerate}
+
+\subsubsection{Edge Case Handling}
+
+The algorithm handles several edge cases:
+
+\begin{itemize}
+    \item \textbf{Empty tag sets}: If no tags are specified, all entities of the requested type are included
+    \item \textbf{No events}: If there are no events in the specified time range, the entire range is considered unoccupied
+    \item \textbf{Completely occupied time range}: If the entire time range is occupied, no unoccupied slots are returned
+    \item \textbf{Invalid entity type}: If an invalid entity type is provided, an IllegalArgumentException is thrown
+\end{itemize}
+
+\subsubsection{Performance Considerations}
+
+Several optimizations enhance the algorithm's performance:
+
+\begin{itemize}
+    \item \textbf{Early filtering}: Events are filtered by time range at the database level before further processing
+    \item \textbf{Efficient tag filtering}: Uses \texttt{Collections.disjoint()} to quickly check for tag matches
+    \item \textbf{Sorting before processing}: Ensures that time slot operations can be performed in a single pass
+    \item \textbf{Stream operations}: Leverages Java streams for concise and efficient filtering operations
+\end{itemize}
+
+This approach ensures that users can quickly find available resources that meet their specific time and duration requirements, optimizing resource allocation and scheduling efficiency.
+The algorithm's modular design also allows for easy extension to support additional entity types in the future.
+
+\section{Authentication and Security}\label{sec:authentication-and-security}
+
+The application implements a robust security system using JSON Web Tokens (JWT) for authentication.
+The SecurityController handles the authentication process through several REST endpoints:
+
+\begin{itemize}
+    \item \texttt{/auth/signin} (POST): Authenticates a user with username and password, generating a JWT token stored in a secure HTTP-only cookie.
+    \item \texttt{/auth/signup} (POST): Registers a new user with username, email, and password.
+    The password is securely hashed before storage.
+    \item \texttt{/auth/signout} (POST): Logs out a user by invalidating their JWT cookie.
+\end{itemize}
+
+The JWT implementation enhances security by:
+\begin{itemize}
+    \item Using HTTP-only cookies to prevent JavaScript access to the token
+    \item Setting the Secure flag to ensure transmission only over HTTPS
+    \item Implementing token expiration to limit the window of vulnerability
+\end{itemize}
+
+The MainController provides view endpoints for authentication-related pages:
+\begin{itemize}
+    \item \texttt{/}, \texttt{/login}, \texttt{/signin}: All route to the sign-in page
+    \item \texttt{/register}, \texttt{/signup}: Route to the registration page
+    \item \texttt{/signout}: Routes to the sign-out page
+\end{itemize}
+
+\section{Configuration and Administration}\label{sec:configuration-and-administration}
+
+The application provides both view-based and REST API endpoints for configuration and administration.
+
+The ConfigController offers view endpoints for managing system entities:
+\begin{itemize}
+    \item \texttt{/config/rooms}: Lists all rooms in the system
+    \item \texttt{/config/events}: Lists all events in the system
+    \item \texttt{/config/users}: Lists all users in the system
+\end{itemize}
+
+For programmatic interaction, the RestConfigController provides REST API endpoints:
+\begin{itemize}
+    \item \texttt{/api/v1/addrooms} (POST): Creates a new room
+    \item \texttt{/api/v1/addevents} (POST): Creates a new event, with conflict checking
+    \item \texttt{/api/v1/checkavailability} (POST): Verifies if a room is available during a specific time period
+    \item \texttt{/api/v1/deleterooms/\{id\}} (DELETE): Removes a room by ID
+    \item \texttt{/api/v1/deleteevents/\{id\}} (DELETE): Removes an event by ID
+    \item \texttt{/api/v1/validateJWT} (POST): Validates the current JWT token
+\end{itemize}
+
+\section{Error Handling}\label{sec:error-handling}
+
+The application implements a CustomErrorController that provides a unified approach to error handling.
+When an error occurs, the controller captures details such as:
+\begin{itemize}
+    \item Error status code
+    \item Exception type
+    \item Error message
+    \item Request path that caused the error
+    \item Stack trace (in development environments)
+\end{itemize}
+
+This information is then rendered in a user-friendly error page, enhancing the debugging process while maintaining a consistent user experience even when errors occur.
+This could be further improved by adding a system that would notify the administrator about the error, ensuring that it is addressed promptly.
