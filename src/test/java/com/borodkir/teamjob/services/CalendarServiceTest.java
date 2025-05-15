@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CalendarServiceTest {
+public class CalendarServiceTest {
     @Mock
     private EventRepository eventRepository;
 
@@ -46,7 +46,7 @@ class CalendarServiceTest {
             "event_Meeting", "event_Training", "event_Workshop"
     );
 
-    private final LocalDateTime baseTime = LocalDateTime.now()
+    private static final LocalDateTime baseTime = LocalDateTime.now()
             .withHour(9)
             .withMinute(0)
             .withSecond(0)
@@ -65,7 +65,7 @@ class CalendarServiceTest {
     }
 
     // Helper methods to create test data
-    private List<User> createTestUsers() {
+    public static List<User> createTestUsers() {
         List<User> users = new ArrayList<>();
         String[] usernames = {"john.doe", "jane.smith", "bob.wilson"};
         String[] emails = {"john@test.com", "jane@test.com", "bob@test.com"};
@@ -83,7 +83,7 @@ class CalendarServiceTest {
         return users;
     }
 
-    private List<Room> createTestRooms() {
+    public static List<Room> createTestRooms() {
         List<Room> rooms = new ArrayList<>();
         String[] roomNames = {"Main Conference Room", "Training Lab", "Meeting Room A"};
         String[] descriptions = {
@@ -105,7 +105,7 @@ class CalendarServiceTest {
         return rooms;
     }
 
-    private List<Event> createTestEvents(List<User> users, List<Room> rooms) {
+    public static List<Event> createTestEvents(List<User> users, List<Room> rooms) {
         List<Event> events = new ArrayList<>();
         String[] eventTitles = {"Team Meeting", "Training Session", "Project Review"};
         String[] eventDescriptions = {

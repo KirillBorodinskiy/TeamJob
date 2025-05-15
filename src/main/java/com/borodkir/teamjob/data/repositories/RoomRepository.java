@@ -14,13 +14,11 @@ import java.util.Optional;
 public interface RoomRepository extends JpaRepository<Room, Long> {
     Optional<Room> findByName(String name);
 
-    @SuppressWarnings("unused")
-    List<Room> findAllByName(String name);
 
     Boolean existsByName(String name);
 
     @SuppressWarnings({"SqlResolve", "unused"})
-    @Query(value = "SELECT * FROM rooms WHERE tags && CAST(:tags AS text[])", nativeQuery = true)
+    @Query("SELECT DISTINCT r FROM Room r JOIN r.tags t WHERE t IN :tags")
     List<Room> findByTagsAnyMatch(@Param("tags") List<String> tags);
 
     @SuppressWarnings({"SqlResolve", "unused"})
