@@ -133,12 +133,70 @@
                             <path d="M8 21H3v-5"></path>
                         </svg>
                         <label for="is_recurring">Is recurring?</label>
-                        <input type="checkbox" id="is_recurring" onclick="toggleOccurence()" name="is_recurring">
+                        <input type="checkbox" id="is_recurring" onclick="toggleRecurrence()" name="is_recurring">
                     </div>
                 </fieldset>
-                <fieldset class="form-group " id="is_recurring_end_date_zone">
-                    <label for="is_recurring_end_date">Last day of occurence</label>
-                    <input type="date" id="is_recurring_end_date" name="is_recurring_end_date">
+                <fieldset class="form-group hidden" id="recurrence_zone">
+                    <label for="rrule">Recurrence Rule (RRULE)</label>
+                    <select id="rrule" name="rrule" onchange="updateRRule()">
+                        <option value="">Select recurrence pattern</option>
+                        <option value="FREQ=DAILY">Daily</option>
+                        <option value="FREQ=WEEKLY">Weekly</option>
+                        <option value="FREQ=MONTHLY">Monthly</option>
+                        <option value="FREQ=YEARLY">Yearly</option>
+                    </select>
+
+                    <div id="recurrence_options" class="hidden">
+                        <div class="flex-row" style="align-items: center; gap:0.5em">
+                            <label style="width: max-content" for="interval">Repeat every</label>
+                            <input type="number" id="interval" name="interval" min="1" value="1"
+                                   onchange="updateRRule()">
+                            <span id="interval_unit">days</span>
+                        </div>
+
+                        <div id="weekly_options" class="hidden">
+                            <label>Repeat on:</label>
+                            <div class="weekday-options">
+                                <div>
+                                <label for="MOinput">Monday</label>
+                                <input id="MOinput" type="checkbox" name="weekday" value="MO" onchange="updateRRule()">
+                                </div>
+
+                                <div>
+                                <label for="TUinput">Tuesday</label>
+                                <input id="TUinput" type="checkbox" name="weekday" value="TU" onchange="updateRRule()">
+                                </div>
+
+                                <div>
+                                <label for="WEinput">Wednesday</label>
+                                <input id="WEinput" type="checkbox" name="weekday" value="WE" onchange="updateRRule()">
+                                </div>
+
+                                <div>
+                                <label for="THinput">Thursday</label>
+                                <input id="THinput" type="checkbox" name="weekday" value="TH" onchange="updateRRule()">
+                                </div>
+
+                                <div>
+                                <label for="FRinput">Friday</label>
+                                <input id="FRinput" type="checkbox" name="weekday" value="FR" onchange="updateRRule()">
+                                </div>
+
+                                <div>
+                                <label for="SAinput">Saturday</label>
+                                <input id="SAinput" type="checkbox" name="weekday" value="SA" onchange="updateRRule()">
+                                </div>
+
+                                <div>
+                                <label for="SUinput">Sunday</label>
+                                <input id="SUinput" type="checkbox" name="weekday" value="SU" onchange="updateRRule()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <label for="recurrenceEndDate">End Date of Recurence</label>
+                    <input type="date" id="recurrenceEndDate" name="recurrenceEndDate">
                 </fieldset>
 
                 <fieldset class="form-group ">
@@ -185,9 +243,10 @@
                         </div>
                         <div class="event event-placeholder"
                              th:if="${day.amountOfEvents>5}">
-                            Go to day-view to see all events</div>
+                            Go to day-view to see all events
+                        </div>
                         <div th:each="event : ${day.events}"
-                            th:if="${day.amountOfEvents<5}"
+                             th:if="${day.amountOfEvents<5}"
                              th:class="'event'"
                              th:draggable="true"
                              th:style="'height: calc(' + ${event.getDurationInADay()} + '* var(--hour-height));top: calc(' + ${event.getStartTimeToUse()} + ' * var(--hour-height) + 0px);'">
@@ -229,13 +288,44 @@
         }
     }
 
-    function toggleOccurence() {
+    function toggleRecurrence() {
         const isRecurring = document.getElementById('is_recurring').checked;
-        const endDateField = document.getElementById('is_recurring_end_date_zone');
+        const recurrenceZone = document.getElementById('recurrence_zone');
         if (isRecurring) {
-            endDateField.style.display = 'flex';
+            recurrenceZone.classList.remove('hidden');
         } else {
-            endDateField.style.display = 'none';
+            recurrenceZone.classList.add('hidden');
+        }
+    }
+
+    function updateRRule() {
+        const freq = document.getElementById('rrule').value;
+        const interval = document.getElementById('interval').value;
+        const recurrenceOptions = document.getElementById('recurrence_options');
+        const weeklyOptions = document.getElementById('weekly_options');
+        const intervalUnit = document.getElementById('interval_unit');
+
+        if (freq) {
+            recurrenceOptions.classList.remove('hidden');
+            weeklyOptions.classList.toggle('hidden', freq !== 'FREQ=WEEKLY');
+
+            // Update interval unit text
+            switch (freq) {
+                case 'FREQ=DAILY':
+                    intervalUnit.textContent = 'days';
+                    break;
+                case 'FREQ=WEEKLY':
+                    intervalUnit.textContent = 'weeks';
+                    break;
+                case 'FREQ=MONTHLY':
+                    intervalUnit.textContent = 'months';
+                    break;
+                case 'FREQ=YEARLY':
+                    intervalUnit.textContent = 'years';
+                    break;
+            }
+        } else {
+            recurrenceOptions.classList.add('hidden');
         }
     }
 
@@ -337,10 +427,15 @@
             description: document.getElementById('eventDescription').value,
             roomId: document.getElementById('roomSelect').value,
             userId: document.getElementById('userSelect').value,
-            is_recurring: document.getElementById('is_recurring').checked,
-            is_recurring_end_date: document.getElementById('is_recurring_end_date').value,
+            recurring: document.getElementById('is_recurring').checked,
+            rrule: document.getElementById('is_recurring').checked ? document.getElementById('rrule').value : null,
+            recurrenceEndDate: document.getElementById('is_recurring').checked && document.getElementById('recurrenceEndDate').value ? 
+                document.getElementById('recurrenceEndDate').value + 'T00:00:00' : null,
+            interval: document.getElementById('is_recurring').checked ? document.getElementById('interval').value : null,
+            weekdays: document.getElementById('is_recurring').checked && document.getElementById('rrule').value === 'FREQ=WEEKLY' ? 
+                Array.from(document.querySelectorAll('input[name="weekday"]:checked')).map(checkbox => checkbox.value) : null,
             startTime: startDateTime,
-            endTime: endDateTime,
+            endTime: endDateTime
         };
 
         try {

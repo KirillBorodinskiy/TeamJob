@@ -96,8 +96,10 @@ public class RestConfigController {
         event.setEndTime(eventRequest.getEndTime());
 
         // Handle recurrence
-        event.setRecurring(eventRequest.isRecurring());
-        if (eventRequest.isRecurring()) {
+        boolean hasValidRrule = eventRequest.getRrule() != null && !eventRequest.getRrule().isEmpty();
+        event.setRecurring(eventRequest.isRecurring() && hasValidRrule);
+        
+        if (event.isRecurring()) {
             // Build RRULE string
             StringBuilder rrule = new StringBuilder(eventRequest.getRrule());
             if (!rrule.isEmpty()) {
@@ -121,6 +123,12 @@ public class RestConfigController {
             event.setRecurrenceEndDate(eventRequest.getRecurrenceEndDate());
             event.setExdate(eventRequest.getExdate());
             event.setRdate(eventRequest.getRdate());
+        } else {
+            // Clear recurrence-related fields if not recurring
+            event.setRrule(null);
+            event.setRecurrenceEndDate(null);
+            event.setExdate(null);
+            event.setRdate(null);
         }
 
         Event savedEvent = eventRepository.save(event);
