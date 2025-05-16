@@ -49,7 +49,16 @@ public class Event extends Auditable {
     private boolean isRecurring;
 
     @Column
-    private LocalDateTime isRecurringEndDate;
+    private String rrule;  // Recurrence Rule according to RFC 5545
+
+    @Column
+    private LocalDateTime recurrenceEndDate;
+
+    @Column
+    private String exdate;  // Exception dates for recurring events according to RFC 5545
+
+    @Column
+    private String rdate;   // Additional dates for recurring events according to RFC 5545
 
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)

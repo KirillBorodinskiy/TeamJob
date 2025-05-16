@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.time.format.DateTimeFormatter;
 
 
 /**
@@ -406,79 +407,204 @@ public class CalendarService {
         model.addAttribute("eventTags", eventTags);
     }
 
-    public List<EventInADay> convertToDayEvents(List<Event> allEvents, LocalDate currentDate, String
-            userIds, String roomIds) {
-        return allEvents.stream()
-                .filter(event -> filterEvents(event, currentDate, Optional.ofNullable(userIds), Optional.ofNullable(roomIds)))
-                .map(event -> {
-                    double durationInADay = calculateHoursInDay(event, currentDate);
-                    double startTimeToUse = event.getStartTime().toLocalDate().isBefore(currentDate) ?
-                            0.0 : event.getStartTime().getHour() + (event.getStartTime().getMinute() / 60.0);
+    public List<EventInADay> convertToDayEvents(List<Event> allEvents, LocalDate currentDate, String userIds, String roomIds) {
+        // Prepare user and room filters
+        Set<String> userIdSet = (userIds != null && !userIds.isEmpty()) ? new HashSet<>(Arrays.asList(userIds.split(","))) : null;
+        Set<String> roomIdSet = (roomIds != null && !roomIds.isEmpty()) ? new HashSet<>(Arrays.asList(roomIds.split(","))) : null;
 
-                    double endTimeToUse = event.getEndTime().toLocalDate().isAfter(currentDate) ?
-                            24.0 : event.getEndTime().getHour() + (event.getEndTime().getMinute() / 60.0);
-                    return new EventInADay(
-                            event.getId(),
-                            event.getTitle(),
-                            event.getDescription(),
-                            event.getRoom(),
-                            event.getUser(),
-                            event.isRecurring(),
-                            event.getIsRecurringEndDate(),
-                            durationInADay,
-                            startTimeToUse,
-                            endTimeToUse,
-                            event.getStartTime(),
-                            event.getEndTime()
-                    );
-                })
-                .collect(Collectors.toList());
+        List<EventInADay> result = new ArrayList<>();
+        for (Event event : allEvents) {
+            // 1. Exclude if exdate contains the current date
+            if (isExcludedByExdate(event, currentDate)) continue;
+
+            // 2. Check if the event occurs on this date (regular or recurring)
+            boolean occursToday = false;
+            
+            // Check regular event date
+            if (isEventOnDate(event, currentDate)) {
+                occursToday = true;
+            }
+            // Check recurring event
+            else if (event.isRecurring() && event.getRrule() != null) {
+                occursToday = isRecurringEventOnDate(event, currentDate);
+            }
+            
+            if (!occursToday) continue;
+
+            // 3. Apply user filter
+            if (userIdSet != null && (event.getUser() == null || !userIdSet.contains(String.valueOf(event.getUser().getId())))) continue;
+
+            // 4. Apply room filter
+            if (roomIdSet != null && (event.getRoom() == null || !roomIdSet.contains(String.valueOf(event.getRoom().getId())))) continue;
+
+            // 5. Calculate start/end times for this day
+            LocalDateTime eventStart = event.getStartTime();
+            LocalDateTime eventEnd = event.getEndTime();
+            
+            // For recurring events, adjust the times based on the recurrence pattern
+            if (event.isRecurring() && event.getRrule() != null) {
+                int daysBetween = (int) java.time.temporal.ChronoUnit.DAYS.between(
+                        event.getStartTime().toLocalDate(), currentDate);
+                eventStart = event.getStartTime().plusDays(daysBetween);
+                eventEnd = event.getEndTime().plusDays(daysBetween);
+            }
+
+            // Calculate duration and start/end times for this day
+            double startTimeToUse = eventStart.toLocalDate().isBefore(currentDate) ? 
+                    0.0 : eventStart.getHour() + (eventStart.getMinute() / 60.0);
+            double endTimeToUse = eventEnd.toLocalDate().isAfter(currentDate) ? 
+                    24.0 : eventEnd.getHour() + (eventEnd.getMinute() / 60.0);
+            double durationInADay = endTimeToUse - startTimeToUse;
+
+            // 6. Add to result
+            result.add(new EventInADay(
+                event.getId(),
+                event.getTitle(),
+                event.getDescription(),
+                event.getRoom(),
+                event.getUser(),
+                event.isRecurring(),
+                event.getRecurrenceEndDate(),
+                durationInADay,
+                startTimeToUse,
+                endTimeToUse,
+                eventStart,
+                eventEnd
+            ));
+        }
+        return result;
     }
 
-    public boolean filterEvents(Event event, LocalDate
-            date, Optional<String> userIds, Optional<String> roomIds) {
-        // 1. Event starts on this day
-        boolean startsToday = event.getStartTime().toLocalDate().equals(date);
-        // 2. Event ends on this day
-        boolean endsToday = event.getEndTime().toLocalDate().equals(date);
-        // 3. Event spans over this day (starts before, ends after)
-        boolean spansOver = event.getStartTime().toLocalDate().isBefore(date) &&
-                event.getEndTime().toLocalDate().isAfter(date);
-        boolean dateMatch = startsToday || endsToday || spansOver;
-
-        // If no filters are applied, only check date
-        if (userIds.isEmpty() && roomIds.isEmpty()) {
-            return dateMatch;
-        }
-        boolean userMatch = true;
-        if (userIds.isPresent() && !userIds.get().isEmpty() && event.getUser() != null) {
-            Set<String> userIdSet = Arrays.stream(userIds.get().split(","))
-                    .collect(Collectors.toSet());
-            userMatch = userIdSet.contains(String.valueOf(event.getUser().getId()));
-        }
-
-        // Room filter
-        boolean roomMatch = true;
-        if (roomIds.isPresent() && !roomIds.get().isEmpty() && event.getRoom() != null) {
-            Set<String> roomIdSet = Arrays.stream(roomIds.get().split(","))
-                    .collect(Collectors.toSet());
-            roomMatch = roomIdSet.contains(String.valueOf(event.getRoom().getId()));
-        }
-
-        return dateMatch && userMatch && roomMatch;
+    // Helper for exdate exclusion
+    private boolean isExcludedByExdate(Event event, LocalDate date) {
+        if (event.getExdate() == null || event.getExdate().isEmpty()) return false;
+        Set<LocalDate> exdates = Arrays.stream(event.getExdate().split(","))
+                .map(d -> LocalDate.parse(d, DateTimeFormatter.ofPattern("yyyyMMdd")))
+                .collect(Collectors.toSet());
+        return exdates.contains(date);
     }
 
-    public double calculateHoursInDay(Event event, LocalDate date) {
-        // If event starts before this day, use midnight as start time
-        LocalDateTime startTimeToUse = event.getStartTime().toLocalDate().isBefore(date) ?
-                date.atStartOfDay() : event.getStartTime();
+    private boolean isEventOnDate(Event event, LocalDate date) {
+        LocalDate eventStartDate = event.getStartTime().toLocalDate();
+        LocalDate eventEndDate = event.getEndTime().toLocalDate();
 
-        // If event ends after this day, use end of day as end time
-        LocalDateTime endTimeToUse = event.getEndTime().toLocalDate().isAfter(date) ?
-                date.atTime(23, 59, 59) : event.getEndTime();
+        return !eventStartDate.isAfter(date) && !eventEndDate.isBefore(date);
+    }
 
-        // Calculate hours between these two times
-        return java.time.Duration.between(startTimeToUse, endTimeToUse).toMinutes() / 60.0;
+    private boolean isRecurringEventOnDate(Event event, LocalDate date) {
+        // Basic validation
+        if (!isValidRecurringEvent(event)) {
+            return false;
+        }
+
+        // Check end date and exclusions
+        if (isAfterEndDate(event, date) || isExcludedDate(event, date)) {
+            return false;
+        }
+
+        // Parse recurrence rule
+        RecurrenceRule rule = parseRecurrenceRule(event.getRrule());
+        
+        // Check if date matches the recurrence pattern
+        return switch (rule.frequency()) {
+            case "DAILY" -> isDailyRecurrence(event, date, rule.interval());
+            case "WEEKLY" -> isWeeklyRecurrence(event, date, rule);
+            case "MONTHLY" -> isMonthlyRecurrence(event, date, rule.interval());
+            case "YEARLY" -> isYearlyRecurrence(event, date, rule.interval());
+            default -> false;
+        };
+    }
+
+    private record RecurrenceRule(String frequency, int interval, String[] byDay) {}
+
+    private boolean isValidRecurringEvent(Event event) {
+        return event.isRecurring() && event.getRrule() != null;
+    }
+
+    private boolean isAfterEndDate(Event event, LocalDate date) {
+        return event.getRecurrenceEndDate() != null && 
+               date.isAfter(event.getRecurrenceEndDate().toLocalDate());
+    }
+
+    private boolean isExcludedDate(Event event, LocalDate date) {
+        if (event.getExdate() == null || event.getExdate().isEmpty()) {
+            return false;
+        }
+        Set<LocalDate> exdates = Arrays.stream(event.getExdate().split(","))
+                .map(d -> LocalDate.parse(d, DateTimeFormatter.ofPattern("yyyyMMdd")))
+                .collect(Collectors.toSet());
+        return exdates.contains(date);
+    }
+
+    private RecurrenceRule parseRecurrenceRule(String rrule) {
+        String[] parts = rrule.split(";");
+        String frequency = "";
+        int interval = 1;
+        String[] byDay = null;
+
+        for (String part : parts) {
+            if (part.startsWith("FREQ=")) {
+                frequency = part.substring(5);
+            } else if (part.startsWith("INTERVAL=")) {
+                interval = Integer.parseInt(part.substring(9));
+            } else if (part.startsWith("BYDAY=")) {
+                byDay = part.substring(6).split(",");
+            }
+        }
+
+        return new RecurrenceRule(frequency, interval, byDay);
+    }
+
+    private boolean isDailyRecurrence(Event event, LocalDate date, int interval) {
+        long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(
+                event.getStartTime().toLocalDate(), date);
+        return daysBetween % interval == 0;
+    }
+
+    private boolean isWeeklyRecurrence(Event event, LocalDate date, RecurrenceRule rule) {
+        long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(
+                event.getStartTime().toLocalDate(), date);
+
+        // If specific days are specified, check if current day matches
+        if (rule.byDay() != null) {
+            String targetDay = getDayOfWeekCode(date.getDayOfWeek());
+            return Arrays.asList(rule.byDay()).contains(targetDay) &&
+                   (daysBetween / 7) % rule.interval() == 0;
+        }
+
+        // Otherwise, check if it's the right week
+        return daysBetween % (7L * rule.interval()) == 0;
+    }
+
+    private boolean isMonthlyRecurrence(Event event, LocalDate date, int interval) {
+        // Check if day of month matches
+        if (event.getStartTime().getDayOfMonth() != date.getDayOfMonth()) {
+            return false;
+        }
+
+        // Calculate total months between dates
+        int monthDiff = (date.getYear() - event.getStartTime().getYear()) * 12 +
+                       (date.getMonthValue() - event.getStartTime().getMonthValue());
+        
+        return monthDiff % interval == 0;
+    }
+
+    private boolean isYearlyRecurrence(Event event, LocalDate date, int interval) {
+        return event.getStartTime().getDayOfMonth() == date.getDayOfMonth() &&
+               event.getStartTime().getMonth() == date.getMonth() &&
+               (date.getYear() - event.getStartTime().getYear()) % interval == 0;
+    }
+
+    private String getDayOfWeekCode(java.time.DayOfWeek dayOfWeek) {
+        return switch (dayOfWeek) {
+            case MONDAY -> "MO";
+            case TUESDAY -> "TU";
+            case WEDNESDAY -> "WE";
+            case THURSDAY -> "TH";
+            case FRIDAY -> "FR";
+            case SATURDAY -> "SA";
+            case SUNDAY -> "SU";
+        };
     }
 
     public static void AddRepositories(Model model, EventRepository eventRepository, UserRepository
@@ -492,3 +618,4 @@ public class CalendarService {
         model.addAttribute("users", userList);
     }
 }
+

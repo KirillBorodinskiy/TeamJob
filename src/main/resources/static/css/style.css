@@ -780,3 +780,14 @@ input {
     border-color: #c3e6cb;
     color: var(--color-accent);
 }
+#recurrence_options{
+    width: min-content;
+    /*display: flex;*/
+    /*flex-direction: row;*/
+    /*align-items: center;*/
+    /*gap: 0.5em;*/
+}
+
+#interval{
+    width:6em;
+}

@@ -3,6 +3,7 @@ package com.borodkir.teamjob.data;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class EventRequest {
@@ -12,6 +13,11 @@ public class EventRequest {
     private Long userId;
     private Long roomId;
     private boolean isRecurring;
-    private LocalDateTime is_recurring_end_date;
+    private String rrule;  // Recurrence Rule according to RFC 5545
+    private LocalDateTime recurrenceEndDate;
+    private String exdate;  // Exception dates for recurring events according to RFC 5545
+    private String rdate;   // Additional dates for recurring events according to RFC 5545
+    private String interval; // Interval for recurrence
+    private List<String> weekdays; // Weekdays for weekly recurrence
     private String description;
 }

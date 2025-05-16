@@ -12,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.format.DateTimeFormatter;
+
 @RestController
 @RequestMapping("/api/v1")
 public class RestConfigController {
@@ -92,6 +94,34 @@ public class RestConfigController {
 
         event.setStartTime(eventRequest.getStartTime());
         event.setEndTime(eventRequest.getEndTime());
+
+        // Handle recurrence
+        event.setRecurring(eventRequest.isRecurring());
+        if (eventRequest.isRecurring()) {
+            // Build RRULE string
+            StringBuilder rrule = new StringBuilder(eventRequest.getRrule());
+            if (!rrule.isEmpty()) {
+                // Add interval if specified
+                String interval = eventRequest.getInterval();
+                if (interval != null && !interval.isEmpty()) {
+                    rrule.append(";INTERVAL=").append(interval);
+                }
+                
+                // Add end date if specified
+                if (eventRequest.getRecurrenceEndDate() != null) {
+                    rrule.append(";UNTIL=").append(eventRequest.getRecurrenceEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")));
+                }
+                
+                // Add BYDAY for weekly recurrence
+                if (rrule.toString().startsWith("FREQ=WEEKLY") && eventRequest.getWeekdays() != null && !eventRequest.getWeekdays().isEmpty()) {
+                    rrule.append(";BYDAY=").append(String.join(",", eventRequest.getWeekdays()));
+                }
+            }
+            event.setRrule(rrule.toString());
+            event.setRecurrenceEndDate(eventRequest.getRecurrenceEndDate());
+            event.setExdate(eventRequest.getExdate());
+            event.setRdate(eventRequest.getRdate());
+        }
 
         Event savedEvent = eventRepository.save(event);
         return ResponseEntity.ok(savedEvent);
