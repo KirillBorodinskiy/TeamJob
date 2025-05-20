@@ -1,24 +1,24 @@
 \section{Tool Selection and Technology Stack}\label{sec:tools}
 
-This chapter examines the decision-making process behind selecting the technologies and tools for the team work organization system.
+This chapter examines the decision-making process behind selecting the technologies and tools for the team-work organization system.
 The selection criteria were based on several key factors: project requirements, scalability needs, security considerations, and long-term maintainability.
 
 \subsection{Framework Selection}\label{subsec:framework-selection}
 
 Given the project's requirement to develop a Java application, the framework selection was focused on Java-based solutions.
 The primary options considered were \textit{The Spring Framework}, \textit{Spring Boot},  \textit{Jakarta EE} (formerly Java EE), and \textit{Micronaut}.
-While all these frameworks are capable of building robust web applications, they differ significantly in their approach and complexity.
+Although all of these frameworks are capable of building robust web applications, they differ significantly in their approach and complexity.
 
-\textbf{Jakarta EE}, the enterprise edition of Java, provides a comprehensive set of specifications for building enterprise applications.
+\textbf{Jakarta EE}, the enterprise edition of Java, provides a comprehensive set of specifications to build enterprise applications.
 However, it requires significant boilerplate code and configuration, making it less suitable for this project.
 \textbf{Micronaut}, while promising with its ahead-of-time compilation and low memory footprint, is relatively new and has a smaller community compared to Spring Boot.
 
 \textbf{The Spring Framework}, the foundation of Spring Boot, is a comprehensive programming and configuration model for modern Java-based enterprise applications.
 It provides a wide range of features including dependency injection, aspect-oriented programming, and transaction management.
-However, the Spring Framework requires extensive configuration and setup, which can be time-consuming and complex.
+However, the Spring Framework requires extensive configuration and setup, which can be time consuming and complex.
 
 \textbf{Spring Boot}, built on top of the Spring Framework, was selected as it addresses these configuration challenges while maintaining all the benefits of the Spring Framework.
-It provides:
+It provides the following:
 \begin{itemize}
     \item Auto-configuration of Spring Framework components
     \item Embedded servers for simplified deployment
@@ -31,10 +31,9 @@ The framework's extensive documentation, large community support, and proven tra
 
 \subsection{Frontend Technology Selection}\label{subsec:frontend-selection}
 
-The frontend technology selection required careful consideration of integration capabilities with Spring Boot.
-\textbf{Thymeleaf}, a server-side template rendering engine, emerged as the primary choice for several reasons.
-It processes page rendering on the server side, reducing computational demands on client systems.
-While modern alternatives like \textbf{React} and other JavaScript frameworks are prevalent, they would require significant additional research and development time.
+The selection of front-end technology required careful consideration of integration capabilities with Spring Boot.
+\textbf{Thymeleaf}, as a server-side template rendering engine, was identified as the preferred option due to several factors. It utilizes server-side page rendering to decrease the computational load on client systems. Its integration of Java with HTML makes it relatively straightforward to use. Furthermore, it is frequently used in conjunction with the Spring Boot.
+Although modern alternatives like \textbf{React} and other JavaScript frameworks are prevalent, they would require significant additional research and development time.
 
 The decision to use Thymeleaf was influenced by the simplicity of combining HTML and Java code in a single file.
 However, modern web development requirements necessitated the incorporation of some JavaScript for specific client-side tasks, particularly for handling asynchronous requests and dynamic content updates.
@@ -46,17 +45,17 @@ This choice was driven by PostgreSQL's prevalence in the market and its robust A
 The ACID properties provide essential guarantees for data management:
 
 \begin{itemize}
-    \item \textbf{Atomicity}: Ensures transactions are completed entirely or not at all
-    \item \textbf{Consistency}: Maintains database validity through all transactions
-    \item \textbf{Isolation}: Prevents concurrent transactions from interfering with each other
-    \item \textbf{Durability}: Guarantees committed transactions remain permanent
+    \item \textbf{Atomicity}: Ensures transactions are completed entirely or not at all.
+    \item \textbf{Consistency}: Maintains database validity through all transactions.
+    \item \textbf{Isolation}: Prevents concurrent transactions from interfering with each other.
+    \item \textbf{Durability}: Guarantees committed transactions remain permanent.
 \end{itemize}
 
 These properties are crucial for maintaining data integrity in a multi-user environment where concurrent access and modifications are common.
 
 \subsection{Security Architecture Decisions}\label{subsec:security-decisions}
 
-The security implementation strategy was developed after careful analysis of modern web application security requirements.
+The security implementation strategy was developed after careful analysis of the security requirements of modern web applications.
 The decision to use \textbf{JWT-based authentication} was made after considering several factors, including the benefits of a stateless architecture that eliminates server-side session storage and improves scalability.
 The approach also offers excellent cross-platform compatibility, enabling seamless integration with various clients while maintaining compliance with industry best practices for web security.
 Alternative approaches like \textbf{session-based authentication} were evaluated but rejected due to their increased complexity with server-side session storage, increased server resource requirements, and complex session management.
@@ -75,12 +74,12 @@ The IDE used is \textbf{IntelliJ IDEA}, which has excellent support for Java.
 
 Containerization was implemented using \textbf{Docker} to ensure consistent deployment across different environments and simplify the development workflow.
 The containerization strategy employs a multi-stage build process that optimizes both build time and final image size.
-The build process utilizes \textbf{Amazon Corretto JDK 21} for compiling the application and running it in a separate stage of dockerfile.
-The system includes integrated health checks for monitoring container status, ensuring reliable operation and quick detection of potential issues.
+The build process utilizes \textbf{Amazon Corretto JDK 21} to compile the application and run it in a separate dockerfile stage.
+The system includes integrated health checks to monitor container status, ensuring reliable operation and quick detection of potential problems.
 
 This containerization approach delivers significant benefits to the project.
 It ensures a consistent runtime environment across development, testing, and production stages, eliminating environment-specific issues.
-The deployment process is streamlined, reducing the complexity of moving the application between different environments.
+The deployment process is simplified, reducing the complexity of moving the application between different environments.
 Container isolation provides an additional layer of security, while the standardized container format enables easy scalability and orchestration capabilities.
 Furthermore, this approach effectively eliminates the common ``works on my machine'' problem, as all environments run the same containerized application.
 

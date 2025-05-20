@@ -515,15 +515,26 @@ public class CalendarService {
         };
     }
 
-    private record RecurrenceRule(String frequency, int interval, String[] byDay) {}
+    private record RecurrenceRule(String frequency, int interval, String[] byDay, LocalDateTime until) {}
 
     private boolean isValidRecurringEvent(Event event) {
         return event.isRecurring() && event.getRrule() != null;
     }
 
     private boolean isAfterEndDate(Event event, LocalDate date) {
-        return event.getRecurrenceEndDate() != null && 
-               date.isAfter(event.getRecurrenceEndDate().toLocalDate());
+        // First check recurrenceEndDate
+        if (event.getRecurrenceEndDate() != null && 
+            date.isAfter(event.getRecurrenceEndDate().toLocalDate())) {
+            return true;
+        }
+        
+        // Then check UNTIL in RRULE if it exists
+        if (event.getRrule() != null) {
+            RecurrenceRule rule = parseRecurrenceRule(event.getRrule());
+            return rule.until() != null && date.isAfter(rule.until().toLocalDate());
+        }
+        
+        return false;
     }
 
     private boolean isExcludedDate(Event event, LocalDate date) {
@@ -541,6 +552,7 @@ public class CalendarService {
         String frequency = "";
         int interval = 1;
         String[] byDay = null;
+        LocalDateTime until = null;
 
         for (String part : parts) {
             if (part.startsWith("FREQ=")) {
@@ -549,10 +561,17 @@ public class CalendarService {
                 interval = Integer.parseInt(part.substring(9));
             } else if (part.startsWith("BYDAY=")) {
                 byDay = part.substring(6).split(",");
+            } else if (part.startsWith("UNTIL=")) {
+                String untilStr = part.substring(6);
+                // Parse the UNTIL date in format yyyyMMddTHHmmssZ
+                until = LocalDateTime.parse(
+                    untilStr.substring(0, 8) + "T" + untilStr.substring(9, 15),
+                    DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")
+                );
             }
         }
 
-        return new RecurrenceRule(frequency, interval, byDay);
+        return new RecurrenceRule(frequency, interval, byDay, until);
     }
 
     private boolean isDailyRecurrence(Event event, LocalDate date, int interval) {
