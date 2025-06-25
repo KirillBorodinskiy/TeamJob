@@ -1,12 +1,7 @@
 package com.borodkir.teamjob.controllers;
 
 
-import com.borodkir.teamjob.data.*;
-import com.borodkir.teamjob.data.repositories.EventRepository;
-import com.borodkir.teamjob.data.repositories.RoomRepository;
-import com.borodkir.teamjob.data.repositories.UserRepository;
 import com.borodkir.teamjob.services.ICalendarService;
-import com.borodkir.teamjob.services.implementations.CalendarServiceImpl;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,11 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Controller
 @RequestMapping("/calendar")

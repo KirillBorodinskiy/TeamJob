@@ -13,9 +13,6 @@
 <div class="navigation">
     <h2><a th:href="@{/calendar/}" class="nav-link">Home</a></h2>
     <h2>Find Available</h2>
-    <h2 th:if="${eventAvailabilities != null and !#lists.isEmpty(eventAvailabilities)}" th:text="Events"
-        class="room-availabilities" style="color: var(--color-gold)">
-    </h2>
     <h2 th:if="${userAvailabilities != null and !#lists.isEmpty(userAvailabilities)}" th:text="Users"
         class="room-availabilities" style="color: var(--color-gold)">
     </h2>
@@ -36,15 +33,10 @@
                                th:checked="${searchType == 'rooms'}" hidden>
                         <label for="searchRooms" class="sidepanel-button" hidden>Rooms</label>
                     </div>
-                    <div class="toggle-option sidepanel-button" id="sidepanel-button-middle">Users
+                    <div class="toggle-option sidepanel-button" id="sidepanel-button-right">Users
                         <input type="radio" id="searchPeople" name="searchType" value="users"
                                th:checked="${searchType == 'users'}" hidden>
-                        <label for="searchPeople" class="sidepanel-button" hidden>People</label>
-                    </div>
-                    <div class="toggle-option sidepanel-button" id="sidepanel-button-right">Events
-                        <input type="radio" id="searchEvents" name="searchType" value="events"
-                               th:checked="${searchType == 'events'}" hidden>
-                        <label for="searchEvents" class="sidepanel-button" hidden>Events</label>
+                        <label for="searchPeople" class="sidepanel-button" hidden>Users</label>
                     </div>
                 </div>
             </div>
@@ -55,8 +47,6 @@
                     <div class="selected-container" id="tagSelectedContainer"></div>
                     <input type="text" id="tagSearchInput" placeholder="Enter tags" autocomplete="off">
                     <div class="select-items select-hide" id="tagSelectItems">
-                        <div th:each="tag : ${eventTags}" th:data-value="${tag}" data-name="events"
-                             th:text="${tag}"></div>
                         <div th:each="tag : ${roomTags}" th:data-value="${tag}" data-name="rooms"
                              th:text="${tag}"></div>
                         <div th:each="tag : ${userTags}" th:data-value="${tag}" data-name="users"
@@ -142,30 +132,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Display event availabilities if searching for events -->
-        <div th:if="${eventAvailabilities != null and !#lists.isEmpty(eventAvailabilities)}"
-             class="room-availabilities">
-            <div th:each="eventAvail : ${eventAvailabilities}" class="room-availability-card">
-                <span class="room-name titlebold" th:text="'Event: ' + ${eventAvail.event.title}"></span>
-                <span class="room-tags" th:if="${eventAvail.event.tags != null}"
-                      th:text="'Tags: ' + ${#strings.listJoin(eventAvail.event.tags, ', ')}"></span>
-                <a th:href="@{/event/{id}(id=${eventAvail.event.id})}"
-                   class="titlebold">View Event</a>
-                <div class="unoccupied-slots" th:if="${!#lists.isEmpty(eventAvail.unoccupiedTimesFromTo)}">
-                    <h5>Available Time Slots:</h5>
-                    <ul>
-                        <li th:each="slot : ${eventAvail.unoccupiedTimesFromTo}">
-                            <span th:text="${#temporals.format(slot.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(slot.endTime, 'HH:mm')}"></span>
-                            <span th:text="'(' + ${slot.durationInMinutes} + ' minutes)'"></span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="no-slots" th:if="${#lists.isEmpty(eventAvail.unoccupiedTimesFromTo)}">
-                    <p>No available time slots for this event during the specified time range.</p>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -206,30 +172,21 @@
 
         const toggleSidepanel = (value) => {
             const sidepanelLeft = document.getElementById('sidepanel-button-left');
-            const sidepanelMiddle = document.getElementById('sidepanel-button-middle');
             const sidepanelRight = document.getElementById('sidepanel-button-right');
 
             const searchRooms = document.getElementById('searchRooms');
             const searchPeople = document.getElementById('searchPeople');
-            const searchEvents = document.getElementById('searchEvents');
 
             if (value === 'rooms') {
                 sidepanelLeft.classList.add('gold-border');
                 sidepanelRight.classList.remove('gold-border');
-                sidepanelMiddle.classList.remove('gold-border');
                 searchRooms.checked = true;
             } else if (value === 'users') {
                 sidepanelLeft.classList.remove('gold-border');
                 sidepanelRight.classList.remove('gold-border');
-                sidepanelMiddle.classList.add('gold-border');
                 searchPeople.checked = true;
-            } else if (value === 'events') {
-                sidepanelRight.classList.add('gold-border');
-                sidepanelLeft.classList.remove('gold-border');
-                sidepanelMiddle.classList.remove('gold-border');
-                searchEvents.checked = true;
             } else {
-                console.error("Invalid value for toggleSidepanel"+value);
+                console.error("Invalid value for toggleSidepanel" + value);
             }
 
         };

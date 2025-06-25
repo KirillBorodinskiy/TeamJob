@@ -1,12 +1,12 @@
 package com.borodkir.teamjob.controllers;
 
+import com.borodkir.teamjob.DefaultValueService;
 import com.borodkir.teamjob.UserDetailsImpl;
 import com.borodkir.teamjob.data.*;
 import com.borodkir.teamjob.data.repositories.EventRepository;
 import com.borodkir.teamjob.data.repositories.RoleRepository;
 import com.borodkir.teamjob.data.repositories.RoomRepository;
 import com.borodkir.teamjob.data.repositories.UserRepository;
-import com.borodkir.teamjob.services.implementations.DefaultValueServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.jsonwebtoken.Jwts;
@@ -87,7 +87,7 @@ public class RestConfigControllerTest {
         testUser.setUsername("testuser");
         testUser.setEmail("testuser@example.com");
         testUser.setPassword(passwordEncoder.encode(TEST_PASSWORD));
-        Role userRole = roleRepository.findByName(DefaultValueServiceImpl.ROLE_USER)
+        Role userRole = roleRepository.findByName(DefaultValueService.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
         testUser.addRole(userRole);
         testUser = userRepository.save(testUser);

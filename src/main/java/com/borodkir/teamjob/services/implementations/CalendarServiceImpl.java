@@ -81,13 +81,6 @@ public class CalendarServiceImpl implements ICalendarService {
                 request.setUserAvailabilities(userAvailabilities);
                 break;
 
-            case "events":
-                // Process event availabilities
-                List<Event> filteredEvents = filterEventsByTags(allEvents, tags);
-                List<EventAvailability> eventAvailabilities = calculateEventAvailabilities(
-                        filteredEvents, startTime, endTime, durationInMinutes);
-                request.setEventAvailabilities(eventAvailabilities);
-                break;
 
             default:
                 throw new IllegalArgumentException("Invalid type: " + type);
@@ -125,23 +118,6 @@ public class CalendarServiceImpl implements ICalendarService {
 
         return users.stream()
                 .filter(user -> user.getTags() != null && !Collections.disjoint(user.getTags(), tags))
-                .toList();
-    }
-
-    /**
-     * Filters a list of events by the specified tags.
-     *
-     * @param events the list of events to filter
-     * @param tags   the set of tags to filter by
-     * @return a filtered list of events that have at least one of the specified tags
-     */
-    private List<Event> filterEventsByTags(List<Event> events, Set<String> tags) {
-        if (tags.isEmpty()) {
-            return events;
-        }
-
-        return events.stream()
-                .filter(event -> event.getTags() != null && !Collections.disjoint(event.getTags(), tags))
                 .toList();
     }
 
@@ -221,39 +197,6 @@ public class CalendarServiceImpl implements ICalendarService {
         }
 
         return userAvailabilities;
-    }
-
-    /**
-     * Calculates event availabilities based on the provided events and time constraints.
-     *
-     * @param events            the list of events to calculate availabilities for
-     * @param startTime         the start time of the time range to analyze
-     * @param endTime           the end time of the time range to analyze
-     * @param durationInMinutes the minimum duration required for an available time slot
-     * @return a list of event availabilities with their unoccupied time slots
-     */
-    private List<EventAvailability> calculateEventAvailabilities(
-            List<Event> events,
-            LocalDateTime startTime,
-            LocalDateTime endTime,
-            int durationInMinutes) {
-
-        List<EventAvailability> eventAvailabilities = new ArrayList<>();
-
-        for (Event event : events) {
-            // Create occupied time slots for this event
-            ArrayList<TimeFromTo> occupiedTimes = new ArrayList<>();
-            occupiedTimes.add(new TimeFromTo(event.getStartTime(), event.getEndTime()));
-
-            // Calculate unoccupied time slots for this event
-            ArrayList<TimeFromTo> unoccupiedTimes = calculateUnoccupiedTimesFromOccupied(
-                    startTime, endTime, durationInMinutes, occupiedTimes);
-
-            // Add event availability to the list
-            eventAvailabilities.add(new EventAvailability(event, unoccupiedTimes));
-        }
-
-        return eventAvailabilities;
     }
 
     /**
