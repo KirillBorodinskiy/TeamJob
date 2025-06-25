@@ -5,7 +5,8 @@ import com.borodkir.teamjob.data.*;
 import com.borodkir.teamjob.data.repositories.EventRepository;
 import com.borodkir.teamjob.data.repositories.RoomRepository;
 import com.borodkir.teamjob.data.repositories.UserRepository;
-import com.borodkir.teamjob.services.CalendarService;
+import com.borodkir.teamjob.services.ICalendarService;
+import com.borodkir.teamjob.services.implementations.CalendarServiceImpl;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,9 +31,9 @@ public class CalendarController {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
-    private final CalendarService calendarService;
+    private final ICalendarService calendarService;
 
-    public CalendarController(EventRepository eventRepository, UserRepository userRepository, RoomRepository roomRepository, CalendarService calendarService) {
+    public CalendarController(EventRepository eventRepository, UserRepository userRepository, RoomRepository roomRepository, ICalendarService calendarService) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
@@ -69,7 +70,7 @@ public class CalendarController {
         LocalDate nextWeek = firstDayOfWeek.plusWeeks(1);
         List<Integer> hours = IntStream.rangeClosed(0, 23).boxed().collect(Collectors.toList());
 
-        CalendarService.AddRepositories(model, eventRepository, userRepository, roomRepository);
+        CalendarServiceImpl.AddRepositories(model, eventRepository, userRepository, roomRepository);
         model.addAttribute("weekDays", weekDays);
         model.addAttribute("currentWeekStart", firstDayOfWeek);
         model.addAttribute("previousWeek", previousWeek);
@@ -110,7 +111,7 @@ public class CalendarController {
         }
         List<Integer> hours = IntStream.rangeClosed(0, 23).boxed().collect(Collectors.toList());
         model.addAttribute("hours", hours);
-        CalendarService.AddRepositories(model, eventRepository, userRepository, roomRepository);
+        CalendarServiceImpl.AddRepositories(model, eventRepository, userRepository, roomRepository);
         model.addAttribute("roomDays", roomDays);
         model.addAttribute("currentDay", date);
         model.addAttribute("previousDay", previousDay);

@@ -1,9 +1,10 @@
-package com.borodkir.teamjob.services;
+package com.borodkir.teamjob.services.implementations;
 
 import com.borodkir.teamjob.data.*;
 import com.borodkir.teamjob.data.repositories.EventRepository;
 import com.borodkir.teamjob.data.repositories.RoomRepository;
 import com.borodkir.teamjob.data.repositories.UserRepository;
+import com.borodkir.teamjob.services.ICalendarService;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -21,13 +22,13 @@ import java.time.format.DateTimeFormatter;
  * and time slot generation functionalities.
  */
 @Service
-public class CalendarService {
+public class CalendarServiceImpl implements ICalendarService {
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
 
-    public CalendarService(EventRepository eventRepository, UserRepository userRepository, RoomRepository roomRepository) {
+    public CalendarServiceImpl(EventRepository eventRepository, UserRepository userRepository, RoomRepository roomRepository) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
@@ -419,7 +420,7 @@ public class CalendarService {
 
             // 2. Check if the event occurs on this date (regular or recurring)
             boolean occursToday = false;
-            
+
             // Check regular event date
             if (isEventOnDate(event, currentDate)) {
                 occursToday = true;
@@ -428,19 +429,21 @@ public class CalendarService {
             else if (event.isRecurring() && event.getRrule() != null) {
                 occursToday = isRecurringEventOnDate(event, currentDate);
             }
-            
+
             if (!occursToday) continue;
 
             // 3. Apply user filter
-            if (userIdSet != null && (event.getUser() == null || !userIdSet.contains(String.valueOf(event.getUser().getId())))) continue;
+            if (userIdSet != null && (event.getUser() == null || !userIdSet.contains(String.valueOf(event.getUser().getId()))))
+                continue;
 
             // 4. Apply room filter
-            if (roomIdSet != null && (event.getRoom() == null || !roomIdSet.contains(String.valueOf(event.getRoom().getId())))) continue;
+            if (roomIdSet != null && (event.getRoom() == null || !roomIdSet.contains(String.valueOf(event.getRoom().getId()))))
+                continue;
 
             // 5. Calculate start/end times for this day
             LocalDateTime eventStart = event.getStartTime();
             LocalDateTime eventEnd = event.getEndTime();
-            
+
             // For recurring events, adjust the times based on the recurrence pattern
             if (event.isRecurring() && event.getRrule() != null) {
                 int daysBetween = (int) java.time.temporal.ChronoUnit.DAYS.between(
@@ -450,29 +453,40 @@ public class CalendarService {
             }
 
             // Calculate duration and start/end times for this day
-            double startTimeToUse = eventStart.toLocalDate().isBefore(currentDate) ? 
+            double startTimeToUse = eventStart.toLocalDate().isBefore(currentDate) ?
                     0.0 : eventStart.getHour() + (eventStart.getMinute() / 60.0);
-            double endTimeToUse = eventEnd.toLocalDate().isAfter(currentDate) ? 
+            double endTimeToUse = eventEnd.toLocalDate().isAfter(currentDate) ?
                     24.0 : eventEnd.getHour() + (eventEnd.getMinute() / 60.0);
             double durationInADay = endTimeToUse - startTimeToUse;
 
             // 6. Add to result
             result.add(new EventInADay(
-                event.getId(),
-                event.getTitle(),
-                event.getDescription(),
-                event.getRoom(),
-                event.getUser(),
-                event.isRecurring(),
-                event.getRecurrenceEndDate(),
-                durationInADay,
-                startTimeToUse,
-                endTimeToUse,
-                eventStart,
-                eventEnd
+                    event.getId(),
+                    event.getTitle(),
+                    event.getDescription(),
+                    event.getRoom(),
+                    event.getUser(),
+                    event.isRecurring(),
+                    event.getRecurrenceEndDate(),
+                    durationInADay,
+                    startTimeToUse,
+                    endTimeToUse,
+                    eventStart,
+                    eventEnd
             ));
         }
         return result;
+    }
+
+    public static void AddRepositories(Model model, EventRepository eventRepository, UserRepository
+            userRepository, RoomRepository roomRepository) {
+        List<Event> eventList = eventRepository.findAll();
+        List<User> userList = userRepository.findAll();
+        List<Room> roomList = roomRepository.findAll();
+
+        model.addAttribute("events", eventList);
+        model.addAttribute("rooms", roomList);
+        model.addAttribute("users", userList);
     }
 
     // Helper for exdate exclusion
@@ -504,7 +518,7 @@ public class CalendarService {
 
         // Parse recurrence rule
         RecurrenceRule rule = parseRecurrenceRule(event.getRrule());
-        
+
         // Check if date matches the recurrence pattern
         return switch (rule.frequency()) {
             case "DAILY" -> isDailyRecurrence(event, date, rule.interval());
@@ -515,7 +529,7 @@ public class CalendarService {
         };
     }
 
-    private record RecurrenceRule(String frequency, int interval, String[] byDay, LocalDateTime until) {}
+    private record RecurrenceRule(String frequency, int interval, String[] byDay, LocalDateTime until) { }
 
     private boolean isValidRecurringEvent(Event event) {
         return event.isRecurring() && event.getRrule() != null;
@@ -523,17 +537,17 @@ public class CalendarService {
 
     private boolean isAfterEndDate(Event event, LocalDate date) {
         // First check recurrenceEndDate
-        if (event.getRecurrenceEndDate() != null && 
-            date.isAfter(event.getRecurrenceEndDate().toLocalDate())) {
+        if (event.getRecurrenceEndDate() != null &&
+                date.isAfter(event.getRecurrenceEndDate().toLocalDate())) {
             return true;
         }
-        
+
         // Then check UNTIL in RRULE if it exists
         if (event.getRrule() != null) {
             RecurrenceRule rule = parseRecurrenceRule(event.getRrule());
             return rule.until() != null && date.isAfter(rule.until().toLocalDate());
         }
-        
+
         return false;
     }
 
@@ -565,8 +579,8 @@ public class CalendarService {
                 String untilStr = part.substring(6);
                 // Parse the UNTIL date in format yyyyMMddTHHmmssZ
                 until = LocalDateTime.parse(
-                    untilStr.substring(0, 8) + "T" + untilStr.substring(9, 15),
-                    DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")
+                        untilStr.substring(0, 8) + "T" + untilStr.substring(9, 15),
+                        DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")
                 );
             }
         }
@@ -588,7 +602,7 @@ public class CalendarService {
         if (rule.byDay() != null) {
             String targetDay = getDayOfWeekCode(date.getDayOfWeek());
             return Arrays.asList(rule.byDay()).contains(targetDay) &&
-                   (daysBetween / 7) % rule.interval() == 0;
+                    (daysBetween / 7) % rule.interval() == 0;
         }
 
         // Otherwise, check if it's the right week
@@ -603,15 +617,15 @@ public class CalendarService {
 
         // Calculate total months between dates
         int monthDiff = (date.getYear() - event.getStartTime().getYear()) * 12 +
-                       (date.getMonthValue() - event.getStartTime().getMonthValue());
-        
+                (date.getMonthValue() - event.getStartTime().getMonthValue());
+
         return monthDiff % interval == 0;
     }
 
     private boolean isYearlyRecurrence(Event event, LocalDate date, int interval) {
         return event.getStartTime().getDayOfMonth() == date.getDayOfMonth() &&
-               event.getStartTime().getMonth() == date.getMonth() &&
-               (date.getYear() - event.getStartTime().getYear()) % interval == 0;
+                event.getStartTime().getMonth() == date.getMonth() &&
+                (date.getYear() - event.getStartTime().getYear()) % interval == 0;
     }
 
     private String getDayOfWeekCode(java.time.DayOfWeek dayOfWeek) {
@@ -624,17 +638,6 @@ public class CalendarService {
             case SATURDAY -> "SA";
             case SUNDAY -> "SU";
         };
-    }
-
-    public static void AddRepositories(Model model, EventRepository eventRepository, UserRepository
-            userRepository, RoomRepository roomRepository) {
-        List<Event> eventList = eventRepository.findAll();
-        List<User> userList = userRepository.findAll();
-        List<Room> roomList = roomRepository.findAll();
-
-        model.addAttribute("events", eventList);
-        model.addAttribute("rooms", roomList);
-        model.addAttribute("users", userList);
     }
 }
 

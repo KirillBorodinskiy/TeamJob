@@ -1,8 +1,9 @@
-package com.borodkir.teamjob.services;
+package com.borodkir.teamjob.services.implementations;
 
 import com.borodkir.teamjob.UserDetailsImpl;
 import com.borodkir.teamjob.data.User;
 import com.borodkir.teamjob.data.repositories.UserRepository;
+import com.borodkir.teamjob.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -10,7 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserServiceImpl implements IUserService, UserDetailsService {
     UserRepository userRepository;
 
     @Autowired

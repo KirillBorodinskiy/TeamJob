@@ -7,7 +7,7 @@ import com.borodkir.teamjob.data.SignupRequest;
 import com.borodkir.teamjob.data.User;
 import com.borodkir.teamjob.data.repositories.RoleRepository;
 import com.borodkir.teamjob.data.repositories.UserRepository;
-import com.borodkir.teamjob.services.DefaultValueService;
+import com.borodkir.teamjob.services.implementations.DefaultValueServiceImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -103,7 +103,7 @@ public class SecurityController {
         user.setPassword(hashedPassword);
         user.setUsername(signupRequest.getUsername());
         user.setEmail(signupRequest.getEmail());
-        Role userRole = roleRepository.findByName(DefaultValueService.ROLE_USER)
+        Role userRole = roleRepository.findByName(DefaultValueServiceImpl.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
         user.addRole(userRole);
         userRepository.save(user);
