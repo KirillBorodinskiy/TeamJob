@@ -1,4 +1,4 @@
-package com.borodkir.teamjob.services.implementations;
+package com.borodkir.teamjob;
 
 import com.borodkir.teamjob.data.Event;
 import com.borodkir.teamjob.data.Role;
@@ -8,7 +8,6 @@ import com.borodkir.teamjob.data.repositories.EventRepository;
 import com.borodkir.teamjob.data.repositories.RoleRepository;
 import com.borodkir.teamjob.data.repositories.RoomRepository;
 import com.borodkir.teamjob.data.repositories.UserRepository;
-import com.borodkir.teamjob.services.IDefaultValueService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,7 +24,7 @@ import java.util.*;
 import static java.util.Collections.singleton;
 
 @Service
-public class DefaultValueServiceImpl implements IDefaultValueService {
+public class DefaultValueService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private RoomRepository roomRepository;
@@ -55,7 +54,7 @@ public class DefaultValueServiceImpl implements IDefaultValueService {
     );
 
     @Autowired
-    public DefaultValueServiceImpl(RoleRepository roleRepository, UserRepository userRepository, RoomRepository roomRepository, EventRepository eventRepository) {
+    public DefaultValueService(RoleRepository roleRepository, UserRepository userRepository, RoomRepository roomRepository, EventRepository eventRepository) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
@@ -83,9 +82,9 @@ public class DefaultValueServiceImpl implements IDefaultValueService {
     public void insert() {
         try {
             // Create Roles
-            createRoleIfNotExists(DefaultValueServiceImpl.ROLE_CONFIG);
-            createRoleIfNotExists(DefaultValueServiceImpl.ROLE_ADMIN);
-            createRoleIfNotExists(DefaultValueServiceImpl.ROLE_USER);
+            createRoleIfNotExists(DefaultValueService.ROLE_CONFIG);
+            createRoleIfNotExists(DefaultValueService.ROLE_ADMIN);
+            createRoleIfNotExists(DefaultValueService.ROLE_USER);
             roleRepository.flush();
 
             // Create Admin User
@@ -106,7 +105,7 @@ public class DefaultValueServiceImpl implements IDefaultValueService {
             user.setPassword(passwordEncoder.encode("useruser"));
             user.setEmail("useruser@user.com");
 
-            Role userRole = roleRepository.findByName(DefaultValueServiceImpl.ROLE_USER)
+            Role userRole = roleRepository.findByName(DefaultValueService.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Default role ROLE_USER not found"));
             user.setRoles(new HashSet<>(singleton(userRole)));
 
@@ -157,7 +156,7 @@ public class DefaultValueServiceImpl implements IDefaultValueService {
     private void createUser(User user) {
 
         if (user.getRoles() == null || user.getRoles().isEmpty()) {
-            Role userRole = roleRepository.findByName(DefaultValueServiceImpl.ROLE_USER)
+            Role userRole = roleRepository.findByName(DefaultValueService.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Default role ROLE_USER not found for user creation"));
             user.setRoles(new HashSet<>(singleton(userRole)));
         }
