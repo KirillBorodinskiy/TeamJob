@@ -248,7 +248,7 @@ fieldset {
     width: 20vw
 }
 
-#sidepanel-toggle {
+#sidepanel-toggle, #filter-toggle {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -355,10 +355,15 @@ fieldset {
     display: none !important;
 }
 
-#filterEventsForm {
+#filterEntityForm {
     display: flex;
     flex-direction: column;
     gap: 1.5em;
+}
+#filterTagsForm{
+    flex-direction: column;
+    gap: 1em;
+    display:flex;
 }
 
 .filterButton {
@@ -433,6 +438,7 @@ fieldset {
     flex-wrap: wrap;
     padding: 2px;
     min-height: 24px;
+    width:25vw;
 
 }
 .results-list, .room-availabilities {

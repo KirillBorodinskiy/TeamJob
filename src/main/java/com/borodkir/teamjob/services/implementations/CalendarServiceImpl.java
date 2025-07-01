@@ -18,6 +18,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static java.util.Collections.disjoint;
 
 
 /**
@@ -101,7 +104,7 @@ public class CalendarServiceImpl implements ICalendarService {
             return rooms;
         }
 
-        return rooms.stream().filter(room -> room.getTags() != null && !Collections.disjoint(room.getTags(), tags)).toList();
+        return rooms.stream().filter(room -> room.getTags() != null && !disjoint(room.getTags(), tags)).toList();
     }
 
     /**
@@ -117,7 +120,7 @@ public class CalendarServiceImpl implements ICalendarService {
         }
 
         return users.stream()
-                .filter(user -> user.getTags() != null && !Collections.disjoint(user.getTags(), tags))
+                .filter(user -> user.getTags() != null && !disjoint(user.getTags(), tags))
                 .toList();
     }
 
@@ -333,7 +336,7 @@ public class CalendarServiceImpl implements ICalendarService {
 
 
     @Override
-    public void setupModelForWeekCalendar(Model model, LocalDate date, String userIds, String roomIds) {
+    public void setupModelForWeekCalendar(Model model, LocalDate date, String userIds, String roomIds, String roomTags, String eventTags, String userTags) {
 
         LocalDate targetDate = (date != null) ? date : LocalDate.now();
         LocalDate firstDayOfWeek = targetDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -343,7 +346,7 @@ public class CalendarServiceImpl implements ICalendarService {
 
         for (int i = 0; i < 7; i++) {
             LocalDate currentDate = firstDayOfWeek.plusDays(i);
-            List<EventInADay> dayEvents = convertToDayEvents(allEvents, currentDate, userIds, roomIds);
+            List<EventInADay> dayEvents = convertToDayEvents(allEvents, currentDate, userIds, roomIds, roomTags, eventTags, userTags);
 
             weekDays.add(new WeekDay(
                     currentDate,
@@ -358,7 +361,8 @@ public class CalendarServiceImpl implements ICalendarService {
         LocalDate nextWeek = firstDayOfWeek.plusWeeks(1);
         List<Integer> hours = IntStream.rangeClosed(0, 23).boxed().collect(Collectors.toList());
 
-        CalendarServiceImpl.AddRepositories(model, eventRepository, userRepository, roomRepository);
+        AddRepositories(model, eventRepository, userRepository, roomRepository);
+        gatherAllTags(model);
         model.addAttribute("weekDays", weekDays);
         model.addAttribute("currentWeekStart", firstDayOfWeek);
         model.addAttribute("previousWeek", previousWeek);
@@ -371,10 +375,11 @@ public class CalendarServiceImpl implements ICalendarService {
 
 
     @Override
-    public void setupModelForDayCalendar(Model model, LocalDate date, String userIds, String roomIds) {
+    public void setupModelForDayCalendar(Model model, LocalDate date, String userIds, String roomIds,
+                                         String roomTags, String eventTags, String userTags) {
 
         List<Event> allEvents = eventRepository.findOverlappingEvents(date.atStartOfDay(), date.plusDays(1).atStartOfDay());
-        List<EventInADay> dayEvents = convertToDayEvents(allEvents, date, userIds, roomIds);
+        List<EventInADay> dayEvents = convertToDayEvents(allEvents, date, userIds, roomIds, roomTags, eventTags, userTags);
         List<RoomDay> roomDays = new ArrayList<>();
         List<Room> rooms = roomRepository.findAll();
 
@@ -402,8 +407,7 @@ public class CalendarServiceImpl implements ICalendarService {
         model.addAttribute("selectedDate", date);
         model.addAttribute("userIds", userIds);
         model.addAttribute("roomIds", roomIds);
-
-
+        gatherAllTags(model);
     }
 
     @Override
@@ -492,10 +496,23 @@ public class CalendarServiceImpl implements ICalendarService {
         model.addAttribute("eventTags", eventTags);
     }
 
-    public List<EventInADay> convertToDayEvents(List<Event> allEvents, LocalDate currentDate, String userIds, String roomIds) {
-        // Prepare user and room filters
-        Set<String> userIdSet = (userIds != null && !userIds.isEmpty()) ? new HashSet<>(Arrays.asList(userIds.split(","))) : null;
-        Set<String> roomIdSet = (roomIds != null && !roomIds.isEmpty()) ? new HashSet<>(Arrays.asList(roomIds.split(","))) : null;
+    private Set<String> parseCommaDelimitedString(String input) {
+        if (input == null || input.isEmpty()) {
+            return null;
+        }
+        return Stream.of(input.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+    }
+
+    public List<EventInADay> convertToDayEvents(List<Event> allEvents, LocalDate currentDate, String userIds, String roomIds, String userTags, String roomTags, String eventTags) {
+        // Prepare filters
+        Set<String> userIdSet = parseCommaDelimitedString(userIds);
+        Set<String> roomIdSet = parseCommaDelimitedString(roomIds);
+        Set<String> userTagSet = parseCommaDelimitedString(userTags);
+        Set<String> roomTagSet = parseCommaDelimitedString(roomTags);
+        Set<String> eventTagSet = parseCommaDelimitedString(eventTags);
 
         List<EventInADay> result = new ArrayList<>();
         for (Event event : allEvents) {
@@ -524,7 +541,24 @@ public class CalendarServiceImpl implements ICalendarService {
             if (roomIdSet != null && (event.getRoom() == null || !roomIdSet.contains(String.valueOf(event.getRoom().getId()))))
                 continue;
 
-            // 5. Calculate start/end times for this day
+
+            // Disjoint is used to find at least one common tag
+            // 5. Apply room tags filter
+            if (roomTagSet != null && (event.getRoom() == null || event.getRoom().getTags() == null ||
+                    disjoint(event.getRoom().getTags(), roomTagSet)))
+                continue;
+
+            // 6. Apply event tags filter
+            if (eventTagSet != null && (event.getTags() == null || disjoint(event.getTags(), eventTagSet)))
+                continue;
+
+            // 7. Apply user tags filter
+            if (userTagSet != null && (event.getUser() == null || event.getUser().getTags() == null ||
+                    disjoint(event.getUser().getTags(), userTagSet)))
+                continue;
+
+
+            // 8. Calculate start/end times for this day
             LocalDateTime eventStart = event.getStartTime();
             LocalDateTime eventEnd = event.getEndTime();
 
@@ -560,6 +594,10 @@ public class CalendarServiceImpl implements ICalendarService {
             ));
         }
         return result;
+    }
+
+    public List<EventInADay> convertToDayEvents(List<Event> allEvents, LocalDate currentDate, String userIds, String roomIds) {
+        return convertToDayEvents(allEvents, currentDate, userIds, roomIds, null, null, null);
     }
 
     public static void AddRepositories(Model model, EventRepository eventRepository, UserRepository
@@ -613,7 +651,8 @@ public class CalendarServiceImpl implements ICalendarService {
         };
     }
 
-    private record RecurrenceRule(String frequency, int interval, String[] byDay, LocalDateTime until) { }
+    private record RecurrenceRule(String frequency, int interval, String[] byDay, LocalDateTime until) {
+    }
 
     private boolean isValidRecurringEvent(Event event) {
         return event.isRecurring() && event.getRrule() != null;

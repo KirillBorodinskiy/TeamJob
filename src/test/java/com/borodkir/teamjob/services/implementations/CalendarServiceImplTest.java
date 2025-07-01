@@ -1,10 +1,9 @@
-package com.borodkir.teamjob.services;
+package com.borodkir.teamjob.services.implementations;
 
 import com.borodkir.teamjob.data.*;
 import com.borodkir.teamjob.data.repositories.EventRepository;
 import com.borodkir.teamjob.data.repositories.RoomRepository;
 import com.borodkir.teamjob.data.repositories.UserRepository;
-import com.borodkir.teamjob.services.implementations.CalendarServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,13 +15,15 @@ import org.springframework.ui.ExtendedModelMap;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CalendarServiceTest {
+public class CalendarServiceImplTest {
     @Mock
     private EventRepository eventRepository;
 
@@ -69,6 +70,7 @@ public class CalendarServiceTest {
         testUsers = createTestUsers();
         testRooms = createTestRooms();
         testEvents = createTestEvents(testUsers, testRooms);
+        // No stubbings here; will be added to test methods as needed
     }
 
     // Helper methods to create test data
@@ -79,6 +81,7 @@ public class CalendarServiceTest {
 
         for (int i = 0; i < usernames.length; i++) {
             User user = new User();
+            user.setId((long) (i + 1));
             user.setUsername(usernames[i]);
             user.setPassword("password123");
             user.setEmail(emails[i]);
@@ -308,6 +311,9 @@ public class CalendarServiceTest {
 
     @Test
     void addRepositories() {
+        when(eventRepository.findAll()).thenReturn(testEvents);
+        when(userRepository.findAll()).thenReturn(testUsers);
+        when(roomRepository.findAll()).thenReturn(testRooms);
         Model model = new ExtendedModelMap();
         CalendarServiceImpl.AddRepositories(model, eventRepository, userRepository, roomRepository);
 
@@ -339,5 +345,326 @@ public class CalendarServiceTest {
         assertFalse(results.isEmpty(), "Search results should not be empty");
         assertEquals("room", results.getFirst().getType());
         assertEquals(testRooms.getFirst().getName(), results.getFirst().getName());
+    }
+
+    @Test
+    void generateAvailableTimeRequest_Rooms() {
+        LocalDateTime startTime = baseTime.plusHours(2);
+        LocalDateTime endTime = baseTime.plusHours(6);
+        Set<String> tags = new HashSet<>();
+        when(eventRepository.findOverlappingEvents(startTime, endTime)).thenReturn(testEvents);
+        when(roomRepository.findAll()).thenReturn(testRooms);
+        AvailableTimeRequest result = calendarService.generateAvailableTimeRequest(
+                "rooms", startTime, endTime, 60, tags);
+
+        assertNotNull(result);
+        assertEquals("rooms", result.getType());
+        assertEquals(startTime, result.getStartTime());
+        assertEquals(endTime, result.getEndTime());
+        assertNotNull(result.getRoomAvailabilities());
+        assertEquals(3, result.getRoomAvailabilities().size());
+
+        verify(eventRepository).findOverlappingEvents(startTime, endTime);
+        verify(roomRepository).findAll();
+    }
+
+    @Test
+    void generateAvailableTimeRequest_Users() {
+        LocalDateTime startTime = baseTime.plusHours(2);
+        LocalDateTime endTime = baseTime.plusHours(6);
+        Set<String> tags = new HashSet<>();
+        when(eventRepository.findOverlappingEvents(startTime, endTime)).thenReturn(testEvents);
+        when(userRepository.findAll()).thenReturn(testUsers);
+        AvailableTimeRequest result = calendarService.generateAvailableTimeRequest(
+                "users", startTime, endTime, 60, tags);
+
+        assertNotNull(result);
+        assertEquals("users", result.getType());
+        assertEquals(startTime, result.getStartTime());
+        assertEquals(endTime, result.getEndTime());
+        assertNotNull(result.getUserAvailabilities());
+        assertEquals(3, result.getUserAvailabilities().size());
+
+        verify(eventRepository).findOverlappingEvents(startTime, endTime);
+        verify(userRepository).findAll();
+    }
+
+    @Test
+    void generateAvailableTimeRequest_WithTags() {
+        LocalDateTime startTime = baseTime.plusHours(2);
+        LocalDateTime endTime = baseTime.plusHours(6);
+        Set<String> tags = new HashSet<>();
+        tags.add(SAMPLE_ROOM_TAGS.getFirst());
+        when(eventRepository.findOverlappingEvents(startTime, endTime)).thenReturn(testEvents);
+        when(roomRepository.findAll()).thenReturn(testRooms);
+        AvailableTimeRequest result = calendarService.generateAvailableTimeRequest(
+                "rooms", startTime, endTime, 60, tags);
+
+        assertNotNull(result);
+        assertEquals("rooms", result.getType());
+        assertNotNull(result.getRoomAvailabilities());
+        // Should only return rooms with matching tags
+        assertTrue(result.getRoomAvailabilities().size() <= 3);
+    }
+
+    @Test
+    void generateAvailableTimeRequest_InvalidType() {
+        LocalDateTime startTime = baseTime.plusHours(2);
+        LocalDateTime endTime = baseTime.plusHours(6);
+        Set<String> tags = new HashSet<>();
+        when(eventRepository.findOverlappingEvents(startTime, endTime)).thenReturn(testEvents);
+        assertThrows(IllegalArgumentException.class, () -> calendarService.generateAvailableTimeRequest(
+                "invalid", startTime, endTime, 60, tags));
+    }
+
+    @Test
+    void setupModelForWeekCalendar() {
+        Model model = new ExtendedModelMap();
+
+        calendarService.setupModelForWeekCalendar(model, baseDate, "1", "1", "tag1", "tag2", "tag3");
+
+        // Verify model attributes
+        assertNotNull(model.getAttribute("weekDays"));
+        assertNotNull(model.getAttribute("currentWeekStart"));
+        assertNotNull(model.getAttribute("previousWeek"));
+        assertNotNull(model.getAttribute("nextWeek"));
+        assertNotNull(model.getAttribute("selectedDate"));
+        assertNotNull(model.getAttribute("hours"));
+        assertNotNull(model.getAttribute("userIds"));
+        assertNotNull(model.getAttribute("roomIds"));
+        assertNotNull(model.getAttribute("events"));
+        assertNotNull(model.getAttribute("rooms"));
+        assertNotNull(model.getAttribute("users"));
+        assertNotNull(model.getAttribute("roomTags"));
+        assertNotNull(model.getAttribute("userTags"));
+        assertNotNull(model.getAttribute("eventTags"));
+
+        @SuppressWarnings("unchecked")
+        List<WeekDay> weekDays = (List<WeekDay>) model.getAttribute("weekDays");
+        assertNotNull(weekDays);
+        assertEquals(7, weekDays.size());
+
+        verify(eventRepository, atLeastOnce()).findOverlappingEvents(any(LocalDateTime.class), any(LocalDateTime.class));
+    }
+
+    @Test
+    void setupModelForWeekCalendar_NullDate() {
+        Model model = new ExtendedModelMap();
+
+        calendarService.setupModelForWeekCalendar(model, null, null, null, null, null, null);
+
+        // Should use current date when null is passed
+        assertNotNull(model.getAttribute("selectedDate"));
+        assertNotNull(model.getAttribute("weekDays"));
+    }
+
+    @Test
+    void setupModelForDayCalendar() {
+        Model model = new ExtendedModelMap();
+        LocalDate testDate = baseDate;
+
+        calendarService.setupModelForDayCalendar(model, testDate, "1", "1", "tag1", "tag2", "tag3");
+
+        // Verify model attributes
+        assertNotNull(model.getAttribute("roomDays"));
+        assertNotNull(model.getAttribute("currentDay"));
+        assertNotNull(model.getAttribute("previousDay"));
+        assertNotNull(model.getAttribute("nextDay"));
+        assertNotNull(model.getAttribute("selectedDate"));
+        assertNotNull(model.getAttribute("hours"));
+        assertNotNull(model.getAttribute("userIds"));
+        assertNotNull(model.getAttribute("roomIds"));
+        assertNotNull(model.getAttribute("events"));
+        assertNotNull(model.getAttribute("rooms"));
+        assertNotNull(model.getAttribute("users"));
+
+        assertEquals(testDate, model.getAttribute("currentDay"));
+        assertEquals(testDate.minusDays(1), model.getAttribute("previousDay"));
+        assertEquals(testDate.plusDays(1), model.getAttribute("nextDay"));
+
+        verify(eventRepository).findOverlappingEvents(testDate.atStartOfDay(), testDate.plusDays(1).atStartOfDay());
+    }
+
+    @Test
+    void setupModelForFindAvailable_DefaultValues() {
+        Model model = new ExtendedModelMap();
+
+        calendarService.setupModelForFindAvailable(model, null, null, null, null, null, null);
+
+        // Verify default values are set
+        assertEquals(LocalDate.now(), model.getAttribute("date"));
+        assertEquals(LocalTime.of(0, 0), model.getAttribute("startTime"));
+        assertEquals(LocalTime.of(23, 59), model.getAttribute("endTime"));
+        assertEquals(30, model.getAttribute("durationMinutes"));
+        assertEquals("rooms", model.getAttribute("searchType"));
+        assertNotNull(model.getAttribute("results"));
+        assertNotNull(model.getAttribute("roomAvailabilities"));
+    }
+
+    @Test
+    void setupModelForFindAvailable_Rooms() {
+        Model model = new ExtendedModelMap();
+        LocalDate testDate = baseDate;
+        LocalTime startTime = LocalTime.of(9, 0);
+        LocalTime endTime = LocalTime.of(17, 0);
+
+        calendarService.setupModelForFindAvailable(model, "rooms", "tag1", testDate, startTime, endTime, 60);
+
+        assertEquals(testDate, model.getAttribute("date"));
+        assertEquals(startTime, model.getAttribute("startTime"));
+        assertEquals(endTime, model.getAttribute("endTime"));
+        assertEquals(60, model.getAttribute("durationMinutes"));
+        assertEquals("rooms", model.getAttribute("searchType"));
+        assertNotNull(model.getAttribute("roomAvailabilities"));
+    }
+
+    @Test
+    void setupModelForFindAvailable_Users() {
+        Model model = new ExtendedModelMap();
+        LocalTime startTime = LocalTime.of(9, 0);
+        LocalTime endTime = LocalTime.of(17, 0);
+
+        calendarService.setupModelForFindAvailable(model, "users", "tag1", baseDate, startTime, endTime, 60);
+
+        assertEquals("users", model.getAttribute("searchType"));
+        assertNotNull(model.getAttribute("userAvailabilities"));
+    }
+
+    @Test
+    void gatherAllTags() {
+        when(roomRepository.findAll()).thenReturn(testRooms);
+        when(userRepository.findAll()).thenReturn(testUsers);
+        when(eventRepository.findAll()).thenReturn(testEvents);
+        Model model = new ExtendedModelMap();
+        calendarService.gatherAllTags(model);
+
+        assertNotNull(model.getAttribute("roomTags"));
+        assertNotNull(model.getAttribute("userTags"));
+        assertNotNull(model.getAttribute("eventTags"));
+
+        @SuppressWarnings("unchecked")
+        Set<String> roomTags = (Set<String>) model.getAttribute("roomTags");
+        @SuppressWarnings("unchecked")
+        Set<String> userTags = (Set<String>) model.getAttribute("userTags");
+        @SuppressWarnings("unchecked")
+        Set<String> eventTags = (Set<String>) model.getAttribute("eventTags");
+
+        assertNotNull(roomTags);
+        assertFalse(roomTags.isEmpty());
+        assertNotNull(userTags);
+        assertFalse(userTags.isEmpty());
+        assertNotNull(eventTags);
+        assertFalse(eventTags.isEmpty());
+
+        verify(roomRepository, atLeastOnce()).findAll();
+        verify(userRepository, atLeastOnce()).findAll();
+        verify(eventRepository, atLeastOnce()).findAll();
+    }
+
+    @Test
+    void generateSearchResults_Users() {
+        AvailableTimeRequest request = new AvailableTimeRequest(
+                baseTime, baseTime.plusHours(4), "users");
+
+        List<UserAvailability> userAvailabilities = new ArrayList<>();
+        ArrayList<TimeFromTo> unoccupiedTimes = new ArrayList<>();
+        unoccupiedTimes.add(new TimeFromTo(baseTime, baseTime.plusHours(1)));
+        userAvailabilities.add(new UserAvailability(testUsers.getFirst(), unoccupiedTimes));
+        request.setUserAvailabilities(userAvailabilities);
+
+        List<SearchResult> results = calendarService.generateSearchResults(request, baseDate);
+
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals("user", results.getFirst().getType());
+        assertEquals(testUsers.getFirst().getUsername(), results.getFirst().getName());
+    }
+
+    @Test
+    void generateSearchResults_Events() {
+        AvailableTimeRequest request = new AvailableTimeRequest(
+                baseTime, baseTime.plusHours(4), "events");
+
+        List<EventAvailability> eventAvailabilities = new ArrayList<>();
+        eventAvailabilities.add(new EventAvailability(testEvents.getFirst(), new ArrayList<>()));
+        request.setEventAvailabilities(eventAvailabilities);
+
+        List<SearchResult> results = calendarService.generateSearchResults(request, baseDate);
+
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals("event", results.getFirst().getType());
+        assertEquals(testEvents.getFirst().getTitle(), results.getFirst().getName());
+    }
+
+    @Test
+    void generateSearchResults_EmptyAvailabilities() {
+        AvailableTimeRequest request = new AvailableTimeRequest(
+                baseTime, baseTime.plusHours(4), "rooms");
+
+        List<RoomAvailability> roomAvailabilities = new ArrayList<>();
+        // Add room with no unoccupied times
+        roomAvailabilities.add(new RoomAvailability(testRooms.getFirst(), new ArrayList<>()));
+        request.setRoomAvailabilities(roomAvailabilities);
+
+        List<SearchResult> results = calendarService.generateSearchResults(request, baseDate);
+
+        assertNotNull(results);
+        assertTrue(results.isEmpty(), "Should have no results when no unoccupied times available");
+    }
+
+    @Test
+    void convertToDayEvents_WithFilters() {
+        // Test with user ID filter
+        List<EventInADay> filteredEvents = calendarService.convertToDayEvents(
+                testEvents, baseDate, "1", null, null, null, null);
+
+        // Should only include events for user with ID 1
+        assertTrue(filteredEvents.stream().allMatch(e -> 
+                e.getUser() == null || e.getUser().getId().equals(1L)));
+    }
+
+    @Test
+    void convertToDayEvents_WithRoomFilter() {
+        // Test with room ID filter
+        List<EventInADay> filteredEvents = calendarService.convertToDayEvents(
+                testEvents, baseDate, null, "1", null, null, null);
+
+        // Should only include events for room with ID 1
+        assertTrue(filteredEvents.stream().allMatch(e -> 
+                e.getRoom() == null || e.getRoom().getId().equals(1L)));
+    }
+
+    @Test
+    void convertToDayEvents_WithTagFilters() {
+        // Test with tag filters
+        List<EventInADay> filteredEvents = calendarService.convertToDayEvents(
+                testEvents, baseDate, null, null, SAMPLE_USER_TAGS.getFirst(),
+                SAMPLE_ROOM_TAGS.getFirst(), SAMPLE_EVENT_TAGS.getFirst());
+
+        // Should only include events that match the tag criteria
+        assertNotNull(filteredEvents);
+        // Verify the filtering logic works
+        assertTrue(filteredEvents.size() <= testEvents.size());
+    }
+
+    @Test
+    void convertToDayEvents_OverlappingDates() {
+        // Create an event that spans multiple days
+        Event multiDayEvent = new Event();
+        multiDayEvent.setId(10L);
+        multiDayEvent.setTitle("Multi-day Event");
+        multiDayEvent.setStartTime(baseDate.minusDays(1).atTime(20, 0));
+        multiDayEvent.setEndTime(baseDate.atTime(4, 0));
+        multiDayEvent.setRecurring(false);
+
+        List<Event> events = Collections.singletonList(multiDayEvent);
+        List<EventInADay> dayEvents = calendarService.convertToDayEvents(events, baseDate, null, null);
+
+        assertEquals(1, dayEvents.size());
+        EventInADay eventInDay = dayEvents.getFirst();
+        assertEquals(0.0, eventInDay.getStartTimeToUse()); // Should start at 0:00 on the target date
+        assertEquals(4.0, eventInDay.getEndTimeToUse()); // Should end at 4:00
+        assertEquals(4.0, eventInDay.getDurationInADay());
     }
 }

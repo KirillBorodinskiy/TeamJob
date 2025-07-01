@@ -14,13 +14,13 @@ public interface ICalendarService {
 
     void gatherAllTags(Model model);
 
-    List<EventInADay> convertToDayEvents(List<Event> allEvents, LocalDate currentDate, String userIds, String roomIds);
+    List<EventInADay> convertToDayEvents(List<Event> allEvents, LocalDate currentDate, String userIds, String roomIds, String roomTags, String eventTags, String userTags);
 
     List<SearchResult> generateSearchResults(AvailableTimeRequest request, LocalDate date);
 
-    void setupModelForWeekCalendar(Model model, LocalDate date, String userIds, String roomIds);
+    void setupModelForWeekCalendar(Model model, LocalDate date, String userIds, String roomIds, String roomTags, String eventTags, String userTags);
 
-    void setupModelForDayCalendar(Model model, LocalDate date, String userIds, String roomIds);
+    void setupModelForDayCalendar(Model model, LocalDate date, String userIds, String roomIds, String roomTags, String eventTags, String userTags);
 
     void setupModelForFindAvailable(Model model, String searchType, String tags, LocalDate date, LocalTime startTime, LocalTime endTime, Integer durationMinutes);
 }

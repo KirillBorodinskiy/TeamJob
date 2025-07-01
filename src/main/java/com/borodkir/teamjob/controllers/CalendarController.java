@@ -26,9 +26,12 @@ public class CalendarController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @RequestParam(required = false) String userIds,
             @RequestParam(required = false) String roomIds,
+            @RequestParam(required = false) String roomTags,
+            @RequestParam(required = false) String eventTags,
+            @RequestParam(required = false) String userTags,
             Model model
     ) {
-        calendarService.setupModelForWeekCalendar(model, date, userIds, roomIds);
+        calendarService.setupModelForWeekCalendar(model, date, userIds, roomIds, roomTags, eventTags, userTags);
 
         return "calendar";
     }
@@ -38,9 +41,12 @@ public class CalendarController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @RequestParam(required = false) String userIds,
             @RequestParam(required = false) String roomIds,
+            @RequestParam(required = false) String roomTags,
+            @RequestParam(required = false) String eventTags,
+            @RequestParam(required = false) String userTags,
             Model model
     ) {
-        calendarService.setupModelForDayCalendar(model, date, userIds, roomIds);
+        calendarService.setupModelForDayCalendar(model, date, userIds, roomIds, roomTags, eventTags, userTags);
 
         return "calendar-day";
     }
