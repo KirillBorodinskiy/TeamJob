@@ -10,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.ui.ExtendedModelMap;
 
@@ -35,6 +37,8 @@ public class CalendarServiceImplTest {
 
     @InjectMocks
     private CalendarServiceImpl calendarService;
+    private static final Logger logger = LoggerFactory.getLogger(CalendarServiceImplTest.class);
+
 
     private static final List<String> SAMPLE_ROOM_TAGS = Arrays.asList(
             "rooms_Meeting Room", "rooms_Conference Room", "rooms_Projector");
@@ -76,8 +80,8 @@ public class CalendarServiceImplTest {
     // Helper methods to create test data
     public static List<User> createTestUsers() {
         List<User> users = new ArrayList<>();
-        String[] usernames = { "john.doe", "jane.smith", "bob.wilson" };
-        String[] emails = { "john@test.com", "jane@test.com", "bob@test.com" };
+        String[] usernames = {"john.doe", "jane.smith", "bob.wilson"};
+        String[] emails = {"john@test.com", "jane@test.com", "bob@test.com"};
 
         for (int i = 0; i < usernames.length; i++) {
             User user = new User();
@@ -95,7 +99,7 @@ public class CalendarServiceImplTest {
 
     public static List<Room> createTestRooms() {
         List<Room> rooms = new ArrayList<>();
-        String[] roomNames = { "Main Conference Room", "Training Lab", "Meeting Room A" };
+        String[] roomNames = {"Main Conference Room", "Training Lab", "Meeting Room A"};
         String[] descriptions = {
                 "Large conference room with projector",
                 "Computer lab for training sessions",
@@ -117,8 +121,8 @@ public class CalendarServiceImplTest {
 
     public static List<Event> createTestEvents(List<User> users, List<Room> rooms) {
         List<Event> events = new ArrayList<>();
-        String[] eventTitles = { "Team Meeting", "Training Session", "Project Review", "Weekly Standup",
-                "Monthly Planning" };
+        String[] eventTitles = {"Team Meeting", "Training Session", "Project Review", "Weekly Standup",
+                "Monthly Planning"};
         String[] eventDescriptions = {
                 "Weekly team sync meeting",
                 "New employee orientation",
@@ -203,9 +207,8 @@ public class CalendarServiceImplTest {
         List<EventInADay> dayEvents = calendarService.convertToDayEvents(testEvents, baseDate, null, null);
 
         // Debug output
-        System.out.println("Events on " + baseDate + ":");
-        dayEvents.forEach(e -> System.out
-                .println(e.getTitle() + " (" + e.getStartTimeToUse() + ", " + e.getEndTimeToUse() + ")"));
+        logger.info("\n Events on {}",baseDate);
+        dayEvents.forEach(e -> logger.info("{} ({}, {})", e.getTitle(), e.getStartTimeToUse(), e.getEndTimeToUse()));
 
         // Verify all events are present
         assertEquals(5, dayEvents.size(), "Should have 5 events (3 regular + 2 recurring)");
@@ -247,9 +250,8 @@ public class CalendarServiceImplTest {
                 null, null);
 
         // Debug output
-        System.out.println("Events on (excluded) " + baseDate + ":");
-        dayEvents.forEach(e -> System.out
-                .println(e.getTitle() + " (" + e.getStartTimeToUse() + ", " + e.getEndTimeToUse() + ")"));
+        logger.info("\n Events on (excluded) {}",baseDate);
+        dayEvents.forEach(e -> logger.info("{} ({}, {})", e.getTitle(), e.getStartTimeToUse(), e.getEndTimeToUse()));
 
         // Verify the event is not included
         assertTrue(dayEvents.isEmpty(), "Event should be excluded due to exception date");
@@ -282,8 +284,7 @@ public class CalendarServiceImplTest {
 
         // Should appear on Monday, Wednesday, and Friday
         assertFalse(calendarService.convertToDayEvents(Collections.singletonList(event), monday, null, null).isEmpty());
-        assertFalse(
-                calendarService.convertToDayEvents(Collections.singletonList(event), wednesday, null, null).isEmpty());
+        assertFalse(calendarService.convertToDayEvents(Collections.singletonList(event), wednesday, null, null).isEmpty());
         assertFalse(calendarService.convertToDayEvents(Collections.singletonList(event), friday, null, null).isEmpty());
 
         // Should not appear on Tuesday
@@ -620,7 +621,7 @@ public class CalendarServiceImplTest {
                 testEvents, baseDate, "1", null, null, null, null);
 
         // Should only include events for user with ID 1
-        assertTrue(filteredEvents.stream().allMatch(e -> 
+        assertTrue(filteredEvents.stream().allMatch(e ->
                 e.getUser() == null || e.getUser().getId().equals(1L)));
     }
 
@@ -631,7 +632,7 @@ public class CalendarServiceImplTest {
                 testEvents, baseDate, null, "1", null, null, null);
 
         // Should only include events for room with ID 1
-        assertTrue(filteredEvents.stream().allMatch(e -> 
+        assertTrue(filteredEvents.stream().allMatch(e ->
                 e.getRoom() == null || e.getRoom().getId().equals(1L)));
     }
 

@@ -6,6 +6,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,8 @@ import java.util.List;
 
 @Component
 public class TokenFilter extends OncePerRequestFilter {
+    private static final Logger logger = LoggerFactory.getLogger(TokenFilter.class);
+
     private final JwtCore jwtCore;
     private final UserDetailsService userDetailsService;
     private final List<String> PUBLIC_PATHS = Arrays.asList("/actuator/health", "/login", "/auth/", "/css/", "/js/", "/images/", "/signup", "/signin", "/signout", "/error");
@@ -40,31 +44,31 @@ public class TokenFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        System.out.println("\nTokenFilter: doFilterInternal() called" +
-                "\nRequest path: " + path +
-                "\nRequest method: " + request.getMethod() +
-                "\nRequest headers: " + request.getHeaderNames() +
-                "\nRequest cookies: " + Arrays.toString(request.getCookies()));
+        logger.debug("TokenFilter: doFilterInternal() called for path: {}", path);
+        logger.debug("Request method: {}", request.getMethod());
+        logger.debug("Request headers: {}", request.getHeaderNames());
+        logger.debug("Request cookies: {}",  Arrays.toString(request.getCookies()));
+
         try {
             String jwt = extractTokenFromHeader(request);
             if (jwt == null) {
                 jwt = extractTokenFromCookies(request);
             }
-            System.out.println("Extracted JWT: " + jwt);
+            logger.debug("Extracted JWT: {}", jwt);
 
             if (jwt != null && processToken(jwt)) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            System.out.println("JWT token is null or authentication failed");
+            logger.debug("JWT token is null or authentication failed");
 
             // Handle missing token
             handleAuthenticationFailure(request, response, "Missing JWT token");
 
         } catch (JwtException e) {
             // Handle invalid token
-            System.out.println("Invalid JWT token: " + e.getMessage());
+            logger.debug("Invalid JWT token: {}", e.getMessage());
             handleAuthenticationFailure(request, response, "Invalid JWT token: " + e.getMessage());
         }
     }
@@ -86,10 +90,10 @@ public class TokenFilter extends OncePerRequestFilter {
                     userDetails.getAuthorities()
             );
             SecurityContextHolder.getContext().setAuthentication(auth);
-            System.out.println("Authentication successful for user: " + username);
+            logger.debug("Authentication successful for user: {}", username);
             return true;
         }
-        System.out.println("Authentication failed for user: " + username);
+        logger.debug("Authentication failed for user: {}", username);
         return false;
     }
 
