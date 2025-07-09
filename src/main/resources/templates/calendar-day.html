@@ -45,15 +45,30 @@
         </div>
 
         <div id="sidepanel-filter">
+            <span>
+                Filter events by:
+            </span>
+            <div id="filter-toggle">
+                <button class="sidepanel-button gold-border" id="filter-button-left" onclick="toggleFilter('entities')">
+                    Entities
+                </button>
+
+                <button class="sidepanel-button" id="filter-button-right" onclick="toggleFilter('tags')">
+                    Tags
+                </button>
+            </div>
+
+
             <form id="filterEntityForm">
+
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <input type="hidden" th:name="date" th:value="${selectedDate}"/>
 
                 <div class="form-group">
-                    <label for="userSearchInput">Show user</label>
+                    <label for="userSearchInput">By user</label>
                     <div class="multi-select">
                         <div class="selected-container" id="userSelectedContainer"></div>
-                        <input type="text" id="userSearchInput" placeholder="All by default" autocomplete="off">
+                        <input type="text" id="userSearchInput" placeholder="Choose users" autocomplete="off">
                         <div class="select-items select-hide" id="userSelectItems">
                             <div th:each="user : ${users}" th:data-value="${user.id}" th:data-name="${user.username}"
                                  th:text="${user.username}"></div>
@@ -63,11 +78,11 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="roomSearchInput">Show rooms</label>
+                    <label for="roomSearchInput">By room</label>
                     <div class="multi-select">
                         <div class="selected-container" id="roomSelectedContainer">
                         </div>
-                        <input type="text" id="roomSearchInput" placeholder="All by default" autocomplete="off">
+                        <input type="text" id="roomSearchInput" placeholder="Choose rooms" autocomplete="off">
                         <div class="select-items select-hide" id="roomSelectItems">
                             <div th:each="room : ${rooms}" th:data-value="${room.id}" th:data-name="${room.name}"
                                  th:text="${room.name}"></div>
@@ -75,9 +90,59 @@
                         <input type="hidden" id="filterRoom" name="roomIds" value="">
                     </div>
                 </div>
+                <button type="submit" form="filterEntityForm" class="filterButton">Filter</button>
+
             </form>
 
-            <button type="submit" form="filterEntityForm" class="filterButton">Filter</button>
+
+            <form id="filterTagsForm" class="hidden">
+
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" th:name="date" th:value="${selectedDate}"/>
+
+                <div class="form-group">
+                    <label for="userTagsSelectedContainer">By user tags</label>
+                    <div class="multi-select">
+                        <div class="selected-container" id="userTagsSelectedContainer"></div>
+                        <input type="text" id="userTagsSearchInput" placeholder="Choose users tags" autocomplete="off">
+                        <div class="select-items select-hide" id="userTagsSelectItems">
+                            <div th:each="userTag : ${userTags}" th:data-value="${userTag}" th:data-name="${userTag}"
+                                 th:text="${userTag}"></div>
+                        </div>
+                        <input type="hidden" id="filterTagsUser" name="userTags" value="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="eventTagsSelectedContainer">By event tags</label>
+                    <div class="multi-select">
+                        <div class="selected-container" id="eventTagsSelectedContainer"></div>
+                        <input type="text" id="eventTagsSearchInput" placeholder="Choose event tags" autocomplete="off">
+                        <div class="select-items select-hide" id="eventTagsSelectItems">
+                            <div th:each="eventTag : ${eventTags}" th:data-value="${eventTag}"
+                                 th:data-name="${eventTag}"
+                                 th:text="${eventTag}"></div>
+                        </div>
+                        <input type="hidden" id="filterTagsEvent" name="eventTags" value="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="roomTagsSearchInput">By room tags</label>
+                    <div class="multi-select">
+                        <div class="selected-container" id="roomTagsSelectedContainer">
+                        </div>
+                        <input type="text" id="roomTagsSearchInput" placeholder="Choose rooms tags" autocomplete="off">
+                        <div class="select-items select-hide" id="roomTagsSelectItems">
+                            <div th:each="roomTag : ${roomTags}" th:data-value="${roomTag}" th:data-name="${roomTag}"
+                                 th:text="${roomTag}"></div>
+                        </div>
+                        <input type="hidden" id="filterTagsRoom" name="roomTags" value="">
+                    </div>
+                </div>
+                <button type="submit" form="filterTagsForm" class="filterButton">Filter</button>
+
+            </form>
+
+
             <a href="/config/rooms" class="nav-link">Modify rooms</a>
             <a href="/config/events" class="nav-link">Modify events</a>
         </div>
@@ -387,10 +452,10 @@
             userId: document.getElementById('userSelect').value,
             recurring: document.getElementById('is_recurring').checked,
             rrule: document.getElementById('is_recurring').checked ? document.getElementById('rrule').value : null,
-            recurrenceEndDate: document.getElementById('is_recurring').checked && document.getElementById('recurrenceEndDate').value ? 
+            recurrenceEndDate: document.getElementById('is_recurring').checked && document.getElementById('recurrenceEndDate').value ?
                 document.getElementById('recurrenceEndDate').value + 'T00:00:00' : null,
             interval: document.getElementById('is_recurring').checked ? document.getElementById('interval').value : null,
-            weekdays: document.getElementById('is_recurring').checked && document.getElementById('rrule').value === 'FREQ=WEEKLY' ? 
+            weekdays: document.getElementById('is_recurring').checked && document.getElementById('rrule').value === 'FREQ=WEEKLY' ?
                 Array.from(document.querySelectorAll('input[name="weekday"]:checked')).map(checkbox => checkbox.value) : null,
             startTime: startDateTime,
             endTime: endDateTime
@@ -431,6 +496,9 @@
     const urlParams = new URLSearchParams(window.location.search);
     const preselectedUserIds = urlParams.get('userIds') ? urlParams.get('userIds').split(',') : [];
     const preselectedRoomIds = urlParams.get('roomIds') ? urlParams.get('roomIds').split(',') : [];
+    const preselectedRoomTags = urlParams.get('roomTags') ? urlParams.get('roomTags').split(',') : [];
+    const preselectedUserTags = urlParams.get('userTags') ? urlParams.get('userTags').split(',') : [];
+    const preselectedEventTags = urlParams.get('eventTags') ? urlParams.get('eventTags').split(',') : [];
     document.addEventListener('DOMContentLoaded', function () {
         setupMultiSelectDropdown(
             'userSearchInput',
@@ -446,6 +514,28 @@
             'filterRoom',
             'roomSelectedContainer',
             preselectedRoomIds
+        );
+
+        setupMultiSelectDropdown(
+            'userTagsSearchInput',
+            'userTagsSelectItems',
+            'filterTagsUser',
+            'userTagsSelectedContainer',
+            preselectedUserTags
+        );
+        setupMultiSelectDropdown(
+            'eventTagsSearchInput',
+            'eventTagsSelectItems',
+            'filterTagsEvent',
+            'eventTagsSelectedContainer',
+            preselectedEventTags
+        );
+        setupMultiSelectDropdown(
+            'roomTagsSearchInput',
+            'roomTagsSelectItems',
+            'filterTagsRoom',
+            'roomTagsSelectedContainer',
+            preselectedRoomTags
         );
         const hourSlots = document.querySelectorAll('.hour-slot');
         hourSlots.forEach(function (slot) {
@@ -524,6 +614,41 @@
             sidepanelButtonLeft.classList.remove('gold-border');
         } else {
             console.error("Invalid value for toggleSidepanel");
+        }
+
+    }
+
+    function toggleFilter(value) {
+        const filterEntity = document.getElementById('filterEntityForm');
+        const filterTags = document.getElementById('filterTagsForm');
+
+        const filterEntityForm = document.getElementById('filterEntityForm');
+        const filterTagsForm = document.getElementById('filterTagsForm');
+
+        const filterButton = document.getElementById('filter-button-left');
+        const TagsButton = document.getElementById('filter-button-right');
+
+        if (value === 'entities') {
+            filterEntity.classList.remove('hidden');
+            filterTags.classList.add('hidden');
+
+            filterEntityForm.classList.remove('hidden');
+            filterTagsForm.classList.add('hidden');
+
+
+            filterButton.classList.add('gold-border');
+            TagsButton.classList.remove('gold-border');
+        } else if (value === 'tags') {
+            filterTags.classList.remove('hidden');
+            filterEntity.classList.add('hidden');
+
+            filterTagsForm.classList.remove('hidden');
+            filterEntityForm.classList.add('hidden');
+
+            TagsButton.classList.add('gold-border');
+            filterButton.classList.remove('gold-border');
+        } else {
+            console.error("Invalid value for toggleFilter");
         }
 
     }
