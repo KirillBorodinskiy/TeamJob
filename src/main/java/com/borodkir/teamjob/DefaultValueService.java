@@ -22,9 +22,12 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 import static java.util.Collections.singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class DefaultValueService {
+    private static final Logger logger = LoggerFactory.getLogger(DefaultValueService.class);
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private RoomRepository roomRepository;
@@ -81,6 +84,7 @@ public class DefaultValueService {
     @Transactional
     public void insert() {
         try {
+            logger.info("Starting default data insertion...");
             // Create Roles
             createRoleIfNotExists(DefaultValueService.ROLE_CONFIG);
             createRoleIfNotExists(DefaultValueService.ROLE_ADMIN);
@@ -116,15 +120,14 @@ public class DefaultValueService {
 
             userRepository.flush();
 
-            // Generate Fake Data
-            System.out.println("Generating fake data for testing...");
+            logger.info("Generating fake data for testing...");
             generateFakeUsers(10); // Will get user tags assigned within
             generateFakeRooms(5); // Will get room tags assigned within
             generateFakeEvents(2); // Will get event tags assigned within
-            System.out.println("Fake data generation completed.");
+            logger.info("Fake data generation completed.");
 
         } catch (Exception e) {
-            System.err.println("Error inserting default data: " + e.getMessage());
+            logger.error("Error inserting default data: {}", e.getMessage(), e);
         }
     }
 
@@ -133,9 +136,9 @@ public class DefaultValueService {
             Role role = new Role();
             role.setName(roleName);
             roleRepository.save(role);
-            System.out.println("Role " + roleName + " created");
+            logger.info("Role '{}' created", roleName);
         } else {
-            System.out.println("Role " + roleName + " already exists");
+            logger.debug("Role '{}' already exists", roleName);
         }
     }
 
@@ -147,9 +150,9 @@ public class DefaultValueService {
 
         if (!roomRepository.existsByName(room.getName())) {
             roomRepository.save(room);
-            System.out.println("Room " + room.getName() + " created with tags: " + room.getTags());
+            logger.info("Room '{}' created with tags: {}", room.getName(), room.getTags());
         } else {
-            System.out.println("Room " + room.getName() + " already exists");
+            logger.debug("Room '{}' already exists", room.getName());
         }
     }
 
@@ -167,9 +170,9 @@ public class DefaultValueService {
 
         if (!userRepository.existsByUsername(user.getUsername())) {
             userRepository.save(user);
-            System.out.println("User " + user.getUsername() + " created with tags: " + user.getTags());
+            logger.info("User '{}' created with tags: {}", user.getUsername(), user.getTags());
         } else {
-            System.out.println("User " + user.getUsername() + " already exists");
+            logger.debug("User '{}' already exists", user.getUsername());
         }
     }
 
@@ -179,6 +182,7 @@ public class DefaultValueService {
      * @param count The number of fake users to generate
      */
     private void generateFakeUsers(int count) {
+        logger.debug("Generating {} fake users...", count);
         String[] firstNames = {"John", "Jane", "Michael", "Emily", "David", "Sarah", "Robert", "Lisa", "William", "Jessica"};
         String[] lastNames = {"Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor"};
         Random random = new Random();
@@ -194,6 +198,7 @@ public class DefaultValueService {
             user.setEmail(username + "@example.com");
             createUser(user);
         }
+        logger.debug("Fake users generation complete.");
     }
 
     /**
@@ -202,6 +207,7 @@ public class DefaultValueService {
      * @param count The number of fake rooms to generate
      */
     private void generateFakeRooms(int count) {
+        logger.debug("Generating {} fake rooms...", count);
         String[] roomBaseNames = {"Conference Room", "Meeting Room", "Auditorium", "Training Room", "Board Room",
                 "Classroom", "Lecture Hall", "Workshop", "Studio", "Lab", "Gym", "Office", "Lounge"};
         Random random = new Random();
@@ -214,6 +220,7 @@ public class DefaultValueService {
             room.setDescription("Description for " + name);
             createRoom(room);
         }
+        logger.debug("Fake rooms generation complete.");
     }
 
     /**
@@ -222,11 +229,12 @@ public class DefaultValueService {
      * @param eventsPerDay The number of events to generate per day
      */
     private void generateFakeEvents(int eventsPerDay) {
+        logger.debug("Generating fake events, {} per day...", eventsPerDay);
         List<User> users = userRepository.findAll();
         List<Room> rooms = roomRepository.findAll();
 
         if (users.isEmpty() || rooms.isEmpty()) {
-            System.out.println("Cannot generate events: no users or rooms available");
+            logger.warn("Cannot generate events: no users or rooms available");
             return;
         }
 
@@ -277,12 +285,12 @@ public class DefaultValueService {
                             event.getEndTime(),
                             Optional.of(event.getRoom()))) {
                         eventRepository.save(event);
-                        System.out.println("Event created: " + event.getTitle() +
-                                " on " + currentDate + " with tags: " + event.getTags());
+                        logger.info("Event created: {} on {} with tags: {}", event.getTitle(), currentDate, event.getTags());
                     }
                 }
             }
         }
+        logger.debug("Fake events generation complete.");
     }
 
     /**

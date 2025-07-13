@@ -438,7 +438,7 @@ fieldset {
     flex-wrap: wrap;
     padding: 2px;
     min-height: 24px;
-    /*width:25vw;*/
+    max-width:20vw;
 
 }
 .results-list, .room-availabilities {

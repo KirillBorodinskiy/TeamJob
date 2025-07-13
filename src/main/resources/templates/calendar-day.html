@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
 </head>
+
 <body id="noscroll">
 <div class="navigation">
     <a th:href="@{/calendar/(date=${currentDay},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">Home</a>
@@ -20,9 +22,8 @@
 
     <h2>
         Events for
-        <span th:text="${#temporals.format(selectedDate, 'MMMM d, yyyy')}"
-              style="color: var(--color-gold)">
-        </span>
+        <span th:text="${#temporals.format(selectedDate, 'MMMM d, yyyy')}" style="color: var(--color-gold)">
+            </span>
     </h2>
 
     <a th:href="@{/calendar/day(date=${nextDay},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">
@@ -35,7 +36,8 @@
 
     <div id="sidepanel">
         <div id="sidepanel-toggle">
-            <button class="sidepanel-button gold-border" id="sidepanel-button-left" onclick="toggleSidepanel('filter')">
+            <button class="sidepanel-button gold-border" id="sidepanel-button-left"
+                    onclick="toggleSidepanel('filter')">
                 Filter
             </button>
 
@@ -45,11 +47,12 @@
         </div>
 
         <div id="sidepanel-filter">
-            <span>
-                Filter events by:
-            </span>
+                <span>
+                    Filter events by:
+                </span>
             <div id="filter-toggle">
-                <button class="sidepanel-button gold-border" id="filter-button-left" onclick="toggleFilter('entities')">
+                <button class="sidepanel-button gold-border" id="filter-button-left"
+                        onclick="toggleFilter('entities')">
                     Entities
                 </button>
 
@@ -70,8 +73,8 @@
                         <div class="selected-container" id="userSelectedContainer"></div>
                         <input type="text" id="userSearchInput" placeholder="Choose users" autocomplete="off">
                         <div class="select-items select-hide" id="userSelectItems">
-                            <div th:each="user : ${users}" th:data-value="${user.id}" th:data-name="${user.username}"
-                                 th:text="${user.username}"></div>
+                            <div th:each="user : ${users}" th:data-value="${user.id}"
+                                 th:data-name="${user.username}" th:text="${user.username}"></div>
                         </div>
                         <input type="hidden" id="filterUser" name="userIds" value="">
                     </div>
@@ -101,26 +104,27 @@
                 <input type="hidden" th:name="date" th:value="${selectedDate}"/>
 
                 <div class="form-group">
-                    <label for="userTagsSelectedContainer">By user tags</label>
+                    <label for="userTagsSearchInput">By user tags</label>
                     <div class="multi-select">
                         <div class="selected-container" id="userTagsSelectedContainer"></div>
-                        <input type="text" id="userTagsSearchInput" placeholder="Choose users tags" autocomplete="off">
+                        <input type="text" id="userTagsSearchInput" placeholder="Choose users tags"
+                               autocomplete="off">
                         <div class="select-items select-hide" id="userTagsSelectItems">
-                            <div th:each="userTag : ${userTags}" th:data-value="${userTag}" th:data-name="${userTag}"
-                                 th:text="${userTag}"></div>
+                            <div th:each="userTag : ${userTags}" th:data-value="${userTag}"
+                                 th:data-name="${userTag}" th:text="${userTag}"></div>
                         </div>
                         <input type="hidden" id="filterTagsUser" name="userTags" value="">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="eventTagsSelectedContainer">By event tags</label>
+                    <label for="eventTagsSearchInput">By event tags</label>
                     <div class="multi-select">
                         <div class="selected-container" id="eventTagsSelectedContainer"></div>
-                        <input type="text" id="eventTagsSearchInput" placeholder="Choose event tags" autocomplete="off">
+                        <input type="text" id="eventTagsSearchInput" placeholder="Choose event tags"
+                               autocomplete="off">
                         <div class="select-items select-hide" id="eventTagsSelectItems">
                             <div th:each="eventTag : ${eventTags}" th:data-value="${eventTag}"
-                                 th:data-name="${eventTag}"
-                                 th:text="${eventTag}"></div>
+                                 th:data-name="${eventTag}" th:text="${eventTag}"></div>
                         </div>
                         <input type="hidden" id="filterTagsEvent" name="eventTags" value="">
                     </div>
@@ -130,10 +134,11 @@
                     <div class="multi-select">
                         <div class="selected-container" id="roomTagsSelectedContainer">
                         </div>
-                        <input type="text" id="roomTagsSearchInput" placeholder="Choose rooms tags" autocomplete="off">
+                        <input type="text" id="roomTagsSearchInput" placeholder="Choose rooms tags"
+                               autocomplete="off">
                         <div class="select-items select-hide" id="roomTagsSelectItems">
-                            <div th:each="roomTag : ${roomTags}" th:data-value="${roomTag}" th:data-name="${roomTag}"
-                                 th:text="${roomTag}"></div>
+                            <div th:each="roomTag : ${roomTags}" th:data-value="${roomTag}"
+                                 th:data-name="${roomTag}" th:text="${roomTag}"></div>
                         </div>
                         <input type="hidden" id="filterTagsRoom" name="roomTags" value="">
                     </div>
@@ -165,8 +170,7 @@
                     <label for="userSelect">User</label>
                     <select id="userSelect" name="userId" required>
                         <option value="">Select a user</option>
-                        <option th:each="user : ${users}" th:value="${user.id}"
-                                th:text="${user.username}"></option>
+                        <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}"></option>
                     </select>
                 </fieldset>
 
@@ -176,6 +180,20 @@
                         <option value="">Select a room</option>
                         <option th:each="room : ${rooms}" th:value="${room.id}" th:text="${room.name}"></option>
                     </select>
+                </fieldset>
+
+                <fieldset>
+                    <div class="form-group">
+                    <label for="eventTagsInput">Tags</label>
+                    <div class="multi-select">
+                        <div class="selected-container" id="eventTagsContainer"></div>
+                        <input type="text" id="eventTagsInput" placeholder="Choose event tags" autocomplete="off">
+                        <div class="select-items select-hide" id="eventTagsItems">
+                            <div th:each="eventTag : ${eventTags}" th:data-value="${eventTag}"
+                                 th:data-name="${eventTag}" th:text="${eventTag}"></div>
+                        </div>
+                    </div>
+                </div>
                 </fieldset>
 
                 <fieldset class="form-group ">
@@ -221,25 +239,32 @@
                             <label>Repeat on:</label>
                             <div class="weekday-options">
                                 <label for="MOinput">Monday</label>
-                                <input id="MOinput" type="checkbox" name="weekday" value="MO" onchange="updateRRule()">
+                                <input id="MOinput" type="checkbox" name="weekday" value="MO"
+                                       onchange="updateRRule()">
 
                                 <label for="TUinput">Tuesday</label>
-                                <input id="TUinput" type="checkbox" name="weekday" value="TU" onchange="updateRRule()">
+                                <input id="TUinput" type="checkbox" name="weekday" value="TU"
+                                       onchange="updateRRule()">
 
                                 <label for="WEinput">Wednesday</label>
-                                <input id="WEinput" type="checkbox" name="weekday" value="WE" onchange="updateRRule()">
+                                <input id="WEinput" type="checkbox" name="weekday" value="WE"
+                                       onchange="updateRRule()">
 
                                 <label for="THinput">Thursday</label>
-                                <input id="THinput" type="checkbox" name="weekday" value="TH" onchange="updateRRule()">
+                                <input id="THinput" type="checkbox" name="weekday" value="TH"
+                                       onchange="updateRRule()">
 
                                 <label for="FRinput">Friday</label>
-                                <input id="FRinput" type="checkbox" name="weekday" value="FR" onchange="updateRRule()">
+                                <input id="FRinput" type="checkbox" name="weekday" value="FR"
+                                       onchange="updateRRule()">
 
                                 <label for="SAinput">Saturday</label>
-                                <input id="SAinput" type="checkbox" name="weekday" value="SA" onchange="updateRRule()">
+                                <input id="SAinput" type="checkbox" name="weekday" value="SA"
+                                       onchange="updateRRule()">
 
                                 <label for="SUinput">Sunday</label>
-                                <input id="SUinput" type="checkbox" name="weekday" value="SU" onchange="updateRRule()">
+                                <input id="SUinput" type="checkbox" name="weekday" value="SU"
+                                       onchange="updateRRule()">
                             </div>
                         </div>
                     </div>
@@ -255,8 +280,8 @@
                     <input type="time" id="endTime" name="endTime" placeholder="Time" required>
                 </fieldset>
 
-                <div class="error-message" id="date-time-error"
-                     style="display: none; color: red; margin-top: 5px;"></div>
+                <div class="error-message" id="date-time-error" style="display: none; color: red; margin-top: 5px;">
+                </div>
                 <button type="submit" class="filterButton">Save Event</button>
             </form>
         </div>
@@ -278,8 +303,7 @@
 
             <div class="day-grid">
 
-                <div th:each="roomDay : ${roomDays}"
-                     th:class="'room-column'">
+                <div th:each="roomDay : ${roomDays}" th:class="'room-column'">
                     <div class="room-header">
                         <span class="room-name" th:text="${roomDay.room.name}"></span>
                     </div>
@@ -287,17 +311,16 @@
                         <div th:each="hour : ${hours}" class="hour-slot" th:data-hour="${hour}"
                              th:data-room="${roomDay.room.id}" th:data-day="${selectedDate}">
                         </div>
-                        <div th:each="event : ${roomDay.getEvents()}"
-                             th:class="'event'"
-                             th:draggable="true"
+                        <div th:each="event : ${roomDay.getEvents()}" th:class="'event'" th:draggable="true"
                              th:style="'height: calc(' + ${event.getDurationInADay()} + '* var(--hour-height));top: calc(' + ${event.getStartTimeToUse()} + ' * var(--hour-height) + 0px);'">
                             <a class="event-title" th:href="@{/event/{id}(id=${event.id})}"
                                th:text="${event.title}"></a>
                             <div class="event-time"
-                                 th:text="${#temporals.format(event.startTime, 'HH:mm') + ' - ' + #temporals.format(event.endTime, 'HH:mm')}"></div>
+                                 th:text="${#temporals.format(event.startTime, 'HH:mm') + ' - ' + #temporals.format(event.endTime, 'HH:mm')}">
+                            </div>
                             <div class="event-details">
-                                <span class="event-user" th:if="${event.user != null}"
-                                      th:text="${'User: ' + event.user.username}"></span>
+                                    <span class="event-user" th:if="${event.user != null}"
+                                          th:text="${'User: ' + event.user.username}"></span>
 
                                 <span class="event-desc" th:if="${event.description}"
                                       th:text="${#strings.abbreviate(event.description, 50)}"></span>
@@ -537,6 +560,14 @@
             'roomTagsSelectedContainer',
             preselectedRoomTags
         );
+
+
+        setupMultiSelectDropdown(
+            'eventTagsInput',
+            'eventTagsItems',
+            'filterTagsEvent',
+            'eventTagsContainer'
+        );
         const hourSlots = document.querySelectorAll('.hour-slot');
         hourSlots.forEach(function (slot) {
             slot.addEventListener('click', function () {
@@ -578,9 +609,15 @@
 
         document.getElementById('startTime').value = `${formattedHour}:00`;
 
-        // Set end time to one hour later
-        const endHour = (hourInt + 1) % 24;
-        document.getElementById('endTime').value = `${endHour.toString().padStart(2, '0')}:00`;
+        // Set end time to 59 minutes later
+        let endHour = hourInt;
+        let endMinute = 59;
+        // If hour is 23, keep at 23:59
+        if (hourInt === 23) {
+            endHour = 23;
+            endMinute = 59;
+        }
+        document.getElementById('endTime').value = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
 
         // Set the room
         if (roomId) {
@@ -768,4 +805,5 @@
         }
     }
 </script>
+
 </html>
