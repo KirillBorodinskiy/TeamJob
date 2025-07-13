@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.Optional;
 
 import static java.util.Collections.singleton;
 import org.slf4j.Logger;
@@ -258,39 +259,55 @@ public class DefaultValueService {
                 .minusWeeks(1)
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
+        int eventsCreated = 0;
         for (int week = 0; week < 3; week++) {
             LocalDate weekStart = previousWeekStart.plusWeeks(week);
             for (int day = 0; day < 7; day++) {
                 LocalDate currentDate = weekStart.plusDays(day);
                 for (int i = 0; i < eventsPerDay; i++) {
-                    // ... (time calculation logic remains the same) ...
-                    int startHour = 8 + random.nextInt(9);
-                    int startMinute = random.nextInt(4) * 15;
-                    LocalTime startTime = LocalTime.of(startHour, startMinute);
-                    int durationMinutes = (random.nextInt(4) + 1) * 30;
-                    LocalTime endTime = startTime.plusMinutes(durationMinutes);
+                    try {
+                        int startHour = 8 + random.nextInt(9);
+                        int startMinute = random.nextInt(4) * 15;
+                        LocalTime startTime = LocalTime.of(startHour, startMinute);
+                        int durationMinutes = (random.nextInt(4) + 1) * 30;
+                        LocalTime endTime = startTime.plusMinutes(durationMinutes);
 
-                    Event event = new Event();
-                    event.setTitle(eventTitles[random.nextInt(eventTitles.length)]);
-                    event.setDescription(eventDescriptions[random.nextInt(eventDescriptions.length)]);
-                    event.setStartTime(LocalDateTime.of(currentDate, startTime));
-                    event.setEndTime(LocalDateTime.of(currentDate, endTime));
-                    event.setUser(users.get(random.nextInt(users.size())));
-                    event.setRoom(rooms.get(random.nextInt(rooms.size())));
-                    event.setRecurring(false);
-                    event.setTags(getRandomTags(SAMPLE_EVENT_TAGS, 2));
+                        Event event = new Event();
+                        event.setTitle(eventTitles[random.nextInt(eventTitles.length)]);
+                        event.setDescription(eventDescriptions[random.nextInt(eventDescriptions.length)]);
+                        event.setStartTime(LocalDateTime.of(currentDate, startTime));
+                        event.setEndTime(LocalDateTime.of(currentDate, endTime));
+                        
+                        // Select random user and room
+                        User selectedUser = users.get(random.nextInt(users.size()));
+                        Room selectedRoom = rooms.get(random.nextInt(rooms.size()));
+                        
+                        event.setUser(selectedUser);
+                        event.setRoom(selectedRoom);
+                        event.setRecurring(false);
+                        event.setTags(getRandomTags(SAMPLE_EVENT_TAGS, 2));
 
-                    if (!eventRepository.findOverlappingEventsInRoom(
-                            event.getStartTime(),
-                            event.getEndTime(),
-                            Optional.of(event.getRoom()))) {
-                        eventRepository.save(event);
-                        logger.info("Event created: {} on {} with tags: {}", event.getTitle(), currentDate, event.getTags());
+                        // Check for overlapping events
+                        boolean hasOverlap = eventRepository.findOverlappingEventsInRoom(
+                                event.getStartTime(),
+                                event.getEndTime(),
+                                Optional.of(event.getRoom()));
+                        
+                        if (!hasOverlap) {
+                            Event savedEvent = eventRepository.save(event);
+                            eventsCreated++;
+                            logger.info("Event created: {} on {} with tags: {}", savedEvent.getTitle(), currentDate, savedEvent.getTags());
+                        } else {
+                            logger.debug("Skipping event due to overlap: {} on {}", event.getTitle(), currentDate);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Error creating event on {}: {}", currentDate, e.getMessage(), e);
+                        // Continue with next event instead of failing completely
                     }
                 }
             }
         }
-        logger.debug("Fake events generation complete.");
+        logger.debug("Fake events generation complete. Created {} events.", eventsCreated);
     }
 
     /**

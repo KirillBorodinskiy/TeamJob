@@ -127,24 +127,3 @@ Event management features include forms to create and edit events, quick filters
 The interface guides users through the event creation process while preventing scheduling conflicts.
 
 Navigation is streamlined through a consistent menu structure.
-
-\section{Implementation Details}\label{sec:implementation-details}
-
-\subsection{Backend Implementation}\label{subsec:backend-implementation}
-
-The calendar module implements sophisticated event scheduling logic, availability checking, and recurring event handling.
-The security module manages JWT token generation and validation, role-based access control, and password encryption.
-The resource management system handles room allocation, user assignment, and conflict resolution.
-
-Key algorithms include the findAvailable algorithm for time slot calculation and overlap detection, and the event conflict resolution system to verify resource availability and user schedules.
-
-
-\section{Development Tools and Environment}\label{sec:development-tools}
-
-\subsection{Development Environment}\label{subsec:development-environment}
-The development environment is IntelliJ IDEA as the primary IDE, with Gradle handling build management and Git providing version control.
-Dockerfile was utilized to build and containerize the application.
-Docker-Compose is configured to correctly set up the application and the database and link them together.
-
-\subsection{Testing}\label{subsec:testing-framework}
-The testing strategy employs JUnit 5 for unit testing, Spring Test for integration testing.

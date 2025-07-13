@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.slf4j.Logger;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -575,6 +578,28 @@ public class CalendarServiceImpl implements ICalendarService {
         model.addAttribute("events", eventList);
         model.addAttribute("rooms", roomList);
         model.addAttribute("users", userList);
+
+        // Add user role information for frontend conditional rendering
+        addUserRoleInfo(model);
+    }
+
+    public static void addUserRoleInfo(Model model) {
+        canManageEvents(model);
+        //More could be added here
+    }
+
+    public static void canManageEvents(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean canManageEvents;
+
+
+        canManageEvents = authentication != null && authentication.isAuthenticated() &&
+                authentication.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .anyMatch(Set.of("ROLE_CONFIG", "ROLE_ADMIN")::contains);
+
+
+        model.addAttribute("canManageEvents", canManageEvents);
     }
 
     // Helper for exdate exclusion

@@ -34,7 +34,7 @@ class EventRepositoryTest {
     private Event testEvent;
     private Room testRoom;
 
-    LocalDateTime baseTime = LocalDateTime.now()
+    final LocalDateTime baseTime = LocalDateTime.now()
             .withHour(9)
             .withMinute(0)
             .withSecond(0)

@@ -27,13 +27,15 @@
 
     <a th:href="@{/calendar(date=${nextWeek},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">Next Week
         &gt;</a>
+
+    <a th:href="@{/signout.html}" class="nav-link">Sign out</a>
 </div>
 
 
 <div class="calendar-container">
 
     <div id="sidepanel">
-        <div id="sidepanel-toggle">
+        <div id="sidepanel-toggle" th:if="${canManageEvents}">
             <button class="sidepanel-button gold-border" id="sidepanel-button-left" onclick="toggleSidepanel('filter')">
                 Filter
             </button>
@@ -133,8 +135,8 @@
                 </div>
                 <button type="submit" form="filterTagsForm" class="filterButton">Filter</button>
             </form>
-            <a href="/config/rooms" class="nav-link">Modify rooms</a>
-            <a href="/config/events" class="nav-link">Modify events</a>
+            <a href="/config/rooms" class="nav-link" th:if="${canManageEvents}">Modify rooms</a>
+            <a href="/config/events" class="nav-link" th:if="${canManageEvents}">Modify events</a>
         </div>
 
         <div id="sidepanel-creation" class="hidden">
@@ -604,6 +606,13 @@
     }
 
     function addNewEvent(hour, day) {
+        // Check if user has permission to create events
+        const canManageEvents = document.getElementById("sidepanel-toggle");
+        if (canManageEvents === null) {
+            alert('You do not have permission to create events. Please contact an administrator.');
+            return;
+        }
+
         toggleSidepanel('create');
         const hourInt = parseInt(hour);
         const formattedHour = hourInt.toString().padStart(2, '0');
