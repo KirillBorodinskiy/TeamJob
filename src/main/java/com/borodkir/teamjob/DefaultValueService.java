@@ -131,8 +131,8 @@ public class DefaultValueService {
             logger.error("Error inserting default data: {}", e.getMessage(), e);
         }
     }
-
-    private void createRoleIfNotExists(String roleName) {
+    @Transactional
+    protected void createRoleIfNotExists(String roleName) {
         if (!roleRepository.existsByName(roleName)) {
             Role role = new Role();
             role.setName(roleName);
@@ -142,8 +142,8 @@ public class DefaultValueService {
             logger.debug("Role '{}' already exists", roleName);
         }
     }
-
-    private void createRoom(Room room) {
+    @Transactional
+    protected void createRoom(Room room) {
 
         if (room.getTags() == null || room.getTags().isEmpty()) {
             room.setTags(getRandomTags(SAMPLE_ROOM_TAGS, 3));
@@ -182,7 +182,8 @@ public class DefaultValueService {
      *
      * @param count The number of fake users to generate
      */
-    private void generateFakeUsers(int count) {
+    @Transactional
+    protected void generateFakeUsers(int count) {
         logger.debug("Generating {} fake users...", count);
         String[] firstNames = {"John", "Jane", "Michael", "Emily", "David", "Sarah", "Robert", "Lisa", "William", "Jessica"};
         String[] lastNames = {"Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor"};
@@ -207,7 +208,8 @@ public class DefaultValueService {
      *
      * @param count The number of fake rooms to generate
      */
-    private void generateFakeRooms(int count) {
+    @Transactional
+    protected void generateFakeRooms(int count) {
         logger.debug("Generating {} fake rooms...", count);
         String[] roomBaseNames = {"Conference Room", "Meeting Room", "Auditorium", "Training Room", "Board Room",
                 "Classroom", "Lecture Hall", "Workshop", "Studio", "Lab", "Gym", "Office", "Lounge"};
@@ -229,7 +231,8 @@ public class DefaultValueService {
      *
      * @param eventsPerDay The number of events to generate per day
      */
-    private void generateFakeEvents(int eventsPerDay) {
+    @Transactional
+    protected void generateFakeEvents(int eventsPerDay) {
         logger.debug("Generating fake events, {} per day...", eventsPerDay);
         List<User> users = userRepository.findAll();
         List<Room> rooms = roomRepository.findAll();
@@ -317,7 +320,8 @@ public class DefaultValueService {
      * @param count   The number of tags to select randomly
      * @return A Set of randomly selected tags
      */
-    private Set<String> getRandomTags(List<String> tagList, int count) {
+    @Transactional
+    protected Set<String> getRandomTags(List<String> tagList, int count) {
         Random random = new Random();
         Set<String> selectedTags = new HashSet<>();
 
