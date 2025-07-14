@@ -5,6 +5,9 @@ import com.borodkir.teamjob.data.*;
 import com.borodkir.teamjob.data.repositories.EventRepository;
 import com.borodkir.teamjob.data.repositories.RoomRepository;
 import com.borodkir.teamjob.data.repositories.UserRepository;
+import com.borodkir.teamjob.services.implementations.CalendarServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -20,6 +27,8 @@ public class RestConfigController {
     private RoomRepository roomRepository;
     private EventRepository eventRepository;
     private UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(RestConfigController.class);
+
 
     @Autowired
     public void setRoomRepository(RoomRepository roomRepository) {
@@ -69,6 +78,7 @@ public class RestConfigController {
 
     @PostMapping("/addevents")
     public ResponseEntity<Event> addEvents(@RequestBody EventRequest eventRequest) {
+        logger.debug("Starting to process event request");
         //First check if the room isn't already booked
         if (eventRepository.findOverlappingEventsInRoom
                 (
@@ -77,45 +87,63 @@ public class RestConfigController {
                         roomRepository.findById(eventRequest.getRoomId())
                 )
         ) {
+            logger.warn("Room is already booked for requested time slot");
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
+        logger.debug("Room availability check passed");
+
         Event event = new Event();
         //Check if the user exists
         if (eventRequest.getUserId() != null) {
+            logger.debug("Setting user for event with ID: {}", eventRequest.getUserId());
             event.setUser(userRepository.findById(eventRequest.getUserId())
                     .orElseThrow(
                             () -> new IllegalArgumentException("User not found with ID: " + eventRequest.getUserId())
                     )
             );
         }
+
+        logger.debug("Setting basic event details");
         event.setTitle(eventRequest.getTitle());
         event.setDescription(eventRequest.getDescription());
         event.setRoom(roomRepository.findById(eventRequest.getRoomId()).orElse(null));
 
+        if (eventRequest.getTags() != null) {
+            logger.debug("Processing event tags");
+            Set<String> tags = new HashSet<>(Arrays.asList(eventRequest.getTags().split(",")));
+            event.setTags(tags);
+
+        }
+
         event.setStartTime(eventRequest.getStartTime());
         event.setEndTime(eventRequest.getEndTime());
 
+        logger.debug("Handling recurrence settings");
         // Handle recurrence
         boolean hasValidRrule = eventRequest.getRrule() != null && !eventRequest.getRrule().isEmpty();
         event.setRecurring(eventRequest.isRecurring() && hasValidRrule);
-        
+
         if (event.isRecurring()) {
+            logger.debug("Processing recurring event settings");
             // Build RRULE string
             StringBuilder rrule = new StringBuilder(eventRequest.getRrule());
             if (!rrule.isEmpty()) {
                 // Add interval if specified
                 String interval = eventRequest.getInterval();
                 if (interval != null && !interval.isEmpty()) {
+                    logger.debug("Adding interval: {}", interval);
                     rrule.append(";INTERVAL=").append(interval);
                 }
-                
+
                 // Add end date if specified
                 if (eventRequest.getRecurrenceEndDate() != null) {
+                    logger.debug("Adding recurrence end date");
                     rrule.append(";UNTIL=").append(eventRequest.getRecurrenceEndDate().format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")));
                 }
-                
+
                 // Add BYDAY for weekly recurrence
                 if (rrule.toString().startsWith("FREQ=WEEKLY") && eventRequest.getWeekdays() != null && !eventRequest.getWeekdays().isEmpty()) {
+                    logger.debug("Adding weekdays for weekly recurrence");
                     rrule.append(";BYDAY=").append(String.join(",", eventRequest.getWeekdays()));
                 }
             }
@@ -124,6 +152,7 @@ public class RestConfigController {
             event.setExdate(eventRequest.getExdate());
             event.setRdate(eventRequest.getRdate());
         } else {
+            logger.debug("Clearing recurrence fields for non-recurring event");
             // Clear recurrence-related fields if not recurring
             event.setRrule(null);
             event.setRecurrenceEndDate(null);
@@ -131,7 +160,9 @@ public class RestConfigController {
             event.setRdate(null);
         }
 
+        logger.debug("Saving event to database");
         Event savedEvent = eventRepository.save(event);
+        logger.debug("Event successfully saved with ID: {}", savedEvent.getId());
         return ResponseEntity.ok(savedEvent);
     }
 

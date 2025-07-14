@@ -12,6 +12,7 @@ public class EventRequest {
     private LocalDateTime endTime;
     private Long userId;
     private Long roomId;
+    private String tags;
     private boolean isRecurring;
     private String rrule;  // Recurrence Rule according to RFC 5545
     private LocalDateTime recurrenceEndDate;

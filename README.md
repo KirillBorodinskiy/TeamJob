@@ -37,9 +37,7 @@ docker-compose up --build
 - **Room Management**
 - **Tagging for Users, Rooms, and Events**
 - **REST API and Web UI (Thymeleaf + JS)**
-- **Automated Email Notifications**
-- **iCal Integration (planned)**
-- **Admin Dashboard**
+
 
 ## Technology Stack
 - **Backend:** Java 21, Spring Boot, Spring Security, Spring Data JPA

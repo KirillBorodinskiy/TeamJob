@@ -149,8 +149,8 @@
             </form>
 
 
-            <a href="/config/rooms" class="nav-link">Modify rooms</a>
-            <a href="/config/events" class="nav-link">Modify events</a>
+            <a href="/config/rooms" class="nav-link" th:if="${canManageEvents}">Modify rooms</a>
+            <a href="/config/events" class="nav-link" th:if="${canManageEvents}">Modify events</a>
         </div>
 
         <div id="sidepanel-creation" class="hidden">
@@ -475,6 +475,9 @@
             roomId: document.getElementById('roomSelect').value,
             userId: document.getElementById('userSelect').value,
             recurring: document.getElementById('is_recurring').checked,
+            tags: Array.from(document.getElementById('eventTagsContainer').children)
+                .map(tag => tag.dataset.value)
+                .join(','),
             rrule: document.getElementById('is_recurring').checked ? document.getElementById('rrule').value : null,
             recurrenceEndDate: document.getElementById('is_recurring').checked && document.getElementById('recurrenceEndDate').value ?
                 document.getElementById('recurrenceEndDate').value + 'T00:00:00' : null,

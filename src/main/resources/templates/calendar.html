@@ -169,7 +169,19 @@
                         <option th:each="room : ${rooms}" th:value="${room.id}" th:text="${room.name}"></option>
                     </select>
                 </fieldset>
-
+                <fieldset>
+                    <div class="form-group">
+                        <label for="eventTagsInput">Tags</label>
+                        <div class="multi-select">
+                            <div class="selected-container" id="eventTagsContainer"></div>
+                            <input type="text" id="eventTagsInput" placeholder="Choose event tags" autocomplete="off">
+                            <div class="select-items select-hide" id="eventTagsItems">
+                                <div th:each="eventTag : ${eventTags}" th:data-value="${eventTag}"
+                                     th:data-name="${eventTag}" th:text="${eventTag}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
                 <fieldset class="form-group ">
                     <label for="startDate">Start date</label>
                     <input type="date" id="startDate" name="startDate" required>
@@ -488,6 +500,9 @@
             description: document.getElementById('eventDescription').value,
             roomId: document.getElementById('roomSelect').value,
             userId: document.getElementById('userSelect').value,
+            tags: Array.from(document.getElementById('eventTagsContainer').children)
+                .map(tag => tag.dataset.value)
+                .join(','),
             recurring: document.getElementById('is_recurring').checked,
             rrule: document.getElementById('is_recurring').checked ? document.getElementById('rrule').value : null,
             recurrenceEndDate: document.getElementById('is_recurring').checked && document.getElementById('recurrenceEndDate').value ?
@@ -575,6 +590,12 @@
             'filterTagsRoom',
             'roomTagsSelectedContainer',
             preselectedRoomTags
+        );
+        setupMultiSelectDropdown(
+            'eventTagsInput',
+            'eventTagsItems',
+            'filterTagsEvent',
+            'eventTagsContainer'
         );
         const hourSlots = document.querySelectorAll('.hour-slot');
         hourSlots.forEach(function (slot) {
