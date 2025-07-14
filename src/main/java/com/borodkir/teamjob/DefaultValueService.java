@@ -320,7 +320,6 @@ public class DefaultValueService {
      * @param count   The number of tags to select randomly
      * @return A Set of randomly selected tags
      */
-    @Transactional
     protected Set<String> getRandomTags(List<String> tagList, int count) {
         Random random = new Random();
         Set<String> selectedTags = new HashSet<>();
