@@ -1,0 +1,71 @@
+\section{Calendar Interface and Rendering}\label{sec:calendar-interface-and-rendering}
+The calendar is the primary interface of the application, implemented through an integration of Thymeleaf templates and JavaScript to enhance interactivity.
+The underlying backend functionality is administered by the CalendarController and CalendarServiceImpl service.
+Upon users' access to the calendar, the controller delegates service methods such as setupModelForWeekCalendar and setupModelForDayCalendar to the responsibility of preparing the required data for the rendering of weekly or daily views.
+These methods retrieve all pertinent events from the database, filter them according to user, room, and tag parameters, and structure them into entities such as WeekDay and EventInADay.
+The filtration process is thorough, accommodating combinations of user IDs, room IDs, and tags, and is implemented in the service layer through the use of helper methods that parse and apply these filters.
+Subsequently, the calendar view is rendered by Thymeleaf, which receives all data as model attributes, while JavaScript is employed to augment navigation and interactivity, easing shifts between weeks or days.
+
+\section{Event Creation, Validation, and Conflict Detection}\label{sec:event-creation-validation-and-conflict-detection}
+The creation of events is managed through REST endpoints within the RestConfigController.
+Upon submission of a new event by the user, the backend initiates a check for scheduling conflicts employing the findOverlappingEventsInRoom method of the EventRepository.
+This mechanism ensures that no two events simultaneously occupy the same room.
+In instances where a scheduling conflict is identified, the system issues a conflict response, requiring the user to select an alternative time or resource.
+The event creation process accommodates both singular and recurring events.
+For recurring events, the system constructs an RRULE string that complies with RFC 5545 standards, including support for intervals, end dates, and specific weekdays in the case of weekly recurrences.
+The event entity is responsible for maintaining all recurrence-related information, including exception dates (exdate) and supplementary dates (rdate).
+In addition, the DefaultValueService has been implemented to facilitate the demonstration of the project.
+It generates test events, users, and rooms to verify the system's functionality under conditions of load.
+
+\section{Filtering by User, Room, and Tags}\label{sec:filtering-by-user-room-and-tags}
+The capability to filter is a fundamental aspect of the calendar and event views.
+The backend enables the filtration of events based on user IDs, room IDs, and tags associated with users, rooms, or events.
+This functionality is executed in the CalendarServiceImpl service, where methods such as convertToDayEvents and generateAvailableTimeRequest implement filters on the event list prior to rendering to the frontend.
+The filtering mechanism interprets comma-delimited strings of IDs or tags, converts these into sets, and applies them to the event data using Java Streams and supporting techniques.
+Consequently, events are excluded if their associated user, room, or tags do not correspond to the designated criteria.
+This enables users to focus on the most relevant events, even in scenarios marked by a substantial number of planned activities.
+
+\section{Authentication and Role-Based Access Control}\label{sec:authentication-and-role-based-access-control}
+Authentication is achieved through the use of JWT (JSON Web Tokens), with the SecurityController overseeing the workflows of sign-in, sign-up, and sign-out.
+The user credentials are subjected to secure hashing and storage, and the JWT tokens are distributed upon successful completion of authentication.
+The TokenFilter plays a critical role in intercepting requests, extracting and validating JWT tokens, and establishing the security context for the authenticated user.
+
+Role-based access control is enforced throughout the application.
+Users are assigned specific roles such as ROLE\_USER, ROLE\_ADMIN, or ROLE\_CONFIG, which are stored within the database and linked to each user.
+The SecurityConfigurator utilizes Spring Security to impose access restrictions on sensitive endpoints that depend on these roles.
+For instance, only users possessing roles of ROLE\_CONFIG or ROLE\_ADMIN are authorized to create, edit, or delete events and rooms, whereas regular users are restricted to activities like viewing and searching.
+CSRF protection is systematically enabled for all forms.
+
+The auditing part of the Spring Data framework\cite{} serves as a mechanism to monitor alterations to entities.
+It records the timestamp of creation, identifies the creator, and documents the identity and timing of modifications within the database.
+This framework facilitates the verification of the authorship of any modifications made within the system.
+
+\section{Tagging System}\label{sec:tagging-system}
+The application incorporates a robust tagging system applicable to users, rooms, and events.
+Tags are maintained as collections of strings within each entity (User, Room, Event) and are stored in separate tables utilizing JPA's @ElementCollection.
+Tags are employed extensively throughout the interface for the purposes of filtering and searching, and are also presented in both list and detailed views.
+The backend includes methods to retrieve all unique tags from the database, which are subsequently displayed in dropdown menus and filter panels within the user interface.
+Tag-based filtering is executed within the service layer, enabling users to efficiently access pertinent information by selecting one or more tags.
+Furthermore, the system supports the allocation of random tags to entities during the generation of test data, thus ensuring a diverse array of tags for both demonstration and testing purposes.
+
+\section{Error Handling and Custom Error Pages}\label{sec:error-handling-and-custom-error-pages}
+The management of errors is facilitated by a bespoke error controller, referred to as the CustomErrorController, which intercepts errors and generates a comprehensive error page (error-debug.html).
+This controller is responsible for extracting error statuses, exception details, messages, and the pathways of requests, and it incorporates stack traces whenever they are available.
+This methodology affords developers and administrators exhaustive information necessary for debugging and system maintenance, while concurrently supplying end users with lucid feedback regarding any issues encountered.
+
+\section{Room and User Management}\label{sec:room-and-user-management}
+The management of rooms and users is integrated into both backend and frontend systems.
+The ConfigController offers endpoints for the enumeration, addition, and removal of rooms and users.
+In the backend, there are strict verifications to ensure that only users with designated roles are authorized to carry out these operations.
+The system performs checks to ensure uniqueness in identifiers such as room name, username, and email.
+
+The frontend displays comprehensive lists of rooms and users, inclusive of their tags and roles, and provides forms for the entry of new data.
+The deletion process is secured by the inclusion of confirmation prompts and backend verifications to avert the inadvertent removal of critical resources.
+Additionally, the system accommodates the bulk management of events, rooms, and users, thereby enhancing the efficiency of administrative functions.
+
+\section{Find Available Functionality}\label{sec:find-available-functionality}
+The \("\)Find Available\("\) functionality is executed within the CalendarController and CalendarServiceImpl.
+Users are enabled to query for available rooms or users by specifying relevant tags, date, start, and end times, as well as the desired duration.
+The backend systematically processes these inputs, computes unoccupied time slots using the generateAvailableTimeRequest method, and subsequently provides a list of available resources.
+The returned results include direct links to observe availability within the calendar, thus significantly streamlining the scheduling of meetings or events in environments characterized by high demand for bookings.
+This particular functionality is notably absent from the existing scheduling system implemented at my University.
