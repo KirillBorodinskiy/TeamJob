@@ -3,6 +3,7 @@ package com.borodkir.teamjob.data;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "events")
+@ToString(exclude = {"tags"})
 @EqualsAndHashCode(callSuper = true)
 public class Event extends Auditable {
 
@@ -49,7 +51,16 @@ public class Event extends Auditable {
     private boolean isRecurring;
 
     @Column
-    private LocalDateTime isRecurringEndDate;
+    private String rrule;  // Recurrence Rule according to RFC 5545
+
+    @Column
+    private LocalDateTime recurrenceEndDate;
+
+    @Column
+    private String exdate;  // Exception dates for recurring events according to RFC 5545
+
+    @Column
+    private String rdate;   // Additional dates for recurring events according to RFC 5545
 
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)

@@ -10,6 +10,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
 </head>
 <body>
+<div class="navigation">
+    <a th:href="@{/calendar}" class="nav-link">Home</a>
+
+    <a th:href="@{/calendar/findAvailable}" class="nav-link">Find available</a>
+
+    <a th:href="@{/signout}" class="nav-link">Sign out</a>
+</div>
 <div class="container">
     <table class="unique-table">
         <tr class="details-container">
@@ -40,7 +47,8 @@
         </tr>
         <tr class="details-container">
             <th>Tags:</th>
-            <td class="copyable" th:text="${#strings.listJoin(event.tags,',')}" th:data-value="${#strings.listJoin(event.tags,',')}"></td>
+            <td class="copyable" th:text="${#strings.listJoin(event.tags,',')}"
+                th:data-value="${#strings.listJoin(event.tags,',')}"></td>
         </tr>
         <tr>
             <td colspan="2" style="width:100%;text-align: center; padding: 0;">

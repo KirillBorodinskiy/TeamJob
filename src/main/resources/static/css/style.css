@@ -117,7 +117,24 @@
     margin-right: 8px;
 }
 
-.rooms-list, .event-list {
+.rooms-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  align-items: stretch;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 20px;
+}
+.room-card {
+  flex: 1 1 300px;
+  min-width: 250px;
+  max-width: 400px;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.event-list {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -126,7 +143,7 @@
     padding: 20px;
 }
 
-.room-card, .event-card {
+.event-card {
     width: auto;
     max-width: 90%;
     height: auto;
@@ -248,7 +265,7 @@ fieldset {
     width: 20vw
 }
 
-#sidepanel-toggle {
+#sidepanel-toggle, #filter-toggle {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -355,10 +372,15 @@ fieldset {
     display: none !important;
 }
 
-#filterEventsForm {
+#filterEntityForm {
     display: flex;
     flex-direction: column;
     gap: 1.5em;
+}
+#filterTagsForm{
+    flex-direction: column;
+    gap: 1em;
+    display:flex;
 }
 
 .filterButton {
@@ -433,6 +455,7 @@ fieldset {
     flex-wrap: wrap;
     padding: 2px;
     min-height: 24px;
+    max-width:20vw;
 
 }
 .results-list, .room-availabilities {
@@ -779,4 +802,15 @@ input {
     background-color: var(--color-primary);
     border-color: #c3e6cb;
     color: var(--color-accent);
+}
+#recurrence_options{
+    width: min-content;
+    /*display: flex;*/
+    /*flex-direction: row;*/
+    /*align-items: center;*/
+    /*gap: 0.5em;*/
+}
+
+#interval{
+    width:6em;
 }

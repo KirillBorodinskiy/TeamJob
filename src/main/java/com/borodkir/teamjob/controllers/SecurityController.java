@@ -1,5 +1,6 @@
 package com.borodkir.teamjob.controllers;
 
+import com.borodkir.teamjob.DefaultValueService;
 import com.borodkir.teamjob.JwtCore;
 import com.borodkir.teamjob.data.Role;
 import com.borodkir.teamjob.data.SigninRequest;
@@ -7,7 +8,6 @@ import com.borodkir.teamjob.data.SignupRequest;
 import com.borodkir.teamjob.data.User;
 import com.borodkir.teamjob.data.repositories.RoleRepository;
 import com.borodkir.teamjob.data.repositories.UserRepository;
-import com.borodkir.teamjob.services.DefaultValueService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;

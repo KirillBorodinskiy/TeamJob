@@ -1,4 +1,4 @@
-package com.borodkir.teamjob.services;
+package com.borodkir.teamjob;
 
 import com.borodkir.teamjob.data.Event;
 import com.borodkir.teamjob.data.Role;
@@ -20,11 +20,15 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.Optional;
 
 import static java.util.Collections.singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class DefaultValueService {
+    private static final Logger logger = LoggerFactory.getLogger(DefaultValueService.class);
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private RoomRepository roomRepository;
@@ -81,6 +85,7 @@ public class DefaultValueService {
     @Transactional
     public void insert() {
         try {
+            logger.info("Starting default data insertion...");
             // Create Roles
             createRoleIfNotExists(DefaultValueService.ROLE_CONFIG);
             createRoleIfNotExists(DefaultValueService.ROLE_ADMIN);
@@ -116,30 +121,29 @@ public class DefaultValueService {
 
             userRepository.flush();
 
-            // Generate Fake Data
-            System.out.println("Generating fake data for testing...");
+            logger.info("Generating fake data for testing...");
             generateFakeUsers(10); // Will get user tags assigned within
             generateFakeRooms(5); // Will get room tags assigned within
             generateFakeEvents(2); // Will get event tags assigned within
-            System.out.println("Fake data generation completed.");
+            logger.info("Fake data generation completed.");
 
         } catch (Exception e) {
-            System.err.println("Error inserting default data: " + e.getMessage());
+            logger.error("Error inserting default data: {}", e.getMessage(), e);
         }
     }
-
-    private void createRoleIfNotExists(String roleName) {
+    @Transactional
+    protected void createRoleIfNotExists(String roleName) {
         if (!roleRepository.existsByName(roleName)) {
             Role role = new Role();
             role.setName(roleName);
             roleRepository.save(role);
-            System.out.println("Role " + roleName + " created");
+            logger.info("Role '{}' created", roleName);
         } else {
-            System.out.println("Role " + roleName + " already exists");
+            logger.debug("Role '{}' already exists", roleName);
         }
     }
-
-    private void createRoom(Room room) {
+    @Transactional
+    protected void createRoom(Room room) {
 
         if (room.getTags() == null || room.getTags().isEmpty()) {
             room.setTags(getRandomTags(SAMPLE_ROOM_TAGS, 3));
@@ -147,9 +151,9 @@ public class DefaultValueService {
 
         if (!roomRepository.existsByName(room.getName())) {
             roomRepository.save(room);
-            System.out.println("Room " + room.getName() + " created with tags: " + room.getTags());
+            logger.info("Room '{}' created with tags: {}", room.getName(), room.getTags());
         } else {
-            System.out.println("Room " + room.getName() + " already exists");
+            logger.debug("Room '{}' already exists", room.getName());
         }
     }
 
@@ -167,9 +171,9 @@ public class DefaultValueService {
 
         if (!userRepository.existsByUsername(user.getUsername())) {
             userRepository.save(user);
-            System.out.println("User " + user.getUsername() + " created with tags: " + user.getTags());
+            logger.info("User '{}' created with tags: {}", user.getUsername(), user.getTags());
         } else {
-            System.out.println("User " + user.getUsername() + " already exists");
+            logger.debug("User '{}' already exists", user.getUsername());
         }
     }
 
@@ -178,7 +182,9 @@ public class DefaultValueService {
      *
      * @param count The number of fake users to generate
      */
-    private void generateFakeUsers(int count) {
+    @Transactional
+    protected void generateFakeUsers(int count) {
+        logger.debug("Generating {} fake users...", count);
         String[] firstNames = {"John", "Jane", "Michael", "Emily", "David", "Sarah", "Robert", "Lisa", "William", "Jessica"};
         String[] lastNames = {"Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor"};
         Random random = new Random();
@@ -194,6 +200,7 @@ public class DefaultValueService {
             user.setEmail(username + "@example.com");
             createUser(user);
         }
+        logger.debug("Fake users generation complete.");
     }
 
     /**
@@ -201,7 +208,9 @@ public class DefaultValueService {
      *
      * @param count The number of fake rooms to generate
      */
-    private void generateFakeRooms(int count) {
+    @Transactional
+    protected void generateFakeRooms(int count) {
+        logger.debug("Generating {} fake rooms...", count);
         String[] roomBaseNames = {"Conference Room", "Meeting Room", "Auditorium", "Training Room", "Board Room",
                 "Classroom", "Lecture Hall", "Workshop", "Studio", "Lab", "Gym", "Office", "Lounge"};
         Random random = new Random();
@@ -214,6 +223,7 @@ public class DefaultValueService {
             room.setDescription("Description for " + name);
             createRoom(room);
         }
+        logger.debug("Fake rooms generation complete.");
     }
 
     /**
@@ -221,12 +231,14 @@ public class DefaultValueService {
      *
      * @param eventsPerDay The number of events to generate per day
      */
-    private void generateFakeEvents(int eventsPerDay) {
+    @Transactional
+    protected void generateFakeEvents(int eventsPerDay) {
+        logger.debug("Generating fake events, {} per day...", eventsPerDay);
         List<User> users = userRepository.findAll();
         List<Room> rooms = roomRepository.findAll();
 
         if (users.isEmpty() || rooms.isEmpty()) {
-            System.out.println("Cannot generate events: no users or rooms available");
+            logger.warn("Cannot generate events: no users or rooms available");
             return;
         }
 
@@ -250,39 +262,55 @@ public class DefaultValueService {
                 .minusWeeks(1)
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
+        int eventsCreated = 0;
         for (int week = 0; week < 3; week++) {
             LocalDate weekStart = previousWeekStart.plusWeeks(week);
             for (int day = 0; day < 7; day++) {
                 LocalDate currentDate = weekStart.plusDays(day);
                 for (int i = 0; i < eventsPerDay; i++) {
-                    // ... (time calculation logic remains the same) ...
-                    int startHour = 8 + random.nextInt(9);
-                    int startMinute = random.nextInt(4) * 15;
-                    LocalTime startTime = LocalTime.of(startHour, startMinute);
-                    int durationMinutes = (random.nextInt(4) + 1) * 30;
-                    LocalTime endTime = startTime.plusMinutes(durationMinutes);
+                    try {
+                        int startHour = 8 + random.nextInt(9);
+                        int startMinute = random.nextInt(4) * 15;
+                        LocalTime startTime = LocalTime.of(startHour, startMinute);
+                        int durationMinutes = (random.nextInt(4) + 1) * 30;
+                        LocalTime endTime = startTime.plusMinutes(durationMinutes);
 
-                    Event event = new Event();
-                    event.setTitle(eventTitles[random.nextInt(eventTitles.length)]);
-                    event.setDescription(eventDescriptions[random.nextInt(eventDescriptions.length)]);
-                    event.setStartTime(LocalDateTime.of(currentDate, startTime));
-                    event.setEndTime(LocalDateTime.of(currentDate, endTime));
-                    event.setUser(users.get(random.nextInt(users.size())));
-                    event.setRoom(rooms.get(random.nextInt(rooms.size())));
-                    event.setRecurring(false);
-                    event.setTags(getRandomTags(SAMPLE_EVENT_TAGS, 2));
+                        Event event = new Event();
+                        event.setTitle(eventTitles[random.nextInt(eventTitles.length)]);
+                        event.setDescription(eventDescriptions[random.nextInt(eventDescriptions.length)]);
+                        event.setStartTime(LocalDateTime.of(currentDate, startTime));
+                        event.setEndTime(LocalDateTime.of(currentDate, endTime));
+                        
+                        // Select random user and room
+                        User selectedUser = users.get(random.nextInt(users.size()));
+                        Room selectedRoom = rooms.get(random.nextInt(rooms.size()));
+                        
+                        event.setUser(selectedUser);
+                        event.setRoom(selectedRoom);
+                        event.setRecurring(false);
+                        event.setTags(getRandomTags(SAMPLE_EVENT_TAGS, 2));
 
-                    if (!eventRepository.findOverlappingEventsInRoom(
-                            event.getStartTime(),
-                            event.getEndTime(),
-                            Optional.of(event.getRoom()))) {
-                        eventRepository.save(event);
-                        System.out.println("Event created: " + event.getTitle() +
-                                " on " + currentDate + " with tags: " + event.getTags());
+                        // Check for overlapping events
+                        boolean hasOverlap = eventRepository.findOverlappingEventsInRoom(
+                                event.getStartTime(),
+                                event.getEndTime(),
+                                Optional.of(event.getRoom()));
+                        
+                        if (!hasOverlap) {
+                            Event savedEvent = eventRepository.save(event);
+                            eventsCreated++;
+                            logger.info("Event created: {} on {} with tags: {}", savedEvent.getTitle(), currentDate, savedEvent.getTags());
+                        } else {
+                            logger.debug("Skipping event due to overlap: {} on {}", event.getTitle(), currentDate);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Error creating event on {}: {}", currentDate, e.getMessage(), e);
+                        // Continue with next event instead of failing completely
                     }
                 }
             }
         }
+        logger.debug("Fake events generation complete. Created {} events.", eventsCreated);
     }
 
     /**
@@ -292,7 +320,7 @@ public class DefaultValueService {
      * @param count   The number of tags to select randomly
      * @return A Set of randomly selected tags
      */
-    private Set<String> getRandomTags(List<String> tagList, int count) {
+    protected Set<String> getRandomTags(List<String> tagList, int count) {
         Random random = new Random();
         Set<String> selectedTags = new HashSet<>();
 

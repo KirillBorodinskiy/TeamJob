@@ -3,6 +3,7 @@ package com.borodkir.teamjob.data;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +23,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "users")
+@ToString(exclude = {"tags"})
 @EqualsAndHashCode(callSuper = true)
 public class User extends Auditable {
 

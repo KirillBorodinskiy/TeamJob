@@ -13,6 +13,7 @@
 <body>
 <div class="mod-container">
     <h1>Event Management</h1>
+    <button class="add-btn" id="addEventBtn">Add a new event</button>
     <div class="add-form" id="addEventForm">
         <form id="eventForm">
             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
@@ -91,24 +92,89 @@
     </div>
 
     <div class="event-list" id="eventList">
-        <div th:each="event : ${events}" class="event-card">
-            <button class="delete-btn" th:onclick="'deleteEvent(' + ${event.id} + ')'">&#x2715;</button>
-
-            <h2 th:text="${event.title}">Event Title</h2>
-
-            <p th:text="${event.description ?: 'No description'}">Description</p>
-            <p>
-                <strong>Room:</strong>
-                <span th:text="${event.room != null ? event.room.name : 'No room assigned'}">Room Name</span>
-            </p>
-            <p>
-                <strong>Start:</strong>
-                <span th:text="${#temporals.format(event.startTime, 'yyyy-MM-dd HH:mm')}">Start Time</span>
-            </p>
-            <p>
-                <strong>End:</strong>
-                <span th:text="${#temporals.format(event.endTime, 'yyyy-MM-dd HH:mm')}">End Time</span>
-            </p>
+        <div th:each="eventMap : ${eventsWithDetailsString}" class="event-card">
+            <form th:id="'editEventForm_' + ${eventMap.event.id}" class="edit-event-form" style="display:none;"
+                  th:object="${eventMap.event}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="id" th:value="${eventMap.event.id}"/>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" th:value="${eventMap.event.title}" required/>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" th:text="${eventMap.event.description}"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>User</label>
+                    <input type="text" name="userString" th:value="${eventMap.userString}" readonly/>
+                </div>
+                <div class="form-group">
+                    <label>Room</label>
+                    <input type="text" name="roomString" th:value="${eventMap.roomString}" readonly/>
+                </div>
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" name="startDate" th:value="${eventMap.event.startTime != null ? #temporals.format(eventMap.event.startTime, 'yyyy-MM-dd') : ''}" required/>
+                    <label>Start Time</label>
+                    <input type="time" name="startTime" th:value="${eventMap.event.startTime != null ? #temporals.format(eventMap.event.startTime, 'HH:mm') : ''}" required/>
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" name="endDate" th:value="${eventMap.event.endTime != null ? #temporals.format(eventMap.event.endTime, 'yyyy-MM-dd') : ''}" required/>
+                    <label>End Time</label>
+                    <input type="time" name="endTime" th:value="${eventMap.event.endTime != null ? #temporals.format(eventMap.event.endTime, 'HH:mm') : ''}" required/>
+                </div>
+                <div class="form-group">
+                    <label>Is Recurring</label>
+                    <input type="checkbox" name="isRecurring" th:checked="${eventMap.event.isRecurring}"/>
+                </div>
+                <div class="form-group">
+                    <label>Recurrence Rule (rrule)</label>
+                    <input type="text" name="rrule" th:value="${eventMap.event.rrule}"/>
+                </div>
+                <div class="form-group">
+                    <label>Recurrence End Date</label>
+                    <input type="date" name="recurrenceEndDate" th:value="${eventMap.event.recurrenceEndDate != null ? #temporals.format(eventMap.event.recurrenceEndDate, 'yyyy-MM-dd') : ''}"/>
+                    <label>Recurrence End Time</label>
+                    <input type="time" name="recurrenceEndTime" th:value="${eventMap.event.recurrenceEndDate != null ? #temporals.format(eventMap.event.recurrenceEndDate, 'HH:mm') : ''}"/>
+                </div>
+                <div class="form-group">
+                    <label>Exdate</label>
+                    <input type="text" name="exdate" th:value="${eventMap.event.exdate}"/>
+                </div>
+                <div class="form-group">
+                    <label>Rdate</label>
+                    <input type="text" name="rdate" th:value="${eventMap.event.rdate}"/>
+                </div>
+                <div class="form-group">
+                    <label>Tags (comma separated)</label>
+                    <input type="text" name="tags" th:value="${eventMap.tagsString}"/>
+                </div>
+                <button type="submit" class="save-btn">Save</button>
+                <button type="button" class="cancel-btn" th:onclick="toggleEditEventForm(${eventMap.event.id})">Cancel
+                </button>
+            </form>
+            <div class="event-view">
+                <h2 th:text="${eventMap.event.title}">Event Title</h2>
+                <p><strong>ID:</strong> <span th:text="${eventMap.event.id}"></span></p>
+                <p><strong>Description:</strong> <span th:text="${eventMap.event.description}"></span></p>
+                <p><strong>User:</strong> <span th:text="${eventMap.userString}"></span></p>
+                <p><strong>Room:</strong> <span th:text="${eventMap.roomString}"></span></p>
+                <p><strong>Start:</strong> <span
+                        th:text="${#temporals.format(eventMap.event.startTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+                <p><strong>End:</strong> <span
+                        th:text="${#temporals.format(eventMap.event.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+                <p><strong>Is Recurring:</strong> <span th:text="${eventMap.event.isRecurring}"></span></p>
+                <p><strong>RRule:</strong> <span th:text="${eventMap.event.rrule}"></span></p>
+                <p><strong>Recurrence End Date:</strong> <span th:text="${eventMap.event.recurrenceEndDate}"></span></p>
+                <p><strong>Exdate:</strong> <span th:text="${eventMap.event.exdate}"></span></p>
+                <p><strong>Rdate:</strong> <span th:text="${eventMap.event.rdate}"></span></p>
+                <p><strong>Tags:</strong> <span th:text="${eventMap.tagsString}"></span></p>
+                <button class="edit-btn" type="button" th:onclick="'toggleEditEventForm(${eventMap.event.id})'">Edit
+                </button>
+                <button class="delete-btn" th:onclick="'deleteEvent('${eventMap.event.id}')'">&#x2715;</button>
+            </div>
         </div>
     </div>
 
@@ -258,6 +324,45 @@
 
         // Validate initial values
         validateDateTimeRange();
+    });
+
+    function toggleEditEventForm(eventId, show) {
+        const form = document.getElementById('editEventForm_' + eventId);
+        if (form) {
+            form.style.display = show ? 'block' : 'none';
+            form.nextElementSibling.style.display = show ? 'none' : 'block';
+        }
+    }
+
+    document.querySelectorAll('.edit-event-form').forEach(form => {
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            // Convert comma separated tags to array
+            data.tags = data.tags ? data.tags.split(',').map(s => s.trim()) : [];
+            try {
+                const response = await fetch('/api/v1/updateevents', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [getCsrfHeader()]: getCsrfToken()
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to update event');
+                }
+            } catch (error) {
+                alert('Failed to update event');
+            }
+        });
     });
 </script>
 </body>

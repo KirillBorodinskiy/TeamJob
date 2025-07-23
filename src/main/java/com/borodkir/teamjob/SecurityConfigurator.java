@@ -98,9 +98,19 @@ public class SecurityConfigurator {
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
-                        // Protected endpoints
+                        // Event management - restricted to CONFIG and ADMIN roles
+                        .requestMatchers("/api/v1/addevents").hasAnyRole("CONFIG", "ADMIN")
+                        .requestMatchers("/api/v1/deleteevents/**").hasAnyRole("CONFIG", "ADMIN")
+                        // Room management - restricted to CONFIG and ADMIN roles
+                        .requestMatchers("/api/v1/addrooms").hasAnyRole("CONFIG", "ADMIN")
+                        .requestMatchers("/api/v1/deleterooms/**").hasAnyRole("CONFIG", "ADMIN")
+                        // Read-only API endpoints - available to all authenticated users
+                        .requestMatchers("/api/v1/checkavailability").hasRole("USER")
+                        .requestMatchers("/api/v1/validateJWT").hasRole("USER")
+                        // Configuration pages - restricted to CONFIG and ADMIN roles
+                        .requestMatchers("/config/**").hasAnyRole("CONFIG", "ADMIN")
+                        // All other API endpoints require USER role
                         .requestMatchers("/api/v1/**").hasRole("USER")
-                        .requestMatchers("/config/**").hasRole("CONFIG")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)

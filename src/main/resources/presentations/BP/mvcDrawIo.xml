@@ -1,0 +1,109 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:138.0) Gecko/20100101 Firefox/138.0" version="27.0.6">
+  <diagram id="mvc" name="MVC Architecture">
+    <mxGraphModel dx="1033" dy="744" grid="0" gridSize="20" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" background="light-dark(#FFFFFF, #ffffff)" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Model Layer" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=default;strokeColor=light-dark(#6C8EBF,#000000);labelBackgroundColor=none;fontColor=light-dark(#000000, #ffff80);" parent="1" vertex="1">
+          <mxGeometry x="40" y="40" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="3" value="Entities" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="2" vertex="1">
+          <mxGeometry y="26" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="4" value="- User" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="2" vertex="1">
+          <mxGeometry y="52" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="5" value="- Event" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="2" vertex="1">
+          <mxGeometry y="78" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="6" value="- Room" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="2" vertex="1">
+          <mxGeometry y="104" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="8" value="View Layer" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=default;strokeColor=light-dark(#6C8EBF,#000000);labelBackgroundColor=none;fontColor=light-dark(#000000, #ffff80);" parent="1" vertex="1">
+          <mxGeometry x="610" y="40" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9" value="Thymeleaf Templates" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="8" vertex="1">
+          <mxGeometry y="26" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="10" value="- calendar.html" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="8" vertex="1">
+          <mxGeometry y="52" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="9Ys2ONXQniVLC30WIwrl-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="8" source="11">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-4" y="107.33334350585938" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="11" value="- login.html" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="8" vertex="1">
+          <mxGeometry y="78" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="12" value="- findAvailable.html" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="8" vertex="1">
+          <mxGeometry y="104" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="14" value="Controller Layer" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=default;strokeColor=light-dark(#6C8EBF,#000000);labelBackgroundColor=none;fontColor=light-dark(#000000, #ffff80);" parent="1" vertex="1">
+          <mxGeometry x="314" y="40" width="200" height="156" as="geometry" />
+        </mxCell>
+        <mxCell id="15" value="Controllers" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="14" vertex="1">
+          <mxGeometry y="26" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="16" value="- CalendarController" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="14" vertex="1">
+          <mxGeometry y="52" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="17" value="- SecurityController" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="14" vertex="1">
+          <mxGeometry y="78" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="18" value="- ConfigController" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="14" vertex="1">
+          <mxGeometry y="104" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="19" value="- RestConfigController" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="14" vertex="1">
+          <mxGeometry y="130" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="20" value="Data Access Layer" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=default;strokeColor=light-dark(#6C8EBF,#000000);labelBackgroundColor=none;fontColor=light-dark(#000000, #ffff80);" parent="1" vertex="1">
+          <mxGeometry x="40" y="320" width="760" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="21" value="Repositories" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="20" vertex="1">
+          <mxGeometry y="26" width="760" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="22" value="- EventRepository" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="20" vertex="1">
+          <mxGeometry y="52" width="760" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="23" value="- UserRepository" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="20" vertex="1">
+          <mxGeometry y="78" width="760" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="24" value="- RoomRepository" style="text;strokeColor=light-dark(#6C8EBF,#000000);fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);" parent="20" vertex="1">
+          <mxGeometry y="104" width="760" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="9Ys2ONXQniVLC30WIwrl-35" value="Sends data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#6C8EBF,#000000);" edge="1" parent="1" source="6" target="18">
+          <mxGeometry x="0.0811" y="-13" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Ys2ONXQniVLC30WIwrl-36" value="Stores data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#6C8EBF,#000000);" edge="1" parent="1" source="15" target="3">
+          <mxGeometry x="-0.0811" y="-19" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Ys2ONXQniVLC30WIwrl-39" value="Renders" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#6C8EBF,#000000);" edge="1" parent="1" source="18" target="12">
+          <mxGeometry x="-0.0417" y="-13" relative="1" as="geometry">
+            <mxPoint x="570" y="230" as="sourcePoint" />
+            <mxPoint x="666" y="230" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Ys2ONXQniVLC30WIwrl-40" value="&lt;div&gt;Request&amp;nbsp;&lt;/div&gt;&lt;div&gt;from user&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);strokeColor=light-dark(#6C8EBF,#000000);" edge="1" parent="1" source="9" target="15">
+          <mxGeometry x="0.0417" y="-29" relative="1" as="geometry">
+            <mxPoint x="610" y="81" as="sourcePoint" />
+            <mxPoint x="550" y="60" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Ys2ONXQniVLC30WIwrl-43" value="&lt;div&gt;Storing and Fetching&lt;/div&gt;&lt;div&gt;&amp;nbsp;Data from Database&lt;/div&gt;" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.467;entryY=1.026;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.123;exitY=-0.01;exitDx=0;exitDy=0;exitPerimeter=0;labelBackgroundColor=none;fontColor=light-dark(#000000,#000000);labelBorderColor=none;textShadow=0;strokeColor=light-dark(#6C8EBF,#000000);" edge="1" parent="1" source="20" target="6">
+          <mxGeometry x="0.0494" y="-60" width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="360" y="440" as="sourcePoint" />
+            <mxPoint x="460" y="340" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
