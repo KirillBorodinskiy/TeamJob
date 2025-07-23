@@ -5,7 +5,6 @@ import com.borodkir.teamjob.data.*;
 import com.borodkir.teamjob.data.repositories.EventRepository;
 import com.borodkir.teamjob.data.repositories.RoomRepository;
 import com.borodkir.teamjob.data.repositories.UserRepository;
-import com.borodkir.teamjob.services.implementations.CalendarServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 

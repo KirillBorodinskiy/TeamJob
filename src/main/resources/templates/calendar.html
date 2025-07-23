@@ -320,7 +320,7 @@
                             Go to day-view to see all events
                         </div>
                         <div th:each="event : ${day.events}"
-                             th:if="${day.amountOfEvents<5}"
+                             th:if="${day.amountOfEvents<=5}"
                              th:class="'event'"
                              th:draggable="true"
                              th:style="'height: calc(' + ${event.getDurationInADay()} + '* var(--hour-height));top: calc(' + ${event.getStartTimeToUse()} + ' * var(--hour-height) + 0px);'">

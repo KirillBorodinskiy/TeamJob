@@ -12,7 +12,7 @@ Furthermore, the system offers a \texttt{FindAvailable} feature, which allows us
 Under the \textbf{Secure Interactions} category, the system offers a login system, which allows users to log into the system using a username and password.
 The system stores all passwords in a hashed format using the BCrypt algorithm.
 Instead of traditional session-based authentication, the system uses JWT tokens to authenticate users stateless-way.
-
+This method was learned from the video resource~\cite{Amigoscode2023}.
 
 \subsection{Non-Functional Requirements}\label{subsec:non-functional-requirements}
 
@@ -25,6 +25,7 @@ Reliability is ensured through robust error handling and data consistency mechan
 
 Maintainability is supported by comprehensive documentation, a modular architecture, and extensive test coverage.
 This ensures that the system can be easily updated and maintained over time.
+
 
 \section{System Architecture}\label{sec:system-architecture}
 
@@ -57,6 +58,9 @@ Resource endpoints manage rooms and events, while query endpoints provide functi
 View endpoints serve the user interface, with dedicated routes for calendar views and system configuration.
 Calendar views support weekly and daily perspectives, while configuration views provide interfaces for managing rooms, events, and users.
 
+The basics of this design were adopted following guidance from the video resource~\cite{VisualComputerScience2023}.
+
+
 \section{Database Design}\label{sec:database-design}
 
 \subsection{Database Schema}\label{subsec:database-schema}
@@ -88,13 +92,14 @@ Creating a one-to-many relationship with the events table, the rooms table can h
 
 The event table serves as the central scheduling entity, storing event details such as title, description, timing information, and recurrence settings.
 Events maintain relationships with both users and rooms, tracking who is involved and where the event takes place.
-Recurrence is implemented following the RFC 5545 standard.
+Recurrence is implemented following the RFC 5545 standard\cite{rfc5545}.
 
 \subsection{Spring Data JPA Implementation}\label{subsec:spring-data-jpa}
 
 The application relies on Spring Data JPA for efficient data persistence.
 Entity classes are annotated with @Entity and @Table, while repositories extend JpaRepository to provide standard CRUD operations.
 Relationships between entities are managed through JPA annotations and Spring handles transaction management automatically.
+The method of implementing the relationships was learned from the spring.io wiki~\cite{SpringDataJPA2024}.
 
 \section{User Interface Design}\label{sec:ui-design}
 

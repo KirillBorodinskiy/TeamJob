@@ -31,10 +31,33 @@
     </div>
 
     <div class="rooms-list" id="roomList">
-        <div th:each="room : ${rooms}" class="room-card">
-            <h3 th:text="${room.name}">Room Name</h3>
-            <p th:text="${room.description ?: 'No description'}">Description</p>
-            <button class="delete-btn" th:onclick="'deleteRoom(' + ${room.id} + ')'">&#x2715;</button>
+        <div th:each="roomMap : ${roomsWithTagsString}" class="room-card">
+            <form th:id="'editRoomForm_' + ${roomMap.room.id}" class="edit-room-form" style="display:none;" th:object="${roomMap.room}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="id" th:value="${roomMap.room.id}"/>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" th:value="${roomMap.room.name}" required />
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" th:text="${roomMap.room.description}"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Tags (comma separated)</label>
+                    <input type="text" name="tags" th:value="${roomMap.tagsString != null ? roomMap.tagsString : #strings.listJoin(roomMap.room.tags, ',')}" />
+                </div>
+                <button type="submit" class="save-btn">Save</button>
+                <button type="button" class="cancel-btn" th:onclick="|toggleEditRoomForm('${roomMap.room.id}')|">Cancel</button>
+            </form>
+            <div class="room-view">
+                <h3 th:text="${roomMap.room.name}">Room Name</h3>
+                <p><strong>ID:</strong> <span th:text="${roomMap.room.id}"></span></p>
+                <p><strong>Description:</strong> <span th:text="${roomMap.room.description}"></span></p>
+                <p><strong>Tags:</strong> <span th:text="${roomMap.tagsString != null ? roomMap.tagsString : #strings.listJoin(roomMap.room.tags, ', ')}"></span></p>
+                <button class="edit-btn" type="button" th:onclick="|toggleEditRoomForm('${roomMap.room.id}')|">Edit</button>
+                <button class="delete-btn" th:onclick="'deleteRoom(' + ${roomMap.room.id} + ')'">&#x2715;</button>
+            </div>
         </div>
     </div>
 </div>
@@ -107,6 +130,45 @@
             console.error('Error:', error);
             alert('Failed to save room');
         }
+    });
+
+    function toggleEditRoomForm(roomId) {
+        const form = document.getElementById('editRoomForm_' + roomId);
+        if (form) {
+            const isVisible = form.style.display === 'block';
+            form.style.display = isVisible ? 'none' : 'block';
+            if (form.nextElementSibling) {
+                form.nextElementSibling.style.display = isVisible ? 'block' : 'none';
+            }
+        }
+    }
+    document.querySelectorAll('.edit-room-form').forEach(form => {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value; });
+            // Convert comma separated tags to array
+            data.tags = data.tags ? data.tags.split(',').map(s => s.trim()) : [];
+            try {
+                const response = await fetch('/api/v1/updaterooms', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [getCsrfHeader()]: getCsrfToken()
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to update room');
+                }
+            } catch (error) {
+                alert('Failed to update room');
+            }
+        });
     });
 </script>
 </body>

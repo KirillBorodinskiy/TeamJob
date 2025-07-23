@@ -19,12 +19,12 @@
 \makeatletter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
 \newenvironment{lyxlist}[1]
-	{\begin{list}{}
-		{\settowidth{\labelwidth}{#1}
-		 \setlength{\leftmargin}{\labelwidth}
-		 \addtolength{\leftmargin}{\labelsep}
-		 \renewcommand{\makelabel}[1]{##1\hfil}}}
-	{\end{list}}
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
 %% Font setup: please leave the LyX font settings all set to 'default'
@@ -94,316 +94,322 @@
 \usepackage{babel}
 \usepackage{hyperref}
 \usepackage{color}
-\usepackage{color}
+\usepackage{multirow}
 \begin{document}
-\def\documentdate{August 4, 2025}
+    \newcommand{\documentdate}{August 4, 2025}
 
 %%\def\documentdate{\today}
 
-\pagestyle{empty}
-{\centering
+    \pagestyle{empty}
+    {\centering
 
-\noindent{}%
-\begin{minipage}[c]{3cm}%
-\begin{center}
-\includegraphics[width=3cm,keepaspectratio,height=3cm]{Images/TITLE/cvut}
-\par\end{center}%
-\end{minipage}%
-\begin{minipage}[c]{0.6\linewidth}%
-\begin{center}
-{\large\textsc{Czech Technical University in Prague}}{\large}\\
-{\large Faculty of Nuclear Sciences and Physical Engineering}
-\par\end{center}%
-\end{minipage}%
-\begin{minipage}[c]{3cm}%
-\begin{center}
-\includegraphics[width=3cm,keepaspectratio,height=3cm]{Images/TITLE/fjfi}
-\par\end{center}%
-\end{minipage}
+    \noindent{}%
+        \begin{minipage}[c]{3cm}%
+            \begin{center}
+                \includegraphics[width=3cm,keepaspectratio,height=3cm]{Images/TITLE/cvut}
+                \par
+            \end{center}%
+        \end{minipage}%
+        \begin{minipage}[c]{0.6\linewidth}%
+            \begin{center}
+            {\large\textsc{Czech Technical University in Prague}}{\large}
+                \\
+                {\large Faculty of Nuclear Sciences and Physical Engineering}
+                \par
+            \end{center}%
+        \end{minipage}%
+        \begin{minipage}[c]{3cm}%
+            \begin{center}
+                \includegraphics[width=3cm,keepaspectratio,height=3cm]{Images/TITLE/fjfi}
+                \par
+            \end{center}%
+        \end{minipage}
 
-\vspace{3cm}
+        \vspace{3cm}
 
-{\huge\textbf{Web application for team work organization}}{\huge\par}
+        {\huge\textbf{Web application for team work organization}}{\huge\par}
 
-\vspace{1cm}
+        \vspace{1cm}
 
-\selectlanguage{czech}%
-{\huge\textbf{Webová aplikace pro organizaci týmové práce}}{\huge\par}
+        \selectlanguage{czech}%
+        {\huge\textbf{Webová aplikace pro organizaci týmové práce}}{\huge\par}
 
-\selectlanguage{american}%
-\vspace{2cm}
+        \selectlanguage{american}%
+        \vspace{2cm}
 
-{\large Bachelor's Degree Project}{\large\par}
-
-}
-
-\vfill{}
-
-\begin{lyxlist}{MMMMMMMMM}
-\begin{singlespace}
-\item [{Author:}] \textbf{Kirill Borodinskiy}
-\item [{Supervisor:}] \textbf{doc. Ing. Miroslav Virius, CSc.}
-\item [{Academic~year:}] 2024/2025
-\end{singlespace}
-\end{lyxlist}
-
-\includepdf[]{BPZADANI.pdf}
-
-\noindent{\Large\emph{Acknowledgment:}}{\Large\par}
-
-\noindent I would like to thank my mother Elena and my girlfriend Anastasiia for their moral support.
-I would like to thank my supervisor, Miroslav Virius, for their help in organization of my bachelor's thesis project.
-
-\vfill
-
-\noindent{\Large\emph{Author's declaration:}}{\Large\par}
-
-\noindent I declare that this Bachelor's Degree Project is entirely
-my own work and I have listed all the used sources in the bibliography.
-AI tools were used in full accordance with the guidelines established
-by CTU in Prague.
-
-\bigskip{}
-
-\noindent Prague, \documentdate\hfill{}Kirill Borodinskiy
-
-\vspace{2cm}
-
-\newpage{}
-
-\selectlanguage{czech}%
-\begin{onehalfspace}
-\noindent\emph{Název práce:}
-
-\noindent\textbf{Webová aplikace pro organizaci týmové práce}
-\end{onehalfspace}
-
-\bigskip{}
-
-\noindent\emph{Autor:} Kirill Borodinskiy
-
-\bigskip{}
-
-\noindent\emph{Studijní program:} Celý název studijního programu
-(nikoliv zkratka)\bigskip{}
-
-\noindent\emph{Specializace:} Celý název specializace (Pokud se studijní
-program nedělí na specializace, tuto řádku odstranit.)
-
-\bigskip{}
-
-\noindent\emph{Druh práce:} Bakalářská práce
-
-\bigskip{}
-
-\noindent\emph{Vedoucí práce:}doc.
-Ing.
-Miroslav Virius, CSc., DrSc.,
-pracoviště školitele (název instituce, fakulty, katedry)
-
-\bigskip{}
-
-\bigskip{}
-
-\noindent\emph{Abstrakt:} Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-Abstrakt max.
-na 10 řádků.
-
-\bigskip{}
-
-\noindent\emph{Klíčová slova:} klíčová slova (nebo výrazy) seřazená
-podle abecedy a oddělená čárkou
-
-\selectlanguage{american}%
-\vfill{}
-~
-
-\begin{onehalfspace}
-\noindent\emph{Title:}
-
-\noindent\textbf{Title of the Work}
-\end{onehalfspace}
-
-\bigskip{}
-
-\noindent\emph{Author:} Kirill Borodinskiy
-
-\bigskip{}
-
-\noindent\emph{Abstract:} Max.
-10 lines of English abstract text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines of English abstract
-text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines of English
-abstract text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines
-of English abstract text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines of English abstract
-text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines of English
-abstract text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines
-of English abstract text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines of English abstract
-text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines of English
-abstract text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines
-of English abstract text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines of English abstract text.
-Max.
-10 lines of English abstract
-text.
-Max.
-10 lines of English abstract text.
-
-\bigskip{}
-
-\noindent\emph{Key words:} keywords in alphabetical order separated
-by commas
-
-\newpage{}
-
-\pagestyle{plain}
-
-\tableofcontents{}
-
-\newpage{}
-
-
-
-
-
-
-
-\chapter{Introduction}\label{ch:introduction}
-\input{ch1_introduction}
-
-\chapter{Tools}\label{ch:tools}
-\input{ch2_tools}
-
-\chapter{Methods}\label{ch:methods}
-\input{ch3_implementation}
-
-\chapter{Results}\label{ch:results}
-\input{ch4_results}
-
-\chapter{Discussion}\label{ch:discussion}
-\input{ch5_discussion}
-
-
-\chapter*{Conclusion}
-
-\pagestyle{plain}
-
-\addcontentsline{toc}{chapter}{Conclusion}
-
-Text of the conclusion\ldots{}
-\begin{thebibliography}{1}
-\bibitem{Allen-Cahn}S. Allen, J. W. Cahn: \emph{A microscopic theory
-for antiphase boundary motion and its application to antiphase domain
-coarsening}.
-Acta Metall., 27:1084-1095, 1979.
-
-\bibitem{CINECA}G. Ballabio et al.: \emph{High Performance Systems
-User Guide}.
-High Performance Systems Department, CINECA, Bologna,
-2005. \url{www.cineca.it}
-
-\bibitem{rumpf3}J. Becker, T. Preusser, M. Rumpf: \emph{PDE methods
-in flow simulation post processing}.
-Computing and Visualization in
-Science, 3(3):159-167, 2000.
-
-\end{thebibliography}
+        {\large Bachelor's Degree Project}{\large\par}
+
+    }
+
+    \vfill{}
+
+    \begin{lyxlist}{MMMMMMMMM}
+        \begin{singlespace}
+            \item [{Author:}] \textbf{Kirill Borodinskiy}
+            \item [{Supervisor:}] \textbf{doc. Ing. Miroslav Virius, CSc.}
+            \item [{Academic~year:}] 2024/2025
+        \end{singlespace}
+    \end{lyxlist}
+
+    \includepdf[]{BPZADANI.pdf}
+    \includepdf[]{document_24_filename.pdf}
+
+    \noindent{\Large\emph{Acknowledgment:}}{\Large\par}
+
+    \noindent I would like to thank my mother Elena and my girlfriend Anastasiia for their moral support.
+    I would like to thank my supervisor, Miroslav Virius, for their help in organization of my bachelor's thesis project.
+
+    \vfill
+
+    \noindent{\Large\emph{Author's declaration:}}{\Large\par}
+
+    \noindent I declare that this Bachelor's Degree Project is entirely
+    my own work and I have listed all the used sources in the bibliography.
+    AI tools were used in full accordance with the guidelines established
+    by CTU in Prague.
+
+    \bigskip{}
+
+    \noindent Prague, \documentdate\hfill{}Kirill Borodinskiy
+
+    \vspace{2cm}
+
+    \newpage{}
+
+    \selectlanguage{czech}%
+    \begin{onehalfspace}
+        \noindent\emph{Název práce:}
+
+        \noindent\textbf{Webová aplikace pro organizaci týmové práce}
+    \end{onehalfspace}
+
+    \bigskip{}
+
+    \noindent\emph{Autor:} Kirill Borodinskiy
+
+    \bigskip{}
+
+    \noindent\emph{Studijní program:} Celý název studijního programu
+    (nikoliv zkratka)\bigskip{}
+
+    \noindent\emph{Specializace:} Celý název specializace (Pokud se studijní
+    program nedělí na specializace, tuto řádku odstranit.)
+
+    \bigskip{}
+
+    \noindent\emph{Druh práce:} Bakalářská práce
+
+    \bigskip{}
+
+    \noindent\emph{Vedoucí práce:}doc.
+    Ing.
+    Miroslav Virius, CSc., DrSc.,
+    pracoviště školitele (název instituce, fakulty, katedry)
+
+    \bigskip{}
+
+    \bigskip{}
+
+    \noindent\emph{Abstrakt:} Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+    Abstrakt max.
+    na 10 řádků.
+
+    \bigskip{}
+
+    \noindent\emph{Klíčová slova:} klíčová slova (nebo výrazy) seřazená
+    podle abecedy a oddělená čárkou
+
+    \selectlanguage{american}%
+    \vfill{}
+    ~
+
+    \begin{onehalfspace}
+        \noindent\emph{Title:}
+
+        \noindent\textbf{Title of the Work}
+    \end{onehalfspace}
+
+    \bigskip{}
+
+    \noindent\emph{Author:} Kirill Borodinskiy
+
+    \bigskip{}
+
+    \noindent\emph{Abstract:} Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines of English abstract
+    text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines of English
+    abstract text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines
+    of English abstract text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines of English abstract
+    text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines of English
+    abstract text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines
+    of English abstract text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines of English abstract
+    text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines of English
+    abstract text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines
+    of English abstract text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines of English abstract text.
+    Max.
+    10 lines of English abstract
+    text.
+    Max.
+    10 lines of English abstract text.
+
+    \bigskip{}
+
+    \noindent\emph{Key words:} keywords in alphabetical order separated
+    by commas
+
+    \newpage{}
+
+    \pagestyle{plain}
+
+    \tableofcontents{}
+
+    \newpage{}
+
+
+    \chapter{Introduction}\label{ch:introduction}
+    \input{ch1_introduction}
+
+
+    \chapter{Tools}\label{ch:tools}
+    \input{ch2_tools}
+
+
+    \chapter{Methods}\label{ch:methods}
+    \input{ch3_implementation}
+
+
+    \chapter{Results}\label{ch:results}
+    \input{ch4_results}
+
+
+    \chapter{Discussion}\label{ch:discussion}
+    \input{ch5_discussion}
+
+
+    \chapter{Conclusion}\label{ch:conclusion}
+    \input{ch6_conclusion}
+
+    \begin{thebibliography}{11}
+        \bibitem{Amigoscode2023}Amigoscode: \emph{Spring Boot 3 + Spring Security 6 - JWT Authentication and Authorisation [NEW] [2023]}. Youtube, 2023. \url{https://www.youtube.com/watch?v=KxqlJblhzfI}
+
+        \bibitem{VisualComputerScience2023}Visual Computer Science: \emph{What is Spring-Boot Framework? (explained from scratch)}. Youtube, 2023. \url{https://www.youtube.com/watch?v=LSEYdU8Dp9Y}
+
+        \bibitem{LearnDocker}Fireship: \emph{Learn Docker in 7 Easy Steps - Full Beginner's Tutorial}. 2021. \url{https://www.youtube.com/watch?v=gAkwW2tuIqE} (YouTube video, Accessed: 2024-07-23)
+
+        \bibitem{SpringDataJPA2024}Spring Team: \emph{Accessing Data with JPA}. 2024. \url{https://spring.io/guides/gs/accessing-data-jpa} (Accessed: 2024-05-01)
+
+        \bibitem{GerritMeyer2025}Gerrit Meyer: \emph{Why PostgreSQL is One of the Best Databases for Modern Applications and Why We Use It}. heisenware, 2025. \url{https://heisenware.com/en/blog/why-postgresql-is-one-of-the-best-databases-for-modern-applications}
+
+        \bibitem{ThebenefitsofPostgreSQL}Justin Ellingwood: \emph{The benefits of PostgreSQL}. Prisma data guide. \url{https://www.prisma.io/dataguide/postgresql/benefits-of-postgresql}
+
+        \bibitem{AuditingSpringData}Spring framework: \emph{Auditing :: Spring Data JPA}.\url{https://spring.io/guides/gs/accessing-data-jpa}
+
+        \bibitem{ShreyashVardhan2024}Shreyash Vardhan: \emph{Benchmarking Django vs Spring Boot : A comparative study.} 2024.
+
+        \bibitem{rfc5545}B. Desruisseaux: \emph{Internet Calendaring and Scheduling Core Object Specification (iCalendar)}. Internet Engineering Task Force, RFC 5545, 2009. \url{https://www.rfc-editor.org/rfc/rfc5545.html} (Accessed: 2024-05-01)
+
+        \bibitem{Suryotrisongko2017}Hatma Suryotrisongko, Dedy Puji Jayanto, Aris Tjahyanto: \emph{Design and Development of Backend Application for Public Complaint Systems Using Microservice Spring Boot}. In: Procedia Computer Science, vol. 124, 2017. doi:10.1016/j.procs.2017.12.212
+
+        \bibitem{Kozak2023}Mateusz Kozak: \emph{Analysis of the Spring Boot and Spring Cloud in developing Java cloud applications}. Journal of Computer Sciences Institute, vol. 27, 2023. doi:10.35784/jcsi.3130
+    \end{thebibliography}
 
 \end{document}
