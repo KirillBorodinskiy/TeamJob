@@ -30,8 +30,8 @@ This ensures that the system can be easily updated and maintained over time.
 \section{System Architecture}\label{sec:system-architecture}
 
 \subsection{Overall Architecture}\label{subsec:overall-architecture}
-The application follows a four-tier architecture pattern, separating concerns across \texttt{Models}, \texttt{Views}, \texttt{Controllers}, and the \texttt{Database}.
-This~\ref{fig:architecture} separation enables better maintainability and scalability while keeping the system modular and efficient.
+The application follows a four-tier architecture pattern, separating concerns across \texttt{Models}, \texttt{Views}, \texttt{Controllers}, and the \texttt{Database}. This separation enables better maintainability and scalability while keeping the system modular and efficient.
+(See fig.~\ref{fig:architecture} for the system architecture diagram.)
 
 \begin{figure}[h]
     \centering
@@ -58,13 +58,15 @@ Resource endpoints manage rooms and events, while query endpoints provide functi
 View endpoints serve the user interface, with dedicated routes for calendar views and system configuration.
 Calendar views support weekly and daily perspectives, while configuration views provide interfaces for managing rooms, events, and users.
 
-The basics of this design were adopted following guidance from the video resource~\cite{VisualComputerScience2023}.
+The basics of this design were adopted following guidance from the video resource
+
+~\cite{VisualComputerScience2023}.
 
 
 \section{Database Design}\label{sec:database-design}
 
 \subsection{Database Schema}\label{subsec:database-schema}
-The database schema~\ref{fig:schemaDB} is designed around three main entities: users, rooms, and events.
+The database schema (see fig.~\ref{fig:schemaDB}) is designed around three main entities: users, rooms, and events.
 
 After that, the \texttt{roles} table is used to manage the user roles.
 
@@ -82,7 +84,8 @@ In addition, 3 tables of \texttt{tags} are used to manage the tags for rooms, ev
 The table ``users'' stores essential user information, including username, email, and securely hashed passwords.
 Maintains a many-to-many relationship with the role table, enabling flexible role assignment and management.
 This solution is not the most elegant one, as it requires additional queries to get the roles of a user.
-However, it was chosen to simplify the implementation of authentication and authorization.
+However, it was chosen to simplify the implementation of authentication(which validates permissions) and authorization(which validates access to resources).
+
 
 The roles table defines the various user roles within the system, with a connection to the users table using another table called \texttt{user\_roles}.
 This design allows for the easy addition of new roles and modification of existing role permissions.
@@ -100,6 +103,7 @@ The application relies on Spring Data JPA for efficient data persistence.
 Entity classes are annotated with @Entity and @Table, while repositories extend JpaRepository to provide standard CRUD operations.
 Relationships between entities are managed through JPA annotations and Spring handles transaction management automatically.
 The method of implementing the relationships was learned from the spring.io wiki~\cite{SpringDataJPA2024}.
+
 
 \section{User Interface Design}\label{sec:ui-design}
 
