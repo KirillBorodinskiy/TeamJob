@@ -53,13 +53,13 @@ Tag-based filtering is executed within the service layer, enabling users to effi
 Furthermore, the system supports the allocation of random tags to entities during the generation of test data, thus ensuring a diverse array of tags for both demonstration and testing purposes.
 
 
-\section{Error Handling and Custom Error Pages}\label{sec:error-handling-and-custom-error-pages}
-The management of errors is facilitated by a bespoke error controller, referred to as the CustomErrorController, which intercepts errors and generates a comprehensive error page (error-debug.html).
+\section{Error Handling and Custom Error Pages}\label{sec:errorHandlingAndCustomErrorPages}
+The management of errors is facilitated by an error controller, referred to as the CustomErrorController, which intercepts errors and generates a comprehensive error page \texttt{error-debug.html}.
 This controller is responsible for extracting error statuses, exception details, messages, and the pathways of requests, and it incorporates stack traces whenever they are available.
 This methodology affords developers and administrators exhaustive information necessary for debugging and system maintenance, while concurrently supplying end users with lucid feedback regarding any issues encountered.
 
 
-\section{Room and User Management}\label{sec:room-and-user-management}
+\section{Room and User Management}\label{sec:roomAndUserManagement}
 The management of rooms and users is integrated into both backend and frontend systems.
 The ConfigController offers endpoints for the enumeration, addition, and removal of rooms and users.
 In the backend, there are strict verifications to ensure that only users with designated roles are authorized to carry out these operations.
@@ -70,9 +70,46 @@ The deletion process is secured by the inclusion of confirmation prompts and bac
 Additionally, the system accommodates the bulk management of events, rooms, and users, thereby enhancing the efficiency of administrative functions.
 
 
-\section{Find Available Functionality}\label{sec:find-available-functionality}
+\section{Find Available Functionality}\label{sec:findAvailableFunctionality}
 The ``Find Available'' functionality is executed within the CalendarController and CalendarServiceImpl.
 Users are enabled to query for available rooms or users by specifying relevant tags, date, start, and end times, as well as the desired duration.
 The backend systematically processes these inputs, computes unoccupied time slots using the generateAvailableTimeRequest method, and subsequently provides a list of available resources.
 The returned results include direct links to observe availability within the calendar, thus significantly streamlining the scheduling of meetings or events in environments characterized by high demand for bookings.
 This particular functionality is notably absent from the existing scheduling system implemented at my University.
+
+\newpage
+\section{Installation and Deployment tutorial}\label{sec:installationAndDeploymentTutorial}
+The installation of this project was made simple and straightforward.
+
+\textbf{Firstly, install docker.} This can be done either from the official website or from the package manager of your operating system.
+For example, on Ubuntu, you can install docker using the following commands (From the official website~\cite{DockerWebsite}):
+\begin{minted}{bash}
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+echo \
+ "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+ $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+ sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin git
+\end{minted}
+This will install git, docker and docker-compose.
+
+\textit{Note:} If you are using a different operating system, you can find the installation instructions on the official website.
+
+\textbf{Secondly, clone the repository.} This will be done using git that was installed in the previous step.
+\begin{minted}{bash}
+git clone https://github.com/KirillBorodinskiy/TeamJob.git
+\end{minted}
+
+\textbf{Thirdly, build and run the project.} This will be done using docker-compose that was pre-configured to handle all tasks and dependencies automatically.
+\begin{minted}{bash}
+cd TeamJob
+docker-compose up
+\end{minted}
+
