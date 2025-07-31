@@ -21,7 +21,7 @@ This challenge could be addressed by extensively modifying the source code, give
 \section{Calendar Functionality}\label{sec:calendar-functionality}
 
 The calendar system represents the project's most complex component, and its implementation reveals both the power and limitations of the chosen approach.
-The RFC 5545 compliance for recurring events, while technically correct, introduced significant complexity.
+The RFC 5545 compliance for recurring events, while technically correct in the backend implementation, introduced significant complexity that affected the frontend display development.
 The availability calculation algorithms, while efficient for moderate datasets, may not scale to enterprise-level deployments with thousands of users and events.
 
 The powerful filtering system offers users the ability to identify the most suitable schedule.
@@ -57,7 +57,7 @@ However, the author lacked the requisite expertise in such frameworks, and tempo
 \end{figure}
 
 The creation of an effective calendar interface presents the challenge of displaying scheduling data in a way that is both clear and user-friendly.
-Feedback from an expert within the design domain has been positively received regarding the UI elements \ref{fig:week-view} of the application, particularly applauding the selection of color schemes and the intuitive nature of the navigation system.
+Feedback from an expert within the design domain has been positively received regarding the UI elements~\ref{fig:week-view} of the application, particularly applauding the selection of color schemes and the intuitive nature of the navigation system.
 
 
 \section{Testing Strategy}\label{sec:testing-strategy}
@@ -71,7 +71,7 @@ The service logic is effectively isolated through the injection of mock reposito
 The testing protocol covers various scenarios, such as event conversion, recurrence rules, filtering, and overlapping events, to verify that the core scheduling logic functions correctly.
 
 \textbf{Controller Layer Testing:} The \texttt{RestConfigControllerTest} class employs Spring Boot's \texttt{@SpringBootTest} and \texttt{@AutoConfigureMockMvc} to execute integration testing on REST endpoints.
-These assessments simulate authentic HTTP requests through the utilization of MockMvc, validating authentication, authorization, and accurate handling of event creation, including recurring events.
+These assessments simulate authentic HTTP requests through the utilization of MockMvc, validating authentication, authorization, and accurate handling of event creation, including the backend processing of recurring events.
 JWT tokens are systematically generated for a variety of user roles to evaluate access control mechanisms.
 The validation procedures ensure that actions are executable exclusively by users with the necessary roles and that the API delivers precise responses to both legitimate and illegitimate requests.
 
