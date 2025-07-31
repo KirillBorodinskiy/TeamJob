@@ -15,6 +15,8 @@ In instances where a scheduling conflict is identified, the system issues a conf
 The event creation process accommodates both singular and recurring events.
 For recurring events, the system constructs an RRULE string that complies with RFC 5545 standards, including support for intervals, end dates, and specific weekdays in the case of weekly recurrences.
 The event entity is responsible for maintaining all recurrence-related information, including exception dates (exdate) and supplementary dates (rdate).
+While the backend logic for recurring events is fully implemented and functional, the frontend display of recurring events in the calendar interface has not been completed.
+The system successfully stores and processes recurring event data, but the visual representation of these events in the calendar views requires further development.
 In addition, the DefaultValueService has been implemented to facilitate the demonstration of the project.
 It generates test events, users, and rooms to verify the system's functionality under conditions of load.
 
@@ -53,13 +55,13 @@ Tag-based filtering is executed within the service layer, enabling users to effi
 Furthermore, the system supports the allocation of random tags to entities during the generation of test data, thus ensuring a diverse array of tags for both demonstration and testing purposes.
 
 
-\section{Error Handling and Custom Error Pages}\label{sec:error-handling-and-custom-error-pages}
-The management of errors is facilitated by a bespoke error controller, referred to as the CustomErrorController, which intercepts errors and generates a comprehensive error page (error-debug.html).
+\section{Error Handling and Custom Error Pages}\label{sec:errorHandlingAndCustomErrorPages}
+The management of errors is facilitated by an error controller, referred to as the CustomErrorController, which intercepts errors and generates a comprehensive error page \texttt{error-debug.html}.
 This controller is responsible for extracting error statuses, exception details, messages, and the pathways of requests, and it incorporates stack traces whenever they are available.
 This methodology affords developers and administrators exhaustive information necessary for debugging and system maintenance, while concurrently supplying end users with lucid feedback regarding any issues encountered.
 
 
-\section{Room and User Management}\label{sec:room-and-user-management}
+\section{Room and User Management}\label{sec:roomAndUserManagement}
 The management of rooms and users is integrated into both backend and frontend systems.
 The ConfigController offers endpoints for the enumeration, addition, and removal of rooms and users.
 In the backend, there are strict verifications to ensure that only users with designated roles are authorized to carry out these operations.
@@ -70,9 +72,91 @@ The deletion process is secured by the inclusion of confirmation prompts and bac
 Additionally, the system accommodates the bulk management of events, rooms, and users, thereby enhancing the efficiency of administrative functions.
 
 
-\section{Find Available Functionality}\label{sec:find-available-functionality}
+\section{Find Available Functionality}\label{sec:findAvailableFunctionality}
 The ``Find Available'' functionality is executed within the CalendarController and CalendarServiceImpl.
 Users are enabled to query for available rooms or users by specifying relevant tags, date, start, and end times, as well as the desired duration.
 The backend systematically processes these inputs, computes unoccupied time slots using the generateAvailableTimeRequest method, and subsequently provides a list of available resources.
 The returned results include direct links to observe availability within the calendar, thus significantly streamlining the scheduling of meetings or events in environments characterized by high demand for bookings.
 This particular functionality is notably absent from the existing scheduling system implemented at my University.
+
+\newpage
+\section{Installation and Deployment tutorial}\label{sec:installationAndDeploymentTutorial}
+The installation of this project was made simple and straightforward.
+
+\textbf{Firstly, install docker.} This can be done either from the official website or from the package manager of your operating system.
+For example, on Ubuntu, you can install docker using the following commands (From the official website~\cite{DockerWebsite}):
+\begin{minted}{bash}
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+echo \
+ "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+ $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+ sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin git
+\end{minted}
+This will install git, docker and docker-compose.
+
+\textit{Note:} If you are using a different operating system, you can find the installation instructions on the official website.
+
+\textbf{Secondly, clone the repository.} This will be done using git that was installed in the previous step.
+\begin{minted}{bash}
+git clone https://github.com/KirillBorodinskiy/TeamJob.git
+\end{minted}
+
+\textbf{Thirdly, build and run the project.} This will be done using docker-compose that was pre-configured to handle all tasks and dependencies automatically.
+\begin{minted}{bash}
+cd TeamJob
+docker-compose up
+\end{minted}
+
+The application will be accessible through a web browser at \url{http://localhost:8080} upon successful deployment.
+The default port configuration can be modified within the \texttt{docker-compose.yml} file to accommodate specific network requirements or port conflicts.
+This containerized deployment approach ensures consistent execution environments across different operating systems and eliminates the need for manual dependency management.
+
+For development and customization purposes, the application can be executed without Docker containerization, though this approach necessitates additional configuration and setup procedures.
+This alternative deployment method requires the installation of Java Development Kit (JDK) version 21, which can be obtained from the official Oracle website or through package managers such as Homebrew on macOS or apt on Ubuntu systems.
+The local execution process involves navigating to the project directory and utilizing the Gradle wrapper to compile and run the application:
+
+\begin{minted}{bash}
+cd TeamJob
+./gradlew build
+\end{minted}
+
+This non-containerized approach requires manual configuration of the PostgreSQL database, including the establishment of database credentials, creation of the database instance, and configuration of connection parameters within the application properties.
+Additionally, users must ensure that all required environment variables are properly set, including database connection strings, authentication secrets, and application-specific configurations.
+This deployment method is particularly suitable for developers who require direct access to the application source code for customization, debugging, or integration with existing development workflows.
+
+\newpage
+\section{Usage tutorial}\label{sec:usageTutorial}
+The application provides an intuitive and comprehensive user interface designed to facilitate efficient scheduling and resource management.
+The system implements a multi-layered authentication mechanism and offers extensive functionality for calendar management, event creation, and administrative operations.
+
+The authentication system utilizes JSON Web Tokens (JWT) to facilitate secure session management throughout the application.
+User registration is allowed through multiple endpoints (\texttt{/signup} and \texttt{/register}), with authentication processes available via \texttt{/login}, \texttt{/signin}, and the primary endpoint \texttt{/}.
+This redundant routing approach ensures ease of access regardless of the user's point of entry.
+Following successful authentication, the system issues a cryptographically secure JWT token, which is retained in the browser's cookie storage, thereby providing persistent session management while upholding security through token expiration and validation.
+The implementation includes comprehensive error handling mechanisms for invalid credentials and session expiration.
+
+The primary calendar interface at \texttt{/calendar} functions as the central operational hub, allowing users to visualize, create, and manage events through an intuitive interface.
+This interface accommodates both weekly and daily perspectives, allowing users to traverse different temporal views.
+Detailed event information is accessible via the \texttt{/event/\{id\}} endpoint, which provides comprehensive data, including participant details, room allocations, and related metadata.
+Information specific to rooms can be obtained through the \texttt{/room/\{id\}} endpoint, which provides extensive room specifications, availability patterns and organizational tags.
+
+The centralization of administrative functionality is achieved via the hierarchy of the \texttt{/config} endpoint.
+The \texttt{/config/rooms} endpoint provides capabilities for room management, facilitating administrators to view, create, and modify room configurations that include capacity specifications, equipment details, as well as organizational tags.
+The \texttt{/config/events} endpoint provides event management functionality, including reviewing scheduled events, modifying event details, and managing event-specific metadata.
+In addition, user management through \texttt{/config/users} grants administrative access to user account information, role assignments, and user-specific configurations.
+This administrative interface supports role-based access control, allowing system administrators to allocate appropriate permissions and organizational roles.
+The system employs comprehensive audit trails for all administrative operations, ensuring accountability and offering detailed logs for purposes related to security and compliance.
+
+The \texttt{/calendar/findAvailable} endpoint enables the identification of available resources by allowing users to apply specific criteria such as temporal constraints, resource tags, and duration requirements.
+This capability is particularly advantageous in contexts characterized by high resource contention, as it allows users to optimally identify appropriate time slots and resources.
+In addition, the system offers extensive filtering capabilities, allowing users to concentrate on designated subsets of events and resources.
+Users have the ability to filter calendar views based on user identifiers, room specifications, and organizational tags, creating personalized views that improve the salience of pertinent information while mitigating cognitive load.
+The realization of this filtering functionality is facilitated through the integration of front-end interface controls alongside back-end query optimization processes; thus, it should maintain performance efficiency even while handling large datasets.
