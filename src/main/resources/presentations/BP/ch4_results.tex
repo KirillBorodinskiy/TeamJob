@@ -137,26 +137,30 @@ This deployment method is particularly suitable for developers who require direc
 The application provides an intuitive and comprehensive user interface designed to facilitate efficient scheduling and resource management.
 The system implements a multi-layered authentication mechanism and offers extensive functionality for calendar management, event creation, and administrative operations.
 
-The authentication system utilizes JSON Web Tokens (JWT) to facilitate secure session management throughout the application.
+\textbf{The authentication system} utilizes JSON Web Tokens (JWT) to facilitate secure session management throughout the application.
 User registration is allowed through multiple endpoints (\texttt{/signup} and \texttt{/register}), with authentication processes available via \texttt{/login}, \texttt{/signin}, and the primary endpoint \texttt{/}.
+
 This redundant routing approach ensures ease of access regardless of the user's point of entry.
-Following successful authentication, the system issues a cryptographically secure JWT token, which is retained in the browser's cookie storage, thereby providing persistent session management while upholding security through token expiration and validation.
+Following successful authentication, the system issues a cryptographically secure JWT token, which is retained in the browser's cookie storage, providing persistent session management while upholding security through token expiration and validation.
 The implementation includes comprehensive error handling mechanisms for invalid credentials and session expiration.
 
-The primary calendar interface at \texttt{/calendar} functions as the central operational hub, allowing users to visualize, create, and manage events through an intuitive interface.
+\textbf{The primary calendar interface} at \texttt{/calendar} functions as the central operational hub, allowing users to visualize, create, and manage events through an intuitive interface.
 This interface accommodates both weekly and daily perspectives, allowing users to traverse different temporal views.
+
 Detailed event information is accessible via the \texttt{/event/\{id\}} endpoint, which provides comprehensive data, including participant details, room allocations, and related metadata.
 Information specific to rooms can be obtained through the \texttt{/room/\{id\}} endpoint, which provides extensive room specifications, availability patterns and organizational tags.
 
-The centralization of administrative functionality is achieved via the hierarchy of the \texttt{/config} endpoint.
+The centralization of \textbf{administrative functionality} is achieved via the hierarchy of the \texttt{/config} endpoint.
 The \texttt{/config/rooms} endpoint provides capabilities for room management, facilitating administrators to view, create, and modify room configurations that include capacity specifications, equipment details, as well as organizational tags.
 The \texttt{/config/events} endpoint provides event management functionality, including reviewing scheduled events, modifying event details, and managing event-specific metadata.
 In addition, user management through \texttt{/config/users} grants administrative access to user account information, role assignments, and user-specific configurations.
+
 This administrative interface supports role-based access control, allowing system administrators to allocate appropriate permissions and organizational roles.
 The system employs comprehensive audit trails for all administrative operations, ensuring accountability and offering detailed logs for purposes related to security and compliance.
 
-The \texttt{/calendar/findAvailable} endpoint enables the identification of available resources by allowing users to apply specific criteria such as temporal constraints, resource tags, and duration requirements.
+The \texttt{/calendar/findAvailable} endpoint enables the \textbf{identification of available resources} by allowing users to apply specific criteria such as temporal constraints, resource tags, and duration requirements.
 This capability is particularly advantageous in contexts characterized by high resource contention, as it allows users to optimally identify appropriate time slots and resources.
-In addition, the system offers extensive filtering capabilities, allowing users to concentrate on designated subsets of events and resources.
+
+In addition, the system offers extensive \textbf{filtering capabilities}, allowing users to concentrate on designated subsets of events and resources.
 Users have the ability to filter calendar views based on user identifiers, room specifications, and organizational tags, creating personalized views that improve the salience of pertinent information while mitigating cognitive load.
 The realization of this filtering functionality is facilitated through the integration of front-end interface controls alongside back-end query optimization processes; thus, it should maintain performance efficiency even while handling large datasets.
