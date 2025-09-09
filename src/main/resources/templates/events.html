@@ -11,8 +11,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
 </head>
 <body>
+
+<div class="navigation">
+    <a th:href="@{/calendar/(date=${currentDay},userIds=${userIds},roomIds=${roomIds})}" class="nav-link">Home</a>
+
+    <a th:href="@{/calendar/findAvailable}" class="nav-link">Find available</a>
+
+    <h2>
+        Event management
+    </h2>
+
+    <a th:href="@{/signout}" class="nav-link">Sign out</a>
+
+</div>
+
 <div class="mod-container">
-    <h1>Event Management</h1>
     <button class="add-btn" id="addEventBtn">Add a new event</button>
     <div class="add-form" id="addEventForm">
         <form id="eventForm">
@@ -115,15 +128,23 @@
                 </div>
                 <div class="form-group">
                     <label>Start Date</label>
-                    <input type="date" name="startDate" th:value="${eventMap.event.startTime != null ? #temporals.format(eventMap.event.startTime, 'yyyy-MM-dd') : ''}" required/>
+                    <input type="date" name="startDate"
+                           th:value="${eventMap.event.startTime != null ? #temporals.format(eventMap.event.startTime, 'yyyy-MM-dd') : ''}"
+                           required/>
                     <label>Start Time</label>
-                    <input type="time" name="startTime" th:value="${eventMap.event.startTime != null ? #temporals.format(eventMap.event.startTime, 'HH:mm') : ''}" required/>
+                    <input type="time" name="startTime"
+                           th:value="${eventMap.event.startTime != null ? #temporals.format(eventMap.event.startTime, 'HH:mm') : ''}"
+                           required/>
                 </div>
                 <div class="form-group">
                     <label>End Date</label>
-                    <input type="date" name="endDate" th:value="${eventMap.event.endTime != null ? #temporals.format(eventMap.event.endTime, 'yyyy-MM-dd') : ''}" required/>
+                    <input type="date" name="endDate"
+                           th:value="${eventMap.event.endTime != null ? #temporals.format(eventMap.event.endTime, 'yyyy-MM-dd') : ''}"
+                           required/>
                     <label>End Time</label>
-                    <input type="time" name="endTime" th:value="${eventMap.event.endTime != null ? #temporals.format(eventMap.event.endTime, 'HH:mm') : ''}" required/>
+                    <input type="time" name="endTime"
+                           th:value="${eventMap.event.endTime != null ? #temporals.format(eventMap.event.endTime, 'HH:mm') : ''}"
+                           required/>
                 </div>
                 <div class="form-group">
                     <label>Is Recurring</label>
@@ -135,9 +156,11 @@
                 </div>
                 <div class="form-group">
                     <label>Recurrence End Date</label>
-                    <input type="date" name="recurrenceEndDate" th:value="${eventMap.event.recurrenceEndDate != null ? #temporals.format(eventMap.event.recurrenceEndDate, 'yyyy-MM-dd') : ''}"/>
+                    <input type="date" name="recurrenceEndDate"
+                           th:value="${eventMap.event.recurrenceEndDate != null ? #temporals.format(eventMap.event.recurrenceEndDate, 'yyyy-MM-dd') : ''}"/>
                     <label>Recurrence End Time</label>
-                    <input type="time" name="recurrenceEndTime" th:value="${eventMap.event.recurrenceEndDate != null ? #temporals.format(eventMap.event.recurrenceEndDate, 'HH:mm') : ''}"/>
+                    <input type="time" name="recurrenceEndTime"
+                           th:value="${eventMap.event.recurrenceEndDate != null ? #temporals.format(eventMap.event.recurrenceEndDate, 'HH:mm') : ''}"/>
                 </div>
                 <div class="form-group">
                     <label>Exdate</label>
@@ -171,9 +194,10 @@
                 <p><strong>Exdate:</strong> <span th:text="${eventMap.event.exdate}"></span></p>
                 <p><strong>Rdate:</strong> <span th:text="${eventMap.event.rdate}"></span></p>
                 <p><strong>Tags:</strong> <span th:text="${eventMap.tagsString}"></span></p>
-                <button class="edit-btn" type="button" th:onclick="'toggleEditEventForm(${eventMap.event.id})'">Edit
+                <button class="edit-btn add-btn" type="button" th:onclick="|toggleEditEventForm('${eventMap.event.id}')|">
+                    Edit
                 </button>
-                <button class="delete-btn" th:onclick="'deleteEvent('${eventMap.event.id}')'">&#x2715;</button>
+                <button class="delete-btn" th:onclick="|deleteEvent('${eventMap.event.id}')|">&#x2715;</button>
             </div>
         </div>
     </div>
@@ -186,8 +210,9 @@
     const eventForm = document.getElementById('eventForm');
     // Toggle form visibility
     addEventBtn.addEventListener('click', () => {
+        addEventForm.style.display = addRoomForm.classList.contains('active') ? 'none' : 'block';
+        addEventForm.textContent = addRoomForm.classList.contains('active') ? '×' : 'Add a new room';
         addEventForm.classList.toggle('active');
-        addEventBtn.textContent = addEventForm.classList.contains('active') ? '×' : 'Add a new event';
     });
 
     function getCsrfToken() {
